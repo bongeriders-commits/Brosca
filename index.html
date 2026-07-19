@@ -11,14 +11,81 @@
 <link rel="icon" href="icon-192.png" type="image/png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bogonko ROSCA</title>
-<meta http-equiv="refresh" content="0; url=login.html">
-</head>
-<body>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+<style>
+  :root{
+    --gold-light:#f5c85a;
+    --gold:#e8ab2f;
+    --navy-deep:#0a1a3c;
+    --navy-light:#16386f;
+    --navy:#0e2a5e;
   }
-  window.location.replace('login.html');
-</script>
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    width:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body{
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-light) 100%);
+    height:100vh;
+    width:100vw;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .splash{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    animation:fadeIn .6s ease-out;
+  }
+  .logo-ring{
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    background:var(--gold);
+    border:3px solid var(--gold-light);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    font-weight:800;
+    color:var(--navy-deep);
+    box-shadow:0 8px 28px rgba(0,0,0,.35);
+    animation:pop .5s ease-out, pulse 1.4s ease-in-out infinite .5s;
+  }
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @keyframes pop{
+    0%{transform:scale(.6); opacity:0;}
+    100%{transform:scale(1); opacity:1;}
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1); box-shadow:0 8px 28px rgba(0,0,0,.35);}
+    50%{transform:scale(1.08); box-shadow:0 10px 34px rgba(232,171,47,.4);}
+  }
+</style>
+</head>
+<body onclick="goToLogin()">
+  <div class="splash">
+    <div class="logo-ring">B</div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    function goToLogin(){
+      window.location.href = 'login.html';
+    }
+    setTimeout(goToLogin, 1200);
+  </script>
 </body>
 </html>
