@@ -2,7 +2,7 @@
   "name": "Bogonko ROSCA",
   "short_name": "Bogonko ROSCA",
   "description": "Bogonko-Ngelani Stage Welfare Programme — contributions, cycles, members, and payouts",
-  "start_url": "./index.html",
+  "start_url": "./login.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bogonko-rosca-v1';
+const CACHE_NAME = 'bogonko-rosca-v2';
 const ASSETS = [
   './index.html',
   './login.html',
