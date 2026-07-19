@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Dashboard</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .icon-btn{
+    background:none;
+    border:none;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    padding:4px;
+    position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-dot{
+    position:absolute;
+    top:2px; right:2px;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--gold);
+    border:2px solid var(--navy-deep);
+  }
+  .brand{
+    text-align:center;
+    flex:1;
+  }
+  .brand h1{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:1px;
+  }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{
+    font-size:11.5px;
+    color:rgba(255,255,255,0.7);
+    margin-top:2px;
+    font-weight:500;
+  }
+
+  .cycle-card{
+    margin-top:18px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(232,171,47,0.35);
+    border-radius:16px;
+    padding:16px;
+  }
+  .cycle-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-bottom:12px;
+    margin-bottom:14px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .cycle-date{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14.5px;
+    font-weight:600;
+  }
+  .cycle-date svg{ width:17px; height:17px; color:var(--gold); }
+  .cycle-badge{
+    background:var(--gold);
+    color:var(--navy-deep);
+    font-size:11.5px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    padding:6px 12px;
+    border-radius:20px;
+  }
+
+  .cycle-body{
+    display:flex;
+    gap:14px;
+  }
+  .day-box{
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    width:88px;
+    flex-shrink:0;
+    text-align:center;
+  }
+  .day-box .label-top{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--navy);
+    letter-spacing:1px;
+    padding:8px 0 2px;
+  }
+  .day-box .num{
+    font-size:32px;
+    font-weight:800;
+    color:var(--navy-deep);
+    line-height:1;
+    padding-bottom:6px;
+  }
+  .day-box .of{
+    background:var(--gold);
+    color:var(--navy-deep);
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    padding:5px 0;
+  }
+  .recipient{ flex:1; }
+  .recipient .eyebrow{
+    font-size:11px;
+    font-weight:700;
+    color:var(--gold-light);
+    letter-spacing:1px;
+    margin-bottom:4px;
+  }
+  .recipient-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .recipient-name{
+    font-size:18px;
+    font-weight:800;
+  }
+  .avatar-ring{
+    width:44px; height:44px;
+    border-radius:50%;
+    border:2px solid var(--gold);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .avatar-ring svg{ width:22px; height:22px; color:#fff; }
+
+  .payout-row{
+    margin-top:12px;
+    background:rgba(0,0,0,0.18);
+    border-radius:10px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .payout-row .left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:rgba(255,255,255,0.85);
+  }
+  .payout-row .left svg{ width:15px; height:15px; color:var(--gold); }
+  .payout-row .amount{
+    color:var(--gold-light);
+    font-size:16px;
+  }
+
+  /* ---------- BODY ---------- */
+  main{
+    padding:18px 16px 0;
+    flex:1;
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .stat-card{
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .stat-icon{
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:10px;
+  }
+  .stat-icon svg{ width:20px; height:20px; color:#fff; }
+  .bg-navy{ background:var(--navy); }
+  .bg-green{ background:var(--green); }
+  .bg-red{ background:var(--red); }
+
+  .stat-label{
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--muted);
+    letter-spacing:0.6px;
+  }
+  .stat-value{
+    font-size:22px;
+    font-weight:800;
+    color:var(--navy-deep);
+    margin-top:4px;
+  }
+  .stat-value.green{ color:var(--green); }
+  .stat-value.red{ color:var(--red); }
+  .stat-sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  .progress-bar{
+    width:100%;
+    height:6px;
+    border-radius:4px;
+    background:#e7e9ee;
+    overflow:hidden;
+    margin-top:10px;
+  }
+  .progress-bar .fill{
+    height:100%;
+    border-radius:4px;
+    background:var(--navy);
+  }
+  .progress-bar .fill.green{ background:var(--green); }
+
+  .section-card{
+    background:#fff;
+    border-radius:14px;
+    padding:18px;
+    margin-top:14px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .section-title{
+    font-size:13px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.5px;
+  }
+
+  .progress-flex{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:6px;
+  }
+  .progress-count{
+    font-size:26px;
+    font-weight:800;
+    color:var(--navy-deep);
+  }
+  .progress-count .g{ color:var(--green); }
+  .progress-count .lbl{
+    font-size:14px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .donut{
+    width:70px; height:70px;
+    border-radius:50%;
+    background:conic-gradient(var(--green) 0% 90%, #e7e9ee 90% 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .donut-inner{
+    width:52px; height:52px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:800;
+    color:var(--navy-deep);
+  }
+
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:14px;
+  }
+  .mini-card{
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .mini-title{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:0.3px;
+    margin-bottom:12px;
+  }
+  .mini-title svg{ width:15px; height:15px; }
+  .mini-title.green{ color:var(--green); }
+  .mini-title.red{ color:var(--red); }
+
+  .avatar-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .mini-avatar{
+    width:26px; height:26px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+  }
+  .mini-avatar svg{ width:14px; height:14px; }
+  .mini-avatar.g{ background:var(--green); }
+  .mini-avatar.r{ background:var(--red); }
+  .mini-avatar.more{
+    background:var(--green-light);
+    color:var(--green);
+    font-size:10.5px;
+    font-weight:800;
+  }
+
+  .view-details-btn{
+    width:100%;
+    margin-top:14px;
+    background:#fff;
+    border:1.5px solid var(--navy);
+    color:var(--navy);
+    font-size:11.5px;
+    font-weight:800;
+    letter-spacing:0.6px;
+    padding:9px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+
+  .days-left-card{
+    margin-top:14px;
+    background:var(--navy-deep);
+    border-radius:14px;
+    padding:16px 18px;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+  }
+  .days-left-card .circ{
+    width:38px; height:38px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .days-left-card .circ svg{ width:18px; height:18px; }
+  .days-left-card .text{ flex:1; }
+  .days-left-card .text .lbl{
+    font-size:11px;
+    letter-spacing:0.5px;
+    color:rgba(255,255,255,0.75);
+    font-weight:600;
+  }
+  .days-left-card .text .val{
+    font-size:19px;
+    font-weight:800;
+    color:var(--gold-light);
+    margin-top:2px;
+  }
+  .days-left-card > svg{ width:20px; height:20px; color:rgba(255,255,255,0.6); }
+
+  .activity-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .view-all{
+    font-size:12px;
+    font-weight:800;
+    color:var(--navy);
+    text-decoration:none;
+  }
+  .activity-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 0;
+    border-bottom:1px solid #f0f1f4;
+  }
+  .activity-item:last-child{ border-bottom:none; padding-bottom:2px; }
+  .activity-item:first-of-type{ padding-top:14px; }
+  .status-dot{
+    width:32px; height:32px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    color:#fff;
+  }
+  .status-dot svg{ width:16px; height:16px; }
+  .status-dot.ok{ background:var(--green); }
+  .status-dot.no{ background:var(--red); }
+  .activity-info{ flex:1; }
+  .activity-info .name{
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .activity-info .sub{
+    font-size:12.5px;
+    margin-top:1px;
+  }
+  .activity-info .sub.paid{ color:var(--green); font-weight:600; }
+  .activity-info .sub.notpaid{ color:var(--red); font-weight:600; }
+  .activity-time{
+    font-size:11.5px;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.bottom{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--navy-deep);
+    display:flex;
+    padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-decoration:none;
+    color:rgba(255,255,255,0.55);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    padding-top:4px;
+    position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:"";
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:26px;
+    height:2px;
+    background:var(--gold);
+    border-radius:2px;
+  }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{
+    flex:1;
+    padding:10px 10px;
+    overflow-y:auto;
+  }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px;
+    border-radius:10px;
+    color:rgba(255,255,255,0.85);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{
+    padding:14px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-dot"></span>
+      </button>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-top">
+        <div class="cycle-date">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Sunday, 18 May 2025
+        </div>
+        <span class="cycle-badge">CYCLE 1</span>
+      </div>
+
+      <div class="cycle-body">
+        <div class="day-box">
+          <div class="label-top">DAY</div>
+          <div class="num">12</div>
+          <div class="of">OF 30</div>
+        </div>
+        <div class="recipient">
+          <div class="eyebrow">TODAY'S RECIPIENT</div>
+          <div class="recipient-row">
+            <div class="recipient-name">JOHN MWANGI</div>
+            <div class="avatar-ring">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+          </div>
+          <div class="payout-row">
+            <span class="left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+              PAYOUT AMOUNT
+            </span>
+            <span class="amount">KSh 6,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon bg-navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div class="stat-label">TOTAL MEMBERS</div>
+        <div class="stat-value">30</div>
+        <div class="stat-sub">Active Members</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <div class="stat-label">DAILY CONTRIBUTION</div>
+        <div class="stat-value green">KSh 200</div>
+        <div class="stat-sub">Per Member</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+        </div>
+        <div class="stat-label">TOTAL COLLECTED TODAY</div>
+        <div class="stat-value">KSh 5,400</div>
+        <div class="stat-sub">of KSh 6,000</div>
+        <div class="progress-bar"><div class="fill" style="width:90%"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+        </div>
+        <div class="stat-label">OUTSTANDING</div>
+        <div class="stat-value red">KSh 600</div>
+        <div class="stat-sub">3 Members Pending</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">TODAY'S COLLECTION PROGRESS</div>
+      <div class="progress-flex">
+        <div class="progress-count"><span class="g">27</span> / 30 <span class="lbl">Members Paid</span></div>
+        <div class="donut"><div class="donut-inner">90%</div></div>
+      </div>
+      <div class="progress-bar"><div class="fill green" style="width:90%"></div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="mini-card">
+        <div class="mini-title green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          MEMBERS PAID (27)
+        </div>
+        <div class="avatar-row">
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar more">+22</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div class="mini-title red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+          PENDING (3)
+        </div>
+        <div class="avatar-row">
+          <span class="mini-avatar r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <span class="mini-avatar r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+        </div>
+        <button class="view-details-btn">VIEW DETAILS</button>
+      </div>
+    </div>
+
+    <div class="days-left-card">
+      <div class="circ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <div class="text">
+        <div class="lbl">DAYS REMAINING IN THIS CYCLE</div>
+        <div class="val">18 Days Left</div>
+      </div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </div>
+
+    <div class="section-card" style="margin-bottom:16px;">
+      <div class="activity-header">
+        <div class="section-title">RECENT ACTIVITY</div>
+        <a class="view-all" href="#">VIEW ALL</a>
+      </div>
+
+      <div class="activity-item">
+        <div class="status-dot ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="activity-info">
+          <div class="name">Mary Wanjiku</div>
+          <div class="sub paid">Paid KSh 200</div>
+        </div>
+        <div class="activity-time">10:45 AM</div>
+      </div>
+
+      <div class="activity-item">
+        <div class="status-dot ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="activity-info">
+          <div class="name">Peter Kamau</div>
+          <div class="sub paid">Paid KSh 200</div>
+        </div>
+        <div class="activity-time">10:30 AM</div>
+      </div>
+
+      <div class="activity-item">
+        <div class="status-dot no">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="activity-info">
+          <div class="name">David Ochieng</div>
+          <div class="sub notpaid">Not Paid</div>
+        </div>
+        <div class="activity-time">10:15 AM</div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom">
+    <a href="dashboard.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      DASHBOARD
+    </a>
+    <a href="members.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      MEMBERS
+    </a>
+    <a href="contributions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+      CONTRIBUTIONS
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      PAYOUT
+    </a>
+    <a href="cycle.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      CYCLE
+    </a>
+    <a href="reports.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      REPORTS
+    </a>
+  </nav>
+
+</div>
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>

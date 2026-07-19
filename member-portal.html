@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — My Portal</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:34px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 18px;
+    color:#fff;
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px;
+  }
+  .icon-btn svg{ width:22px; height:22px; }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:19px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11px; color:rgba(255,255,255,0.65); margin-top:2px; font-weight:500; }
+
+  .greet{
+    margin-top:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .greet-avatar{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; flex-shrink:0;
+  }
+  .greet-name{ font-size:16px; font-weight:800; }
+  .greet-sub{ font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:1px; }
+
+  /* ---------- LOCKED-IN BANNER ---------- */
+  .lock-banner{
+    margin:16px 16px 0;
+    border-radius:16px;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    box-shadow:0 4px 16px rgba(10,26,60,0.12);
+  }
+  .lock-banner.received{ background:linear-gradient(135deg,#1e9e50,#167a3d); }
+  .lock-banner.today{ background:linear-gradient(135deg,var(--gold),#d99420); }
+  .lock-banner.upcoming{ background:linear-gradient(135deg,var(--navy),var(--navy-deep)); border:1px solid rgba(232,171,47,0.35); }
+  .lock-icon{
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(255,255,255,0.18);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .lock-icon svg{ width:24px; height:24px; color:#fff; }
+  .lock-text .eyebrow{
+    font-size:10.5px; font-weight:800; letter-spacing:1px;
+    color:rgba(255,255,255,0.85);
+  }
+  .lock-banner.today .eyebrow{ color:rgba(10,26,60,0.7); }
+  .lock-text .main{
+    font-size:15px; font-weight:800; color:#fff; margin-top:2px; line-height:1.35;
+  }
+  .lock-banner.today .main{ color:var(--navy-deep); }
+  .lock-text .sub{
+    font-size:12px; color:rgba(255,255,255,0.85); margin-top:3px; font-weight:600;
+  }
+  .lock-banner.today .sub{ color:rgba(10,26,60,0.75); }
+
+  /* ---------- DATE SELECTOR ---------- */
+  .date-select-wrap{
+    margin:16px 16px 0;
+    background:#fff;
+    border-radius:14px;
+    padding:14px 14px 10px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .date-select-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .date-select-title{
+    font-size:12px; font-weight:800; color:var(--navy-deep); letter-spacing:0.5px;
+  }
+  .date-jump{
+    display:flex; align-items:center; gap:6px;
+    border:1px solid #e2e5ec; border-radius:8px; padding:5px 8px;
+  }
+  .date-jump svg{ width:14px; height:14px; color:var(--navy); }
+  .date-jump input{
+    border:none; font-size:12px; font-weight:700; color:var(--navy-deep);
+    font-family:inherit; background:none;
+  }
+  .date-jump input:focus{ outline:none; }
+  .day-strip{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:6px;
+    scroll-behavior:smooth;
+  }
+  .day-strip::-webkit-scrollbar{ height:4px; }
+  .day-strip::-webkit-scrollbar-thumb{ background:#e2e5ec; border-radius:4px; }
+  .day-chip{
+    flex-shrink:0;
+    width:56px;
+    text-align:center;
+    border-radius:12px;
+    padding:8px 4px;
+    background:var(--cream);
+    cursor:pointer;
+    border:1.5px solid transparent;
+  }
+  .day-chip .dow{ font-size:9.5px; font-weight:700; color:var(--muted); letter-spacing:0.4px; }
+  .day-chip .dnum{ font-size:16px; font-weight:800; color:var(--navy-deep); margin-top:2px; }
+  .day-chip .dlabel{ font-size:8.5px; font-weight:700; color:var(--muted); margin-top:2px; letter-spacing:0.3px; }
+  .day-chip.is-today{ border-color:var(--gold); }
+  .day-chip.is-selected{ background:var(--navy-deep); }
+  .day-chip.is-selected .dow,
+  .day-chip.is-selected .dnum,
+  .day-chip.is-selected .dlabel{ color:#fff; }
+  .day-chip.is-selected .dlabel{ color:var(--gold-light); }
+
+  /* ---------- BODY ---------- */
+  main{ padding:16px 16px 0; flex:1; }
+
+  .selected-date-label{
+    font-size:12px; color:var(--muted); font-weight:700; margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .selected-date-label svg{ width:14px; height:14px; color:var(--navy); }
+  .out-of-cycle-note{
+    background:#fff; border-radius:14px; padding:16px; text-align:center;
+    color:var(--muted); font-size:13px; font-weight:600;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+
+  .recipient-card{
+    background:#fff; border-radius:14px; padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+    display:flex; align-items:center; gap:14px;
+  }
+  .recipient-avatar{
+    width:48px; height:48px; border-radius:50%;
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .recipient-avatar svg{ width:24px; height:24px; }
+  .recipient-info{ flex:1; }
+  .recipient-info .eyebrow{ font-size:10.5px; font-weight:800; color:var(--muted); letter-spacing:0.6px; }
+  .recipient-info .name{ font-size:16px; font-weight:800; color:var(--navy-deep); margin-top:2px; }
+  .recipient-info .amt{ font-size:12.5px; color:var(--gold); font-weight:700; margin-top:2px; }
+  .you-pill{
+    background:var(--gold); color:var(--navy-deep);
+    font-size:10px; font-weight:800; letter-spacing:0.4px;
+    padding:4px 8px; border-radius:20px; white-space:nowrap;
+  }
+
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  .stat-card{
+    background:#fff; border-radius:14px; padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .stat-icon{
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+  }
+  .stat-icon svg{ width:18px; height:18px; color:#fff; }
+  .bg-navy{ background:var(--navy); }
+  .bg-green{ background:var(--green); }
+  .bg-red{ background:var(--red); }
+  .bg-gold{ background:var(--gold); }
+  .stat-label{ font-size:10px; font-weight:700; color:var(--muted); letter-spacing:0.5px; }
+  .stat-value{ font-size:20px; font-weight:800; color:var(--navy-deep); margin-top:4px; }
+  .stat-value.green{ color:var(--green); }
+  .stat-value.red{ color:var(--red); }
+  .stat-sub{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+  .section-card{
+    background:#fff; border-radius:14px; padding:18px; margin-top:12px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .section-title{ font-size:12.5px; font-weight:800; color:var(--navy-deep); letter-spacing:0.5px; }
+
+  .my-contrib-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:12px; padding-top:12px; border-top:1px solid #f0f1f4;
+  }
+  .my-contrib-row:first-of-type{ border-top:none; padding-top:0; margin-top:10px; }
+  .my-contrib-label{ font-size:12.5px; color:var(--muted); font-weight:600; }
+  .my-contrib-val{ font-size:14px; font-weight:800; color:var(--navy-deep); }
+  .badge-paid{ background:var(--green-light); color:var(--green); font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; }
+  .badge-pending{ background:var(--red-light); color:var(--red); font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; }
+  .badge-future{ background:#eef0f5; color:var(--muted); font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; }
+
+  .pending-list{ margin-top:12px; }
+  .pending-item{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0;
+  }
+  .pending-dot{ width:8px; height:8px; border-radius:50%; background:var(--red); flex-shrink:0; }
+  .pending-name{ font-size:13px; font-weight:700; color:var(--ink); }
+  .pending-empty{ font-size:12.5px; color:var(--muted); font-weight:600; }
+
+  .days-left-card{
+    margin-top:12px; margin-bottom:8px;
+    background:var(--navy-deep); border-radius:14px; padding:16px 18px;
+    color:#fff; display:flex; align-items:center; gap:14px;
+  }
+  .days-left-card .circ{
+    width:38px; height:38px; border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.4);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .days-left-card .circ svg{ width:18px; height:18px; }
+  .days-left-card .text{ flex:1; }
+  .days-left-card .text .lbl{ font-size:10.5px; letter-spacing:0.5px; color:rgba(255,255,255,0.75); font-weight:700; }
+  .days-left-card .text .val{ font-size:18px; font-weight:800; color:var(--gold-light); margin-top:2px; }
+
+  .logout-btn{
+    margin:18px 16px 0;
+    width:calc(100% - 32px);
+    background:rgba(214,59,59,0.08);
+    border:1px solid rgba(214,59,59,0.3);
+    color:var(--red);
+    font-weight:800; font-size:13px; letter-spacing:0.3px;
+    padding:12px; border-radius:10px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .logout-btn svg{ width:16px; height:16px; }
+
+  .demo-note{
+    margin:14px 16px 0; font-size:11px; color:var(--muted); text-align:center; line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="header-row">
+      <div style="width:22px;"></div>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Member Portal</p>
+      </div>
+      <button class="icon-btn" aria-label="Logout" onclick="doLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+    <div class="greet">
+      <div class="greet-avatar" id="greetAvatar">--</div>
+      <div>
+        <div class="greet-name" id="greetName">Loading…</div>
+        <div class="greet-sub" id="greetSub">Position — · Bogonko-Ngelani Stage</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOCKED-IN / PAYOUT STATUS BANNER (based on real cycle position, not the date selector) -->
+  <div class="lock-banner" id="lockBanner">
+    <div class="lock-icon" id="lockIcon"></div>
+    <div class="lock-text">
+      <div class="eyebrow" id="lockEyebrow">PAYOUT STATUS</div>
+      <div class="main" id="lockMain">Checking your payout status…</div>
+      <div class="sub" id="lockSub"></div>
+    </div>
+  </div>
+
+  <!-- DATE SELECTOR -->
+  <div class="date-select-wrap">
+    <div class="date-select-top">
+      <div class="date-select-title">BROWSE CYCLE DAYS</div>
+      <div class="date-jump">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <input type="date" id="dateJump" onchange="jumpToDate(this.value)">
+      </div>
+    </div>
+    <div class="day-strip" id="dayStrip"></div>
+  </div>
+
+  <main>
+    <div class="selected-date-label">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span id="selectedDateLabel">—</span>
+    </div>
+
+    <div id="dayContent"></div>
+
+    <div class="days-left-card">
+      <div class="circ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <div class="text">
+        <div class="lbl">DAYS REMAINING IN THIS CYCLE</div>
+        <div class="val" id="daysRemainingVal">— Days Left</div>
+      </div>
+    </div>
+  </main>
+
+  <button class="logout-btn" onclick="doLogout()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+    Log Out
+  </button>
+
+  <div class="demo-note" id="demoNote"></div>
+</div>
+
+<script>
+/* =========================================================================
+   DEMO DATA MODEL
+   This app has no backend yet — everything below is mock data mirroring
+   the numbers used across the admin pages (dashboard.html / cycle.html).
+   When Bonge/Bogonko moves to Firebase, replace this block with real
+   Firestore reads (members, contributions/{date}/{memberId}, cycles/{id})
+   and keep the render functions as-is.
+   ========================================================================= */
+
+  const CYCLE_START   = new Date(2025, 4, 7);   // 07 May 2025 = Day 1
+  const CYCLE_DURATION = 30;                     // days
+  const DAILY_CONTRIBUTION = 200;                // KSh per member per day
+  const MOCK_TODAY_DAY = 12;                     // "today" inside this demo cycle (matches dashboard.html)
+
+  // Same 30-position rotation used by the admin app. First 9 match members.html.
+  const MEMBERS = [
+    {order:1,  name:"John Mwangi",     phone:"0712 345 678"},
+    {order:2,  name:"Mary Wanjiku",    phone:"0721 234 567"},
+    {order:3,  name:"Peter Kamau",     phone:"0733 456 789"},
+    {order:4,  name:"Grace Njeri",     phone:"0708 123 456"},
+    {order:5,  name:"David Ochieng",   phone:"0745 678 901"},
+    {order:6,  name:"Sarah Akinyi",    phone:"0790 234 567"},
+    {order:7,  name:"James Otieno",    phone:"0726 345 678"},
+    {order:8,  name:"Beatrice Moraa",  phone:"0783 456 789"},
+    {order:9,  name:"Samuel Kiptoo",   phone:"0715 678 901"},
+  ];
+  for (let i = 10; i <= CYCLE_DURATION; i++){
+    MEMBERS.push({order:i, name:"Member "+i, phone:"07"+(10+i)+" 000 0"+(100+i)});
+  }
+  const TOTAL_MEMBERS = MEMBERS.length;
+
+  // ---- who is logged in? (set by login.html) ----
+  let currentMember = null;
+  const savedName = localStorage.getItem('bogonkoMemberName');
+  if (savedName){
+    currentMember = MEMBERS.find(m => m.name.toLowerCase() === savedName.toLowerCase()) || null;
+  }
+  if (!currentMember){
+    // No session found — fall back to a demo member so the page is still
+    // browsable, and show a note. Wire this to login.html for real use.
+    currentMember = MEMBERS[1]; // Mary Wanjiku
+    document.getElementById('demoNote').textContent =
+      'Demo mode — no login session found, previewing as ' + currentMember.name + '. Log in for your own view.';
+  }
+
+  function addDays(date, n){ const d = new Date(date); d.setDate(d.getDate()+n); return d; }
+  function dayNumberToDate(n){ return addDays(CYCLE_START, n-1); }
+  function dateToDayNumber(date){
+    const diff = Math.round((stripTime(date) - stripTime(CYCLE_START)) / 86400000);
+    return diff + 1;
+  }
+  function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
+  function fmtDate(d){
+    return d.toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'short', year:'numeric' });
+  }
+  function fmtDateShort(d){
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  function toISODate(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  // Deterministic pseudo-random "did this member pay on this day" check,
+  // so the same day always shows the same numbers.
+  function seededPaid(day, order){
+    // Day 12 is hand-tuned to match the admin dashboard exactly (27/30 paid,
+    // KSh 5,400 collected, David Ochieng / Beatrice Moraa / Samuel Kiptoo pending).
+    if (day === MOCK_TODAY_DAY){
+      return !(order === 5 || order === 8 || order === 9);
+    }
+    let h = (day * 2654435761 + order * 40503) % 100;
+    if (h < 0) h += 100;
+    return h >= 10; // ~90% paid rate
+  }
+
+  function recipientForDay(day){
+    const pos = ((day - 1) % TOTAL_MEMBERS) + 1;
+    return MEMBERS.find(m => m.order === pos);
+  }
+
+  function renderLockBanner(){
+    const el = document.getElementById('lockBanner');
+    const icon = document.getElementById('lockIcon');
+    const eyebrow = document.getElementById('lockEyebrow');
+    const main = document.getElementById('lockMain');
+    const sub = document.getElementById('lockSub');
+    const myDay = currentMember.order;
+    const myDate = dayNumberToDate(myDay);
+    const payoutAmt = fmtKsh(DAILY_CONTRIBUTION * TOTAL_MEMBERS);
+
+    if (myDay < MOCK_TODAY_DAY){
+      el.className = 'lock-banner received';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+      eyebrow.textContent = 'LOCKED IN';
+      main.textContent = 'You already received your payout of ' + payoutAmt + '.';
+      sub.textContent = 'Paid out on ' + fmtDate(myDate) + ' · Day ' + myDay + ' of ' + CYCLE_DURATION;
+    } else if (myDay === MOCK_TODAY_DAY){
+      el.className = 'lock-banner today';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path><circle cx="12" cy="12" r="4"></circle></svg>';
+      eyebrow.textContent = "IT'S YOUR DAY";
+      main.textContent = "You're receiving " + payoutAmt + ' today!';
+      sub.textContent = fmtDate(myDate) + ' · Day ' + myDay + ' of ' + CYCLE_DURATION;
+    } else {
+      el.className = 'lock-banner upcoming';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>';
+      eyebrow.textContent = 'UPCOMING PAYOUT';
+      const daysToGo = myDay - MOCK_TODAY_DAY;
+      main.textContent = "You'll receive " + payoutAmt + ' on ' + fmtDate(myDate) + '.';
+      sub.textContent = 'Day ' + myDay + ' of ' + CYCLE_DURATION + ' · ' + daysToGo + ' day' + (daysToGo===1?'':'s') + ' to go';
+    }
+  }
+
+  let selectedDay = MOCK_TODAY_DAY;
+
+  function buildDayStrip(){
+    const strip = document.getElementById('dayStrip');
+    strip.innerHTML = '';
+    for (let d = 1; d <= CYCLE_DURATION; d++){
+      const date = dayNumberToDate(d);
+      const chip = document.createElement('div');
+      chip.className = 'day-chip' + (d===MOCK_TODAY_DAY?' is-today':'') + (d===selectedDay?' is-selected':'');
+      chip.dataset.day = d;
+      chip.innerHTML =
+        '<div class="dow">' + date.toLocaleDateString('en-GB',{weekday:'short'}).toUpperCase() + '</div>' +
+        '<div class="dnum">' + date.getDate() + '</div>' +
+        '<div class="dlabel">DAY ' + d + '</div>';
+      chip.onclick = () => selectDay(d);
+      strip.appendChild(chip);
+    }
+    document.getElementById('dateJump').min = toISODate(CYCLE_START);
+    document.getElementById('dateJump').max = toISODate(dayNumberToDate(CYCLE_DURATION));
+  }
+
+  function jumpToDate(iso){
+    if (!iso) return;
+    const [y,m,dd] = iso.split('-').map(Number);
+    const day = dateToDayNumber(new Date(y, m-1, dd));
+    if (day < 1 || day > CYCLE_DURATION){
+      selectedDay = day; // will render the "outside cycle" message
+      renderAll();
+      return;
+    }
+    selectDay(day);
+  }
+
+  function selectDay(d){
+    selectedDay = d;
+    document.getElementById('dateJump').value = toISODate(dayNumberToDate(Math.max(1, Math.min(CYCLE_DURATION, d))));
+    renderAll();
+  }
+
+  function renderAll(){
+    // update chip highlight
+    document.querySelectorAll('.day-chip').forEach(c => {
+      c.classList.toggle('is-selected', Number(c.dataset.day) === selectedDay);
+    });
+
+    const dateLabelEl = document.getElementById('selectedDateLabel');
+    const content = document.getElementById('dayContent');
+
+    if (selectedDay < 1 || selectedDay > CYCLE_DURATION){
+      dateLabelEl.textContent = 'Outside current cycle';
+      content.innerHTML = '<div class="out-of-cycle-note">This date falls outside the current 30-day cycle (07 May – 05 Jun 2025). Pick a date within the cycle to see payout details.</div>';
+      return;
+    }
+
+    const date = dayNumberToDate(selectedDay);
+    dateLabelEl.textContent = fmtDate(date) + (selectedDay===MOCK_TODAY_DAY ? ' (Today)' : '');
+
+    const recipient = recipientForDay(selectedDay);
+    const isFuture = selectedDay > MOCK_TODAY_DAY;
+
+    let paidCount = 0, pendingMembers = [];
+    if (!isFuture){
+      MEMBERS.forEach(m => {
+        if (seededPaid(selectedDay, m.order)) paidCount++;
+        else pendingMembers.push(m);
+      });
+    }
+    const collected = paidCount * DAILY_CONTRIBUTION;
+    const expected = TOTAL_MEMBERS * DAILY_CONTRIBUTION;
+    const pendingAmt = expected - collected;
+
+    const iAmPaid = !isFuture && seededPaid(selectedDay, currentMember.order);
+
+    let html = '';
+
+    // 1. Today's recipient
+    html += `
+      <div class="recipient-card">
+        <div class="recipient-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="recipient-info">
+          <div class="eyebrow">${isFuture ? 'SCHEDULED RECIPIENT' : 'RECIPIENT'} · DAY ${selectedDay}</div>
+          <div class="name">${recipient.name}</div>
+          <div class="amt">${fmtKsh(expected)} payout</div>
+        </div>
+        ${recipient.order === currentMember.order ? '<span class="you-pill">THIS IS YOU</span>' : ''}
+      </div>
+    `;
+
+    // 2 & 3. Amount collected + pending (stat grid)
+    html += `<div class="stat-grid">`;
+    if (isFuture){
+      html += `
+        <div class="stat-card">
+          <div class="stat-icon bg-navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg></div>
+          <div class="stat-label">COLLECTED</div>
+          <div class="stat-value">—</div>
+          <div class="stat-sub">Day hasn't started yet</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg></div>
+          <div class="stat-label">PENDING</div>
+          <div class="stat-value">—</div>
+          <div class="stat-sub">Not due yet</div>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="stat-card">
+          <div class="stat-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg></div>
+          <div class="stat-label">COLLECTED</div>
+          <div class="stat-value green">${fmtKsh(collected)}</div>
+          <div class="stat-sub">${paidCount} of ${TOTAL_MEMBERS} paid · of ${fmtKsh(expected)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg></div>
+          <div class="stat-label">PENDING</div>
+          <div class="stat-value red">${fmtKsh(pendingAmt)}</div>
+          <div class="stat-sub">${pendingMembers.length} member${pendingMembers.length===1?'':'s'}</div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+
+    // 4. His daily contribution
+    html += `
+      <div class="section-card">
+        <div class="section-title">YOUR CONTRIBUTION</div>
+        <div class="my-contrib-row">
+          <span class="my-contrib-label">Daily amount</span>
+          <span class="my-contrib-val">${fmtKsh(DAILY_CONTRIBUTION)}</span>
+        </div>
+        <div class="my-contrib-row">
+          <span class="my-contrib-label">Status for ${fmtDateShort(date)}</span>
+          ${isFuture
+            ? '<span class="badge-future">NOT DUE YET</span>'
+            : (iAmPaid ? '<span class="badge-paid">PAID</span>' : '<span class="badge-pending">PENDING</span>')}
+        </div>
+      </div>
+    `;
+
+    // Pending members list (only meaningful for past/today)
+    if (!isFuture){
+      html += `
+        <div class="section-card">
+          <div class="section-title">MEMBERS PENDING · DAY ${selectedDay}</div>
+          <div class="pending-list">
+            ${pendingMembers.length === 0
+              ? '<div class="pending-empty">Everyone has paid for this day. 🎉</div>'
+              : pendingMembers.map(m => `
+                  <div class="pending-item">
+                    <span class="pending-dot"></span>
+                    <span class="pending-name">${m.name}${m.order===currentMember.order ? ' (You)' : ''}</span>
+                  </div>
+                `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    content.innerHTML = html;
+  }
+
+  function renderHeader(){
+    const initials = currentMember.name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('greetAvatar').textContent = initials;
+    document.getElementById('greetName').textContent = currentMember.name;
+    document.getElementById('greetSub').textContent = 'Position #' + currentMember.order + ' · Bogonko-Ngelani Stage';
+    document.getElementById('daysRemainingVal').textContent = Math.max(0, CYCLE_DURATION - MOCK_TODAY_DAY) + ' Days Left';
+  }
+
+  function doLogout(){
+    if (confirm('Log out of Bogonko ROSCA?')){
+      localStorage.removeItem('bogonkoMemberName');
+      localStorage.removeItem('bogonkoRole');
+      window.location.href = 'login.html';
+    }
+  }
+
+  renderHeader();
+  renderLockBanner();
+  buildDayStrip();
+  document.getElementById('dateJump').value = toISODate(dayNumberToDate(MOCK_TODAY_DAY));
+  renderAll();
+
+  // keep the current/selected chip scrolled into view
+  setTimeout(() => {
+    const sel = document.querySelector('.day-chip.is-selected');
+    if (sel) sel.scrollIntoView({ inline:'center', block:'nearest' });
+  }, 50);
+</script>
+</body>
+</html>

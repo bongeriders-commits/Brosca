@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Reports</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+    --blue:#2563c9;
+    --blue-light:#e7f0fd;
+    --orange:#e0641a;
+    --orange-light:#fdece0;
+    --purple:#7a3fd6;
+    --purple-light:#f1e9fc;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px; position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-badge{
+    position:absolute; top:-4px; right:-6px;
+    background:var(--red); color:#fff;
+    font-size:10px; font-weight:800;
+    min-width:17px; height:17px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--navy-deep);
+  }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  main{ padding:18px 16px 0; flex:1; }
+
+  /* ---------- TITLE ROW ---------- */
+  .page-title-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+    flex-wrap:wrap;
+  }
+  .page-icon{
+    width:50px; height:50px; flex-shrink:0;
+    border-radius:50%;
+    background:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .page-icon svg{ width:22px; height:22px; color:#fff; }
+  .page-title{ flex:1; min-width:150px; }
+  .page-title h2{ font-size:16.5px; font-weight:800; color:var(--navy-deep); letter-spacing:0.3px; }
+  .page-title p{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+  .date-dropdown{ position:relative; flex-shrink:0; }
+  .date-btn{
+    display:flex; align-items:center; gap:8px;
+    background:#fff; border:1.5px solid #dde1ea;
+    color:var(--navy-deep); font-size:12.5px; font-weight:700;
+    padding:9px 12px; border-radius:10px; cursor:pointer;
+    white-space:nowrap;
+  }
+  .date-btn svg{ width:15px; height:15px; }
+  .date-btn .chev{ width:12px; height:12px; margin-left:2px; transition:transform .15s; }
+  .date-btn.open .chev{ transform:rotate(180deg); }
+  .dropdown-menu{
+    position:absolute; top:calc(100% + 6px); right:0;
+    background:#fff; border-radius:10px;
+    box-shadow:0 10px 28px rgba(10,26,60,0.18);
+    min-width:190px; z-index:50;
+    display:none; overflow:hidden;
+    border:1px solid #eceef3;
+  }
+  .dropdown-menu.open{ display:block; }
+  .dropdown-menu button{
+    display:block; width:100%; text-align:left;
+    background:none; border:none; padding:11px 14px;
+    font-size:13px; font-weight:600; color:var(--ink);
+    cursor:pointer;
+  }
+  .dropdown-menu button:hover{ background:var(--cream); }
+  .dropdown-menu button.sel{ color:var(--navy); font-weight:800; background:var(--blue-light); }
+
+  /* ---------- STAT MINI GRID ---------- */
+  .stat4-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+    margin-top:12px;
+  }
+  .stat4-card{
+    background:#fff;
+    border-radius:14px;
+    padding:12px 8px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .stat4-card .circ{
+    width:36px; height:36px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 8px;
+  }
+  .stat4-card .circ svg{ width:17px; height:17px; }
+  .stat4-card.green .circ{ background:var(--green-light); }
+  .stat4-card.green .circ svg{ color:var(--green); }
+  .stat4-card.blue .circ{ background:var(--blue-light); }
+  .stat4-card.blue .circ svg{ color:var(--blue); }
+  .stat4-card.orange .circ{ background:var(--orange-light); }
+  .stat4-card.orange .circ svg{ color:var(--orange); }
+  .stat4-card.purple .circ{ background:var(--purple-light); }
+  .stat4-card.purple .circ svg{ color:var(--purple); }
+  .stat4-card .lbl{
+    font-size:9px; font-weight:800; letter-spacing:0.3px;
+  }
+  .stat4-card.green .lbl{ color:var(--green); }
+  .stat4-card.blue .lbl{ color:var(--blue); }
+  .stat4-card.orange .lbl{ color:var(--orange); }
+  .stat4-card.purple .lbl{ color:var(--purple); }
+  .stat4-card .val{ font-size:16px; font-weight:800; margin-top:5px; color:var(--navy-deep); }
+  .stat4-card.green .val{ color:var(--green); }
+  .stat4-card.blue .val{ color:var(--blue); }
+  .stat4-card.orange .val{ color:var(--orange); }
+  .stat4-card.purple .val{ color:var(--purple); font-size:13.5px; }
+  .stat4-card .sub{ font-size:9.5px; color:var(--muted); margin-top:3px; font-weight:600; }
+
+  /* ---------- SECTION CARD ---------- */
+  .section-card{
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    margin-top:14px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .section-title{
+    font-size:12.5px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.5px;
+  }
+
+  /* ---------- REPORT TYPE TABS ---------- */
+  .report-tabs{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+    margin-top:12px;
+  }
+  .rtab{
+    background:#fff;
+    border:1.5px solid #e3e6ee;
+    border-radius:12px;
+    padding:14px 4px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    cursor:pointer;
+  }
+  .rtab svg{ width:19px; height:19px; color:var(--navy-deep); }
+  .rtab span{ font-size:10px; font-weight:700; color:var(--ink); }
+  .rtab.active{ background:var(--navy-deep); border-color:var(--navy-deep); }
+  .rtab.active svg{ color:#fff; }
+  .rtab.active span{ color:#fff; }
+
+  /* ---------- OVERVIEW SUMMARY ---------- */
+  .summary-head{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px;
+  }
+  .mini-select{ position:relative; }
+  .mini-select .date-btn{ font-size:11.5px; padding:8px 10px; }
+  .summary-cols{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-top:16px;
+  }
+  .summary-col-title{
+    font-size:11.5px; font-weight:800; letter-spacing:0.3px; margin-bottom:12px;
+  }
+  .summary-col-title.green{ color:var(--green); }
+  .summary-col-title.purple{ color:var(--purple); }
+  .summary-line{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12.5px; font-weight:700; color:var(--ink);
+    margin-bottom:10px;
+  }
+  .summary-line b{ font-weight:800; color:var(--navy-deep); }
+  .mini-progress{
+    height:8px; border-radius:6px; background:#e7e9ee; overflow:hidden; margin-top:6px;
+  }
+  .mini-progress .fill{
+    height:100%; border-radius:6px;
+    display:flex; align-items:center; justify-content:flex-end;
+    font-size:8px; font-weight:800; color:#fff; padding-right:4px;
+  }
+  .mini-progress .fill.green{ background:var(--green); }
+  .mini-progress .fill.purple{ background:var(--purple); }
+
+  /* ---------- CHART ---------- */
+  .chart-wrap{ margin-top:8px; }
+  .chart-svg{ width:100%; height:auto; display:block; }
+  .chart-days{
+    display:flex; justify-content:space-between;
+    font-size:10px; color:var(--muted); font-weight:600; margin-top:4px;
+    padding:0 4px;
+  }
+
+  /* ---------- GENERIC TABLE (used by other report tabs) ---------- */
+  .rep-table{ width:100%; border-collapse:collapse; margin-top:8px; }
+  .rep-table th{
+    text-align:left; font-size:10px; color:var(--muted); font-weight:800;
+    letter-spacing:0.3px; padding:6px 4px; border-bottom:1px solid #eceef3;
+  }
+  .rep-table td{
+    font-size:12.5px; font-weight:600; color:var(--ink);
+    padding:9px 4px; border-bottom:1px solid #f4f5f7;
+  }
+  .rep-table td.num{ text-align:right; font-weight:800; color:var(--navy-deep); }
+  .rep-table tr:last-child td{ border-bottom:none; }
+  .rep-table td.pos{ color:var(--green); }
+  .rep-table td.neg{ color:var(--red); }
+  .rep-link{
+    display:inline-block; margin-top:12px;
+    font-size:12px; font-weight:800; color:var(--navy);
+    text-decoration:none;
+  }
+
+  /* ---------- REPORT ACTIONS ---------- */
+  .actions-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+  }
+  .action-btn{
+    display:flex; align-items:center; gap:10px;
+    border-radius:12px; padding:12px;
+    border:1.5px solid; cursor:pointer; background:#fff;
+    text-align:left;
+  }
+  .action-btn .a-icon{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .action-btn .a-icon svg{ width:16px; height:16px; }
+  .action-btn .a-text b{ display:block; font-size:12px; font-weight:800; }
+  .action-btn .a-text small{ font-size:10.5px; color:var(--muted); font-weight:600; }
+  .action-btn.export{ border-color:#bfe6cd; }
+  .action-btn.export .a-icon{ background:var(--green-light); }
+  .action-btn.export .a-icon svg{ color:var(--green); }
+  .action-btn.export b{ color:var(--green); }
+  .action-btn.print{ border-color:#c7d6f2; }
+  .action-btn.print .a-icon{ background:var(--blue-light); }
+  .action-btn.print .a-icon svg{ color:var(--blue); }
+  .action-btn.print b{ color:var(--blue); }
+  .action-btn.email{ border-color:#f5cfa8; }
+  .action-btn.email .a-icon{ background:var(--orange-light); }
+  .action-btn.email .a-icon svg{ color:var(--orange); }
+  .action-btn.email b{ color:var(--orange); }
+  .action-btn.share{ border-color:#d9c6f2; }
+  .action-btn.share .a-icon{ background:var(--purple-light); }
+  .action-btn.share .a-icon svg{ color:var(--purple); }
+  .action-btn.share b{ color:var(--purple); }
+
+  .info-note{
+    display:flex; align-items:center; gap:10px;
+    background:var(--blue-light);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-top:14px;
+    font-size:12px; color:#2a4d84; font-weight:600;
+    margin-bottom:16px;
+  }
+  .info-note svg{ width:17px; height:17px; color:var(--blue); flex-shrink:0; }
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed; top:20px; left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:var(--navy-deep); color:#fff;
+    padding:12px 22px; border-radius:10px;
+    font-size:13px; font-weight:700;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    z-index:300; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    max-width:88%;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.bottom{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--navy-deep);
+    display:flex;
+    padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-decoration:none;
+    color:rgba(255,255,255,0.55);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    padding-top:4px;
+    position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:"";
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:26px;
+    height:2px;
+    background:var(--gold);
+    border-radius:2px;
+  }
+
+  @media print{
+    header, nav.bottom, .date-dropdown, .report-tabs, .actions-grid, .info-note{ display:none !important; }
+    body, .app{ background:#fff; padding-bottom:0; }
+  }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{
+    flex:1;
+    padding:10px 10px;
+    overflow-y:auto;
+  }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px;
+    border-radius:10px;
+    color:rgba(255,255,255,0.85);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{
+    padding:14px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+<header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications" onclick="showToast('No new notifications');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-badge">3</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="page-title-row">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      </div>
+      <div class="page-title">
+        <h2>Reports</h2>
+        <p>View detailed statistics and insights</p>
+      </div>
+
+      <div class="date-dropdown">
+        <button class="date-btn" id="dateBtn" onclick="toggleDropdown('dateMenu', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span id="dateLabel">18 May 2025</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="dropdown-menu" id="dateMenu">
+          <button class="sel" onclick="selectDate(this, '18 May 2025')">18 May 2025 (Today)</button>
+          <button onclick="selectDate(this, '17 May 2025')">17 May 2025 (Yesterday)</button>
+          <button onclick="selectDate(this, '12 – 18 May 2025')">This Week</button>
+          <button onclick="selectDate(this, '07 May – 05 Jun 2025')">This Cycle</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat4-grid">
+      <div class="stat4-card green">
+        <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="lbl">TOTAL MEMBERS</div>
+        <div class="val">30</div>
+        <div class="sub">Active Members</div>
+      </div>
+      <div class="stat4-card blue">
+        <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg></div>
+        <div class="lbl">COLLECTED TODAY</div>
+        <div class="val">KSh 5,400</div>
+        <div class="sub">90% of target</div>
+      </div>
+      <div class="stat4-card orange">
+        <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg></div>
+        <div class="lbl">PENDING AMOUNT</div>
+        <div class="val">KSh 600</div>
+        <div class="sub">3 Members</div>
+      </div>
+      <div class="stat4-card purple">
+        <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
+        <div class="lbl">ACTIVE CYCLE</div>
+        <div class="val">Day 12 of 30</div>
+        <div class="sub">Cycle #1 - 2025</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">SELECT REPORT TYPE</div>
+      <div class="report-tabs">
+        <div class="rtab active" id="tab-overview" onclick="setReportType('overview')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2v10l7 4"></path></svg>
+          <span>Overview</span>
+        </div>
+        <div class="rtab" id="tab-collections" onclick="setReportType('collections')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+          <span>Collections</span>
+        </div>
+        <div class="rtab" id="tab-payouts" onclick="setReportType('payouts')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+          <span>Payouts</span>
+        </div>
+        <div class="rtab" id="tab-members" onclick="setReportType('members')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Members</span>
+        </div>
+        <div class="rtab" id="tab-cycles" onclick="setReportType('cycles')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span>Cycles</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ OVERVIEW PANEL ============ -->
+    <div class="report-panel" id="panel-overview">
+      <div class="section-card">
+        <div class="summary-head">
+          <div class="section-title">OVERVIEW SUMMARY</div>
+          <div class="mini-select">
+            <button class="date-btn" id="rangeBtn" onclick="toggleDropdown('rangeMenu', this)">
+              <span id="rangeLabel">This Cycle (1 – 30 Days)</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="dropdown-menu" id="rangeMenu" style="left:auto; right:0;">
+              <button class="sel" onclick="selectRange(this, 'This Cycle (1 – 30 Days)')">This Cycle (1 – 30 Days)</button>
+              <button onclick="selectRange(this, 'Previous Cycle')">Previous Cycle</button>
+              <button onclick="selectRange(this, 'All Time')">All Time</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-cols">
+          <div>
+            <div class="summary-col-title green">COLLECTION SUMMARY</div>
+            <div class="summary-line"><span>Expected Amount</span><b>KSh 6,000</b></div>
+            <div class="summary-line"><span>Collected Amount</span><b>KSh 5,400</b></div>
+            <div class="summary-line"><span>Collection Rate</span><b>90%</b></div>
+            <div class="mini-progress"><div class="fill green" style="width:90%">90%</div></div>
+          </div>
+          <div>
+            <div class="summary-col-title purple">PAYOUT SUMMARY</div>
+            <div class="summary-line"><span>Total Payouts</span><b>KSh 6,000</b></div>
+            <div class="summary-line"><span>Payouts Made</span><b>KSh 4,000</b></div>
+            <div class="summary-line"><span>Remaining Payouts</span><b>KSh 2,000</b></div>
+            <div class="mini-progress"><div class="fill purple" style="width:67%">67%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-title">COLLECTION TREND <span style="font-weight:600; color:var(--muted); font-size:11px;">(Last 7 Days)</span></div>
+        <div class="chart-wrap">
+          <svg class="chart-svg" id="trendSvg" viewBox="0 0 380 190" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="chart-days" id="trendDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ COLLECTIONS PANEL ============ -->
+    <div class="report-panel" id="panel-collections" style="display:none;">
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-title">DAILY COLLECTIONS (LAST 7 DAYS)</div>
+        <table class="rep-table">
+          <thead><tr><th>Date</th><th>Paid</th><th style="text-align:right;">Collected</th></tr></thead>
+          <tbody>
+            <tr><td>12 May</td><td>10 / 30</td><td class="num">KSh 2,000</td></tr>
+            <tr><td>13 May</td><td>16 / 30</td><td class="num">KSh 3,200</td></tr>
+            <tr><td>14 May</td><td>19 / 30</td><td class="num">KSh 3,800</td></tr>
+            <tr><td>15 May</td><td>21 / 30</td><td class="num">KSh 4,200</td></tr>
+            <tr><td>16 May</td><td>23 / 30</td><td class="num">KSh 4,600</td></tr>
+            <tr><td>17 May</td><td>25 / 30</td><td class="num">KSh 5,000</td></tr>
+            <tr><td>18 May</td><td>27 / 30</td><td class="num">KSh 5,400</td></tr>
+          </tbody>
+        </table>
+        <a class="rep-link" href="contributions.html">View full contributions →</a>
+      </div>
+    </div>
+
+    <!-- ============ PAYOUTS PANEL ============ -->
+    <div class="report-panel" id="panel-payouts" style="display:none;">
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-title">PAYOUT HISTORY</div>
+        <table class="rep-table">
+          <thead><tr><th>Recipient</th><th>Position</th><th style="text-align:right;">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>John Mwangi</td><td>#1</td><td class="num pos">KSh 6,000</td></tr>
+            <tr><td>Grace Njeri</td><td>#2</td><td class="num pos">KSh 6,000</td></tr>
+            <tr><td>Peter Kamau</td><td>#3</td><td class="num pos">KSh 6,000</td></tr>
+            <tr><td>Sarah Akinyi</td><td>#4</td><td class="num pos">KSh 6,000</td></tr>
+            <tr><td>Mary Wanjiku</td><td>#13</td><td class="num">Scheduled — Day 13</td></tr>
+          </tbody>
+        </table>
+        <a class="rep-link" href="payout.html">View full payout schedule →</a>
+      </div>
+    </div>
+
+    <!-- ============ MEMBERS PANEL ============ -->
+    <div class="report-panel" id="panel-members" style="display:none;">
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-title">MEMBER STANDING</div>
+        <table class="rep-table">
+          <thead><tr><th>Member</th><th style="text-align:right;">Payments Made</th><th style="text-align:right;">Status</th></tr></thead>
+          <tbody>
+            <tr><td>Mary Wanjiku</td><td class="num">12 / 12</td><td class="num pos">Current</td></tr>
+            <tr><td>John Mwangi</td><td class="num">12 / 12</td><td class="num pos">Current</td></tr>
+            <tr><td>David Ochieng</td><td class="num">9 / 12</td><td class="num neg">Behind</td></tr>
+            <tr><td>Sarah Akinyi</td><td class="num">9 / 12</td><td class="num neg">Behind</td></tr>
+          </tbody>
+        </table>
+        <a class="rep-link" href="members.html">View all members →</a>
+      </div>
+    </div>
+
+    <!-- ============ CYCLES PANEL ============ -->
+    <div class="report-panel" id="panel-cycles" style="display:none;">
+      <div class="section-card" style="margin-bottom:16px;">
+        <div class="section-title">CYCLE HISTORY</div>
+        <table class="rep-table">
+          <thead><tr><th>Cycle</th><th>Duration</th><th style="text-align:right;">Status</th></tr></thead>
+          <tbody>
+            <tr><td>Cycle #1 – 2025</td><td>Day 12 of 30</td><td class="num pos">Active</td></tr>
+          </tbody>
+        </table>
+        <a class="rep-link" href="cycle.html">Manage current cycle →</a>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">REPORT ACTIONS</div>
+      <div class="actions-grid">
+        <button class="action-btn export" onclick="exportReport()">
+          <div class="a-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+          <div class="a-text"><b>Export Report</b><small>Excel / PDF</small></div>
+        </button>
+        <button class="action-btn print" onclick="printReport()">
+          <div class="a-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg></div>
+          <div class="a-text"><b>Print Report</b><small>Print summary</small></div>
+        </button>
+        <button class="action-btn email" onclick="emailReport()">
+          <div class="a-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><polyline points="22 6 12 13 2 6"></polyline></svg></div>
+          <div class="a-text"><b>Email Report</b><small>Send via email</small></div>
+        </button>
+        <button class="action-btn share" onclick="shareReport()">
+          <div class="a-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>
+          <div class="a-text"><b>Share Report</b><small>Share report</small></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      Reports are updated in real-time based on member activities.
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom">
+    <a href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      Dashboard
+    </a>
+    <a href="contributions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+      Contributions
+    </a>
+    <a href="cycle.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Cycle
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      Payout
+    </a>
+    <a href="reports.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      Reports
+    </a>
+  </nav>
+
+</div>
+
+<script>
+  /* ================= Collection trend chart (data-driven SVG) ================= */
+  const trendData = [
+    { day: '12 May', value: 2000 },
+    { day: '13 May', value: 3200 },
+    { day: '14 May', value: 3800 },
+    { day: '15 May', value: 4200 },
+    { day: '16 May', value: 4600 },
+    { day: '17 May', value: 5000 },
+    { day: '18 May', value: 5400 }
+  ];
+
+  function drawTrendChart(){
+    const svg = document.getElementById('trendSvg');
+    const daysRow = document.getElementById('trendDays');
+    const W = 380, H = 190;
+    const padL = 34, padR = 10, padT = 18, padB = 6;
+    const maxVal = 6000;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+
+    const xFor = i => padL + (i / (trendData.length - 1)) * plotW;
+    const yFor = v => padT + plotH - (v / maxVal) * plotH;
+
+    let svgHtml = '';
+
+    // gridlines + y labels (0 to 6K in 1K steps)
+    for (let g = 0; g <= 6; g++){
+      const val = g * 1000;
+      const y = yFor(val);
+      svgHtml += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e7e9ee" stroke-width="1"/>`;
+      const label = val === 0 ? '0' : (val/1000) + 'K';
+      svgHtml += `<text x="${padL - 8}" y="${y + 3}" font-size="9" fill="#7c8aa8" text-anchor="end" font-family="Segoe UI, sans-serif">${label}</text>`;
+    }
+
+    // line path
+    const points = trendData.map((d,i) => `${xFor(i)},${yFor(d.value)}`).join(' ');
+    svgHtml += `<polyline points="${points}" fill="none" stroke="#1e9e50" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+    // dots + value labels
+    trendData.forEach((d,i) => {
+      const x = xFor(i), y = yFor(d.value);
+      svgHtml += `<circle cx="${x}" cy="${y}" r="4" fill="#1e9e50" stroke="#fff" stroke-width="1.5"/>`;
+      svgHtml += `<text x="${x}" y="${y - 10}" font-size="10" font-weight="700" fill="#0a1a3c" text-anchor="middle" font-family="Segoe UI, sans-serif">${d.value.toLocaleString()}</text>`;
+    });
+
+    svg.innerHTML = svgHtml;
+    daysRow.innerHTML = trendData.map(d => `<span>${d.day}</span>`).join('');
+  }
+  drawTrendChart();
+
+  /* ================= Dropdowns ================= */
+  function toggleDropdown(id, btn){
+    document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== id) m.classList.remove('open'); });
+    document.querySelectorAll('.date-btn').forEach(b => { if(b !== btn) b.classList.remove('open'); });
+    document.getElementById(id).classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.date-dropdown') && !e.target.closest('.mini-select')){
+      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('open'));
+    }
+  });
+  function selectDate(el, label){
+    document.querySelectorAll('#dateMenu button').forEach(b => b.classList.remove('sel'));
+    el.classList.add('sel');
+    document.getElementById('dateLabel').textContent = label;
+    document.getElementById('dateMenu').classList.remove('open');
+    document.getElementById('dateBtn').classList.remove('open');
+    showToast('Showing report data for ' + label);
+  }
+  function selectRange(el, label){
+    document.querySelectorAll('#rangeMenu button').forEach(b => b.classList.remove('sel'));
+    el.classList.add('sel');
+    document.getElementById('rangeLabel').textContent = label;
+    document.getElementById('rangeMenu').classList.remove('open');
+    document.getElementById('rangeBtn').classList.remove('open');
+    showToast('Overview updated: ' + label);
+  }
+
+  /* ================= Report type tabs ================= */
+  const reportTypes = ['overview','collections','payouts','members','cycles'];
+  function setReportType(type){
+    reportTypes.forEach(t => {
+      document.getElementById('tab-' + t).classList.toggle('active', t === type);
+      document.getElementById('panel-' + t).style.display = (t === type) ? 'block' : 'none';
+    });
+  }
+
+  /* ================= Report actions ================= */
+  function currentReportText(){
+    return "BOGONKO ROSCA — Report Summary\n" +
+      "Cycle #1 - 2025 (Day 12 of 30)\n\n" +
+      "Total Members: 30\n" +
+      "Collected Today: KSh 5,400 (90% of target)\n" +
+      "Pending Amount: KSh 600 (3 Members)\n\n" +
+      "Collection Summary:\n" +
+      "  Expected Amount: KSh 6,000\n" +
+      "  Collected Amount: KSh 5,400\n" +
+      "  Collection Rate: 90%\n\n" +
+      "Payout Summary:\n" +
+      "  Total Payouts: KSh 6,000\n" +
+      "  Payouts Made: KSh 4,000\n" +
+      "  Remaining Payouts: KSh 2,000";
+  }
+
+  function exportReport(){
+    let csv = "Metric,Value\n";
+    csv += "Cycle,Cycle #1 - 2025 (Day 12 of 30)\n";
+    csv += "Total Members,30\n";
+    csv += "Collected Today,KSh 5400\n";
+    csv += "Pending Amount,KSh 600\n";
+    csv += "Expected Amount,KSh 6000\n";
+    csv += "Collected Amount,KSh 5400\n";
+    csv += "Collection Rate,90%\n";
+    csv += "Total Payouts,KSh 6000\n";
+    csv += "Payouts Made,KSh 4000\n";
+    csv += "Remaining Payouts,KSh 2000\n\n";
+    csv += "Date,Members Paid,Collected\n";
+    const paidCounts = [10,16,19,21,23,25,27];
+    trendData.forEach((d,i) => { csv += `${d.day},${paidCounts[i]} / 30,KSh ${d.value}\n`; });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bogonko-rosca-report.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Report exported as CSV');
+  }
+
+  function printReport(){
+    showToast('Preparing print view…');
+    setTimeout(() => window.print(), 300);
+  }
+
+  function emailReport(){
+    const subject = encodeURIComponent('Bogonko ROSCA — Cycle #1 Report (Day 12 of 30)');
+    const body = encodeURIComponent(currentReportText());
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    showToast('Opening email client…');
+  }
+
+  function shareReport(){
+    const text = currentReportText();
+    if (navigator.share){
+      navigator.share({ title: 'Bogonko ROSCA Report', text: text }).catch(() => {});
+    } else if (navigator.clipboard){
+      navigator.clipboard.writeText(text).then(() => showToast('Report copied to clipboard'));
+    } else {
+      showToast('Sharing not supported on this device');
+    }
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+</script>
+
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>

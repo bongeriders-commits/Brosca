@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Settings</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+    --blue:#2563c9;
+    --blue-light:#e7f0fd;
+    --orange:#e0641a;
+    --orange-light:#fdece0;
+    --purple:#7a3fd6;
+    --purple-light:#f1e9fc;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px; position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-dot{
+    position:absolute; top:2px; right:2px;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--gold); border:2px solid var(--navy-deep);
+  }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  .settings-hero{
+    margin-top:18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .settings-hero .icon-circle{
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(255,255,255,0.1);
+    border:1.5px solid rgba(232,171,47,0.5);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .settings-hero .icon-circle svg{ width:26px; height:26px; color:var(--gold); }
+  .settings-hero h2{ font-size:20px; font-weight:800; letter-spacing:0.3px; }
+  .settings-hero p{ font-size:12.5px; color:rgba(255,255,255,0.65); margin-top:2px; }
+
+  /* ---------- BODY ---------- */
+  main{ padding:18px 16px 0; flex:1; }
+
+  .section-label{
+    font-size:12px;
+    font-weight:800;
+    color:var(--muted);
+    letter-spacing:0.7px;
+    margin:22px 4px 8px;
+  }
+  .section-label:first-child{ margin-top:0; }
+
+  .settings-card{
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+    overflow:hidden;
+  }
+  .settings-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 16px;
+    border-bottom:1px solid #f0f1f4;
+    cursor:pointer;
+    background:none;
+    border-left:none; border-right:none; border-top:none;
+    width:100%;
+    text-align:left;
+    font-family:inherit;
+  }
+  .settings-row:last-child{ border-bottom:none; }
+  .settings-row:active{ background:#f7f8fa; }
+  .row-icon{
+    width:38px; height:38px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .row-icon svg{ width:19px; height:19px; }
+  .row-icon.navy{ background:var(--navy); } .row-icon.navy svg{ color:#fff; }
+  .row-icon.gold{ background:#fbead0; } .row-icon.gold svg{ color:var(--gold); }
+  .row-icon.green{ background:var(--green-light); } .row-icon.green svg{ color:var(--green); }
+  .row-icon.blue{ background:var(--blue-light); } .row-icon.blue svg{ color:var(--blue); }
+  .row-icon.purple{ background:var(--purple-light); } .row-icon.purple svg{ color:var(--purple); }
+  .row-icon.orange{ background:var(--orange-light); } .row-icon.orange svg{ color:var(--orange); }
+  .row-icon.red{ background:var(--red-light); } .row-icon.red svg{ color:var(--red); }
+
+  .row-text{ flex:1; min-width:0; }
+  .row-text .title{ font-size:14.5px; font-weight:700; color:var(--ink); }
+  .row-text .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .row-value{ font-size:13px; font-weight:700; color:var(--navy); white-space:nowrap; }
+  .row-chevron{ width:18px; height:18px; color:#c3c9d6; flex-shrink:0; }
+
+  .app-version{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    margin:22px 0 8px;
+  }
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.bottom{
+    position:fixed; bottom:0; left:0; right:0;
+    max-width:520px; margin:0 auto;
+    background:var(--navy-deep);
+    display:flex; padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    text-decoration:none; color:rgba(255,255,255,0.55);
+    font-size:10px; font-weight:700; letter-spacing:0.3px;
+    padding-top:4px; position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:""; position:absolute; top:-10px; left:50%;
+    transform:translateX(-50%); width:26px; height:2px;
+    background:var(--gold); border-radius:2px;
+  }
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed;
+    left:50%; bottom:96px;
+    transform:translate(-50%, 12px);
+    background:var(--navy-deep);
+    color:#fff;
+    padding:12px 18px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 8px 20px rgba(10,26,60,0.3);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:300;
+    max-width:82%;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{ flex:1; padding:10px 10px; overflow-y:auto; }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px; border-radius:10px;
+    color:rgba(255,255,255,0.85); text-decoration:none;
+    font-size:14px; font-weight:600; margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{ padding:14px; border-top:1px solid rgba(255,255,255,0.12); }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800; font-size:13px; letter-spacing:0.3px;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications" onclick="showToast('No new notifications');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-dot"></span>
+      </button>
+    </div>
+
+    <div class="settings-hero">
+      <div class="icon-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+      <div>
+        <h2>Settings</h2>
+        <p>Manage your stage, cycle &amp; account</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="section-label">ACCOUNT</div>
+    <div class="settings-card">
+      <button class="settings-row" onclick="showToast('Opening profile information…');">
+        <div class="row-icon navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Profile Information</div>
+          <div class="sub">Your name, phone number and role in the stage</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Opening change PIN…');">
+        <div class="row-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Change PIN</div>
+          <div class="sub">Update the PIN you use to sign in</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Opening SMS alert preferences…');">
+        <div class="row-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">SMS &amp; Call Alerts</div>
+          <div class="sub">Choose when the stage should text or call you</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Language switched to English');">
+        <div class="row-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Language</div>
+          <div class="sub">App display language</div>
+        </div>
+        <span class="row-value">English</span>
+      </button>
+    </div>
+
+    <div class="section-label">CYCLE &amp; CONTRIBUTIONS</div>
+    <div class="settings-card">
+      <button class="settings-row" onclick="showToast('Opening cycle order &amp; duration…');">
+        <div class="row-icon navy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Cycle Order &amp; Duration</div>
+          <div class="sub">30-day cycle · payout order for 30 members</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Opening daily contribution amount…');">
+        <div class="row-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Daily Contribution</div>
+          <div class="sub">Amount every member pays each day</div>
+        </div>
+        <span class="row-value">KSh 200</span>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Opening due date &amp; reminder settings…');">
+        <div class="row-icon orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Due Date &amp; Reminders</div>
+          <div class="sub">When unpaid members get a reminder nudge</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+
+    <div class="section-label">STAGE &amp; DATA</div>
+    <div class="settings-card">
+      <button class="settings-row" onclick="showToast('Backing up stage records…');">
+        <div class="row-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Backup Stage Records</div>
+          <div class="sub">Save members, cycles and payment history</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Opening rider &amp; stage data manager…');">
+        <div class="row-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">Rider &amp; Stage Data</div>
+          <div class="sub">Manage or clear stored boda boda rider records</div>
+        </div>
+        <svg class="row-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button class="settings-row" onclick="showToast('Bogonko-Ngelani Stage · Est. welfare group');">
+        <div class="row-icon gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
+        <div class="row-text">
+          <div class="title">About Bogonko Rosca</div>
+          <div class="sub">Bogonko-Ngelani Stage welfare group</div>
+        </div>
+        <span class="row-value">v1.0.0</span>
+      </button>
+    </div>
+
+    <div class="app-version">Bogonko ROSCA · v1.0.0</div>
+
+  </main>
+
+  <nav class="bottom">
+    <a href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      DASHBOARD
+    </a>
+    <a href="members.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      MEMBERS
+    </a>
+    <a href="contributions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+      CONTRIBUTIONS
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      PAYOUT
+    </a>
+    <a href="cycle.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      CYCLE
+    </a>
+    <a href="reports.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      REPORTS
+    </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+</script>
+
+</body>
+</html>

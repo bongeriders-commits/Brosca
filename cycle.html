@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Cycle Management</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+    --amber-light:#fdf3e0;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px; position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-badge{
+    position:absolute; top:-4px; right:-6px;
+    background:var(--red); color:#fff;
+    font-size:10px; font-weight:800;
+    min-width:17px; height:17px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--navy-deep);
+  }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  /* ---------- MAIN ---------- */
+  main{ padding:18px 16px 0; flex:1; }
+
+  .page-title-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:#fff;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .page-icon{
+    width:52px; height:52px; flex-shrink:0;
+    border-radius:50%;
+    background:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .page-icon svg{ width:24px; height:24px; color:#fff; }
+  .page-title{ flex:1; }
+  .page-title h2{
+    font-size:16.5px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.3px;
+  }
+  .page-title p{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .history-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#fff;
+    border:1.5px solid #dde1ea;
+    color:var(--navy-deep);
+    font-size:12px;
+    font-weight:700;
+    padding:9px 13px;
+    border-radius:10px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .history-btn svg{ width:15px; height:15px; }
+
+  /* ---------- CURRENT CYCLE PANEL ---------- */
+  .cycle-panel{
+    margin-top:14px;
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    border-radius:16px;
+    padding:18px;
+    color:#fff;
+  }
+  .cycle-panel-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .tag-pill{
+    background:rgba(255,255,255,0.12);
+    color:#fff;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:0.6px;
+    padding:6px 11px;
+    border-radius:20px;
+  }
+  .status-pill{
+    background:var(--green);
+    color:#fff;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:0.6px;
+    padding:6px 12px;
+    border-radius:20px;
+  }
+  .status-pill.done{ background:var(--gold); color:var(--navy-deep); }
+
+  .cycle-heading-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    margin-top:16px;
+  }
+  .cycle-heading h3{ font-size:20px; font-weight:800; }
+  .cycle-heading .started{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color:rgba(255,255,255,0.7);
+    margin-top:5px;
+    font-weight:600;
+  }
+  .cycle-heading .started svg{ width:14px; height:14px; color:var(--gold); }
+  .day-count{ text-align:right; white-space:nowrap; }
+  .day-count .lbl{
+    font-size:11px;
+    color:rgba(255,255,255,0.65);
+    font-weight:700;
+    letter-spacing:0.5px;
+  }
+  .day-count .num{ font-size:15px; font-weight:600; }
+  .day-count .num b{ font-size:26px; color:var(--gold-light); font-weight:800; }
+
+  .cycle-progress{
+    margin-top:14px;
+    height:11px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.15);
+    overflow:hidden;
+    position:relative;
+  }
+  .cycle-progress .fill{
+    height:100%;
+    background:var(--green);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    transition:width .3s;
+  }
+  .cycle-progress-label{
+    text-align:center;
+    font-size:11px;
+    font-weight:800;
+    color:#fff;
+    margin-top:-16px;
+    position:relative;
+    z-index:2;
+  }
+
+  .cycle-stats{
+    display:flex;
+    margin-top:20px;
+  }
+  .c-stat{
+    flex:1;
+    text-align:center;
+  }
+  .c-stat .circ{
+    width:52px; height:52px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 8px;
+  }
+  .c-stat .circ svg{ width:24px; height:24px; color:#fff; }
+  .c-stat.green .circ{ background:var(--green); }
+  .c-stat.gold .circ{ background:var(--gold); }
+  .c-stat.red .circ{ background:var(--red); }
+  .c-stat .val{ font-size:17px; font-weight:800; }
+  .c-stat .val.green{ color:#7be3a4; }
+  .c-stat .val.gold{ color:var(--gold-light); }
+  .c-stat .val.red{ color:#ff8f8f; }
+  .c-stat .lbl{ font-size:10.5px; color:rgba(255,255,255,0.7); font-weight:600; margin-top:2px; }
+
+  /* ---------- INFO LIST ---------- */
+  .section-card{
+    background:#fff;
+    border-radius:14px;
+    padding:18px;
+    margin-top:14px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .section-title{
+    font-size:13px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.5px;
+    margin-bottom:6px;
+  }
+  .info-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid #f0f1f4;
+  }
+  .info-row:last-child{ border-bottom:none; padding-bottom:2px; }
+  .info-row:first-of-type{ padding-top:8px; }
+  .info-icon{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .info-icon svg{ width:16px; height:16px; color:#fff; }
+  .info-label{ flex:1; font-size:13.5px; color:var(--ink); font-weight:600; }
+  .info-value{ font-size:14px; font-weight:800; color:var(--navy-deep); }
+
+  /* ---------- START NEW CYCLE ---------- */
+  .start-box{
+    margin-top:14px;
+    background:var(--green-light);
+    border:1px solid #bfe6cd;
+    border-radius:14px;
+    padding:18px;
+  }
+  .start-box .section-title{ color:var(--green); }
+  .start-box p.desc{
+    font-size:12.5px;
+    color:#3f6b52;
+    margin:6px 0 14px;
+    line-height:1.5;
+    padding-bottom:12px;
+    border-bottom:1px solid #cfe9d8;
+  }
+  .start-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:var(--navy-deep);
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:0.3px;
+    padding:14px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+  }
+  .start-btn svg{ width:18px; height:18px; }
+  .start-btn:disabled{
+    background:#b9c0d0;
+    color:#eef0f5;
+    cursor:not-allowed;
+  }
+  .start-note{
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+    font-size:11px;
+    color:#5c7a68;
+    margin-top:10px;
+    font-weight:600;
+  }
+  .start-note svg{ width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  /* ---------- UPCOMING PAYOUT ---------- */
+  .payout-card-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding-top:10px;
+  }
+  .payout-avatar{
+    width:52px; height:52px;
+    border-radius:50%;
+    background:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .payout-avatar svg{ width:26px; height:26px; color:var(--navy); }
+  .payout-info{ flex:1; }
+  .payout-info .eyebrow{ font-size:10.5px; color:var(--muted); font-weight:700; letter-spacing:0.4px; }
+  .payout-info .name{ font-size:15.5px; font-weight:800; color:var(--navy-deep); margin-top:2px; }
+  .payout-info .phone{
+    display:flex; align-items:center; gap:6px;
+    font-size:12px; color:var(--muted); margin-top:3px; font-weight:600;
+  }
+  .payout-info .phone svg{ width:12.5px; height:12.5px; }
+  .payout-meta{ text-align:right; flex-shrink:0; }
+  .pos-pill{
+    background:var(--amber-light);
+    color:#a6740e;
+    font-size:11px;
+    font-weight:800;
+    padding:5px 11px;
+    border-radius:20px;
+    display:inline-block;
+  }
+  .payout-meta .sched{ font-size:11.5px; color:var(--ink); font-weight:700; margin-top:8px; }
+  .payout-meta .date{
+    display:flex; align-items:center; gap:4px; justify-content:flex-end;
+    font-size:11px; color:var(--muted); margin-top:3px; font-weight:600;
+  }
+  .payout-meta .date svg{ width:12px; height:12px; }
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed; top:20px; left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:var(--navy-deep); color:#fff;
+    padding:12px 22px; border-radius:10px;
+    font-size:13px; font-weight:700;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    z-index:300; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    max-width:88%;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.bottom{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--navy-deep);
+    display:flex;
+    padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-decoration:none;
+    color:rgba(255,255,255,0.55);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    padding-top:4px;
+    position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:"";
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:26px;
+    height:2px;
+    background:var(--gold);
+    border-radius:2px;
+  }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{
+    flex:1;
+    padding:10px 10px;
+    overflow-y:auto;
+  }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px;
+    border-radius:10px;
+    color:rgba(255,255,255,0.85);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{
+    padding:14px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+<header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications" onclick="showToast('No new notifications');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-badge">3</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="page-title-row">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      </div>
+      <div class="page-title">
+        <h2>Cycle Management</h2>
+        <p>Manage current cycle and start new one</p>
+      </div>
+      <button class="history-btn" onclick="showToast('Cycle history coming soon.');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+        History
+      </button>
+    </div>
+
+    <div class="cycle-panel">
+      <div class="cycle-panel-top">
+        <span class="tag-pill">CURRENT CYCLE</span>
+        <span class="status-pill" id="statusPill">ACTIVE</span>
+      </div>
+
+      <div class="cycle-heading-row">
+        <div class="cycle-heading">
+          <h3 id="cycleTitle">Cycle #1 – 2025</h3>
+          <div class="started">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Started on <span id="startedOn">07 May 2025</span>
+          </div>
+        </div>
+        <div class="day-count">
+          <div class="lbl">DAY</div>
+          <div class="num"><b id="dayNow">12</b> of <span id="dayTotal">30</span></div>
+        </div>
+      </div>
+
+      <div class="cycle-progress">
+        <div class="fill" id="progressFill" style="width:40%"></div>
+      </div>
+      <div class="cycle-progress-label"><span id="progressPct">40%</span></div>
+
+      <div class="cycle-stats">
+        <div class="c-stat green">
+          <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+          <div class="val green"><span id="membersPaid">27</span> / <span id="membersTotal">30</span></div>
+          <div class="lbl">Members Paid</div>
+        </div>
+        <div class="c-stat gold">
+          <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path><path d="M12 3v1"></path></svg></div>
+          <div class="val gold" id="collectedSoFar">KSh 5,400</div>
+          <div class="lbl">Collected So Far</div>
+        </div>
+        <div class="c-stat red">
+          <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+          <div class="val red"><span id="daysRemaining">18</span> Days</div>
+          <div class="lbl">Remaining</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">CYCLE INFORMATION</div>
+
+      <div class="info-row">
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="info-label">Total Members</div>
+        <div class="info-value">30</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+        <div class="info-label">Daily Contribution</div>
+        <div class="info-value">KSh 200</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>
+        <div class="info-label">Expected Daily Collection</div>
+        <div class="info-value">KSh 6,000</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div class="info-label">Cycle Duration</div>
+        <div class="info-value">30 Days</div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M9.21 13.89 8 22l4-2 4 2-1.21-8.11"></path></svg></div>
+        <div class="info-label">Payout Order</div>
+        <div class="info-value">Rotating (1 – 30)</div>
+      </div>
+    </div>
+
+    <div class="start-box">
+      <div class="section-title">START NEW CYCLE</div>
+      <p class="desc" id="startDesc">Current cycle will end on Day 30. You can start a new cycle on Day 31.</p>
+      <button class="start-btn" id="startBtn" onclick="handleStartNewCycle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        Start New Cycle
+      </button>
+      <div class="start-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Starting a new cycle will reset day count and payout order.
+      </div>
+    </div>
+
+    <div class="section-card" style="margin-bottom:16px;">
+      <div class="section-title">UPCOMING PAYOUT</div>
+      <div class="payout-card-row">
+        <div class="payout-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div class="payout-info">
+          <div class="eyebrow">NEXT RECIPIENT</div>
+          <div class="name">Mary Wanjiku</div>
+          <div class="phone">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.5 6.5l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C11.4 21 3 12.6 3 3c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.2 1L6.6 10.8z"></path></svg>
+            0721 234 567
+          </div>
+        </div>
+        <div class="payout-meta">
+          <span class="pos-pill">Position #13</span>
+          <div class="sched">Scheduled on Day 13</div>
+          <div class="date">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            19 May 2025
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom">
+    <a href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      Dashboard
+    </a>
+    <a href="contributions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+      Contributions
+    </a>
+    <a href="cycle.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Cycle
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      Payout
+    </a>
+    <a href="reports.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      Reports
+    </a>
+  </nav>
+
+</div>
+
+<script>
+  // ---- Cycle state (mock data matching the current active cycle) ----
+  let cycle = {
+    number: 1,
+    year: 2025,
+    startedLabel: '07 May 2025',
+    duration: 30,
+    currentDay: 12,          // demo "today" position within the cycle
+    totalMembers: 30,
+    dailyContribution: 200,
+    membersPaid: 27,
+    collectedSoFar: 5400
+  };
+
+  function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
+
+  function render(){
+    const pct = Math.round((cycle.currentDay / cycle.duration) * 100);
+    const daysRemaining = Math.max(0, cycle.duration - cycle.currentDay);
+    const cycleComplete = cycle.currentDay >= cycle.duration;
+
+    document.getElementById('cycleTitle').textContent = `Cycle #${cycle.number} – ${cycle.year}`;
+    document.getElementById('startedOn').textContent = cycle.startedLabel;
+    document.getElementById('dayNow').textContent = cycle.currentDay;
+    document.getElementById('dayTotal').textContent = cycle.duration;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('membersPaid').textContent = cycle.membersPaid;
+    document.getElementById('membersTotal').textContent = cycle.totalMembers;
+    document.getElementById('collectedSoFar').textContent = fmtKsh(cycle.collectedSoFar);
+    document.getElementById('daysRemaining').textContent = daysRemaining;
+
+    const statusPill = document.getElementById('statusPill');
+    const startBtn = document.getElementById('startBtn');
+    const startDesc = document.getElementById('startDesc');
+
+    if (cycleComplete){
+      statusPill.textContent = 'CYCLE COMPLETE';
+      statusPill.classList.add('done');
+      startBtn.disabled = false;
+      startDesc.textContent = 'This cycle has finished its full 30-day run. You can now start Cycle ' + (cycle.number + 1) + '.';
+    } else {
+      statusPill.textContent = 'ACTIVE';
+      statusPill.classList.remove('done');
+      startBtn.disabled = true;
+      startDesc.textContent = `Current cycle will end on Day ${cycle.duration}. You can start a new cycle on Day ${cycle.duration + 1}.`;
+    }
+  }
+
+  function handleStartNewCycle(){
+    const daysRemaining = cycle.duration - cycle.currentDay;
+
+    if (daysRemaining > 0){
+      // Enforced rule: cycles can only be refreshed after the full 30 days are complete.
+      showToast(`Locked: ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left before a new cycle can start.`);
+      return;
+    }
+
+    if (!confirm(`Start Cycle ${cycle.number + 1}? This will reset the day count and payout order.`)) return;
+
+    cycle.number += 1;
+    cycle.currentDay = 1;
+    cycle.membersPaid = 0;
+    cycle.collectedSoFar = 0;
+    cycle.startedLabel = 'Today';
+    render();
+    showToast(`Cycle ${cycle.number} started.`);
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  render();
+</script>
+
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>

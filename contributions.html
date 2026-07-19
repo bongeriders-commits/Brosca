@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Contributions</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px; position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-badge{
+    position:absolute; top:-4px; right:-6px;
+    background:var(--red); color:#fff;
+    font-size:10px; font-weight:800;
+    min-width:17px; height:17px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--navy-deep);
+  }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  main{ padding:16px 14px 0; flex:1; }
+
+  .title-card{
+    background:#fff;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 2px 12px rgba(10,26,60,0.06);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .title-left{ display:flex; align-items:flex-start; gap:14px; flex:1; min-width:180px; }
+  .title-icon{
+    width:54px; height:54px; border-radius:50%;
+    background:var(--navy); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .title-icon svg{ width:26px; height:26px; color:#fff; }
+  .title-text h2{ font-size:19px; font-weight:800; color:var(--navy-deep); letter-spacing:0.5px; }
+  .title-text p{ font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4; }
+
+  .date-picker-wrap{ position:relative; }
+  .date-display{
+    display:flex; align-items:center; gap:8px;
+    border:1.5px solid #e4e6ec;
+    border-radius:11px;
+    padding:11px 14px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--navy-deep);
+    cursor:pointer;
+    background:#fff;
+    white-space:nowrap;
+  }
+  .date-display svg.cal{ width:16px; height:16px; color:var(--navy); }
+  .date-display svg.chev{ width:13px; height:13px; color:var(--muted); }
+  #realDateInput{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+    width:100%;
+    height:100%;
+  }
+
+  /* ---------- SUMMARY CARD ---------- */
+  .summary-card{
+    margin-top:14px;
+    background:var(--navy-deep);
+    border-radius:16px;
+    padding:20px;
+    color:#fff;
+  }
+  .summary-title{
+    font-size:13px; font-weight:800; letter-spacing:1px;
+    padding-bottom:14px; margin-bottom:16px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .amount-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .amount-col .lbl{ font-size:11.5px; color:rgba(255,255,255,0.65); font-weight:600; }
+  .amount-col .val{ font-size:19px; font-weight:800; margin-top:5px; }
+  .amount-col .val.gold{ color:var(--gold-light); }
+  .amount-col .val.green{ color:#5fd68a; }
+  .amount-col .val.red{ color:#ff8383; }
+  .amount-col .sub{ font-size:10.5px; color:rgba(255,255,255,0.5); margin-top:2px; }
+
+  .progress-bar{
+    width:100%; height:22px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.12);
+    overflow:hidden;
+    margin-top:16px;
+    position:relative;
+  }
+  .progress-bar .fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--green), #3ec06e);
+    border-radius:20px;
+    transition:width .35s ease;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .progress-bar .fill span{
+    font-size:11px; font-weight:800; color:#fff;
+  }
+
+  .mini-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:18px;
+  }
+  .mini-stat{
+    display:flex; align-items:center; gap:8px;
+  }
+  .mini-stat .circ{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .mini-stat .circ svg{ width:16px; height:16px; color:#fff; }
+  .mini-stat .txt .n{ font-size:16px; font-weight:800; line-height:1.1; }
+  .mini-stat .txt .l{ font-size:10.5px; color:rgba(255,255,255,0.65); }
+  .bg-green{ background:var(--green); }
+  .bg-gold{ background:var(--gold); }
+  .bg-blue{ background:#2a6de0; }
+
+  /* ---------- ACTION BUTTONS ---------- */
+  .action-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+  .act-btn{
+    border-radius:12px;
+    padding:14px 6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    cursor:pointer;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:0.3px;
+    text-align:center;
+    line-height:1.25;
+    border:none;
+    transition:transform .12s, opacity .12s;
+  }
+  .act-btn:active{ transform:scale(0.97); }
+  .act-btn svg{ width:20px; height:20px; }
+  .act-btn.paid{ background:var(--green); color:#fff; }
+  .act-btn.unpaid{ background:var(--red); color:#fff; }
+  .act-btn.receipt{ background:#fff; color:var(--navy); border:1.5px solid var(--navy); }
+
+  /* ---------- FILTER TABS ---------- */
+  .filter-row{
+    display:flex;
+    gap:8px;
+    margin-top:16px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    border:1.5px solid #e4e6ec;
+    background:#fff;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:800;
+    padding:9px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .tab-btn.active-all{ background:var(--navy-deep); color:#fff; border-color:var(--navy-deep); }
+  .tab-btn.active-paid{ background:var(--green-light); color:var(--green); border-color:var(--green); }
+  .tab-btn.active-pending{ background:var(--red-light); color:var(--red); border-color:var(--red); }
+  .search-wrap{
+    flex:1;
+    min-width:140px;
+    position:relative;
+  }
+  .search-wrap svg{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:15px; height:15px; color:var(--muted);
+  }
+  .search-wrap input{
+    width:100%;
+    border:1.5px solid #e4e6ec;
+    border-radius:10px;
+    padding:10px 10px 10px 34px;
+    font-size:12.5px;
+    outline:none;
+    background:#fff;
+  }
+  .search-wrap input:focus{ border-color:var(--gold); }
+
+  /* ---------- MEMBER ROWS ---------- */
+  .member-list{
+    margin-top:12px;
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 2px 12px rgba(10,26,60,0.06);
+  }
+  .m-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid #f0f1f4;
+  }
+  .m-row:last-child{ border-bottom:none; }
+  .m-idx{
+    width:26px; height:26px;
+    background:var(--navy-deep);
+    color:#fff;
+    border-radius:7px;
+    font-size:11.5px;
+    font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .m-avatar{
+    width:38px; height:38px;
+    border-radius:50%;
+    background:#dbe0ea;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .m-avatar svg{ width:19px; height:19px; color:var(--navy); }
+  .m-info{ flex:1; min-width:0; }
+  .m-name{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .m-phone{ font-size:11px; color:var(--muted); margin-top:1px; }
+  .m-amount{
+    font-size:14px; font-weight:800; color:var(--navy-deep);
+    width:38px; text-align:right; flex-shrink:0;
+  }
+  .m-status{
+    display:flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:800;
+    padding:6px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .m-status svg{ width:12px; height:12px; }
+  .m-status.paid{ background:var(--green-light); color:var(--green); }
+  .m-status.pending{ background:var(--red-light); color:var(--red); }
+  .m-toggle{
+    border-radius:9px;
+    padding:8px 12px;
+    font-size:11px;
+    font-weight:800;
+    display:flex; align-items:center; gap:5px;
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+    background:#fff;
+  }
+  .m-toggle svg{ width:13px; height:13px; }
+  .m-toggle.to-unpaid{ border:1.5px solid var(--navy); color:var(--navy); }
+  .m-toggle.to-paid{ border:1.5px solid var(--red); color:var(--red); }
+
+  @media (max-width:400px){
+    .m-status{ display:none; }
+  }
+
+  .info-strip{
+    display:flex; align-items:center; gap:10px;
+    background:#eef1f7;
+    padding:14px 16px;
+    font-size:12px;
+    color:var(--navy);
+    font-weight:600;
+    border-radius:0 0 16px 16px;
+  }
+  .info-strip svg{ width:17px; height:17px; color:var(--navy); flex-shrink:0; }
+
+  nav.bottom{
+    position:fixed; bottom:0; left:0; right:0;
+    max-width:520px; margin:0 auto;
+    background:var(--navy-deep);
+    display:flex;
+    padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    text-decoration:none; color:rgba(255,255,255,0.55);
+    font-size:10px; font-weight:700; letter-spacing:0.3px;
+    padding-top:4px; position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+    width:26px; height:2px; background:var(--gold); border-radius:2px;
+  }
+
+  .toast{
+    position:fixed; top:20px; left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:var(--navy-deep); color:#fff;
+    padding:12px 22px; border-radius:10px;
+    font-size:13px; font-weight:700;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    z-index:300; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    max-width:88%;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- RECEIPT MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.6);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:250;
+    padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .receipt-box{
+    background:#fff;
+    border-radius:16px;
+    width:100%;
+    max-width:400px;
+    padding:24px;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .receipt-box h3{
+    font-size:16px; font-weight:800; color:var(--navy-deep);
+    text-align:center;
+  }
+  .receipt-box .rsub{
+    text-align:center; font-size:11.5px; color:var(--muted); margin-top:4px; margin-bottom:16px;
+  }
+  .receipt-line{
+    display:flex; justify-content:space-between;
+    font-size:13px; padding:8px 0;
+    border-bottom:1px dashed #e4e6ec;
+  }
+  .receipt-line b{ color:var(--navy-deep); }
+  .receipt-close{
+    width:100%; margin-top:18px;
+    background:var(--navy-deep); color:#fff; border:none;
+    padding:12px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer;
+  }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{
+    flex:1;
+    padding:10px 10px;
+    overflow-y:auto;
+  }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px;
+    border-radius:10px;
+    color:rgba(255,255,255,0.85);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{
+    padding:14px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+<header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-badge">3</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="title-card">
+      <div class="title-left">
+        <div class="title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <div class="title-text">
+          <h2>DAILY CONTRIBUTIONS</h2>
+          <p>Record and track today's member contributions</p>
+        </div>
+      </div>
+
+      <div class="date-picker-wrap">
+        <div class="date-display">
+          <svg class="cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span id="dateLabel">18 May 2025</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <input type="date" id="realDateInput" value="2025-05-18">
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-title">COLLECTION SUMMARY</div>
+      <div class="amount-grid">
+        <div class="amount-col">
+          <div class="lbl">Expected Amount</div>
+          <div class="val gold" id="expectedAmt">KSh 6,000</div>
+          <div class="sub">(30 &times; KSh 200)</div>
+        </div>
+        <div class="amount-col">
+          <div class="lbl">Collected Amount</div>
+          <div class="val green" id="collectedAmt">KSh 5,400</div>
+        </div>
+        <div class="amount-col">
+          <div class="lbl">Outstanding</div>
+          <div class="val red" id="outstandingAmt">KSh 600</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="fill" id="progressFill" style="width:90%"><span id="progressPct">90%</span></div>
+      </div>
+
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="circ bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
+          <div class="txt"><div class="n" id="paidCountMini">27</div><div class="l">Paid</div></div>
+        </div>
+        <div class="mini-stat">
+          <div class="circ bg-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+          <div class="txt"><div class="n" id="pendingCountMini">3</div><div class="l">Pending</div></div>
+        </div>
+        <div class="mini-stat">
+          <div class="circ bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M2 10h20"></path></svg></div>
+          <div class="txt"><div class="n">KSh 200</div><div class="l">Per Member</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="act-btn paid" onclick="markAll('Paid')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
+        MARK ALL PAID
+      </button>
+      <button class="act-btn unpaid" onclick="markAll('Pending')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        MARK ALL UNPAID
+      </button>
+      <button class="act-btn receipt" onclick="openReceipt()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+        GENERATE RECEIPT
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <button class="tab-btn active-all" id="tabAll" onclick="setFilter('all')">All (<span id="tabAllCount">30</span>)</button>
+      <button class="tab-btn" id="tabPaid" onclick="setFilter('paid')">Paid (<span id="tabPaidCount">27</span>)</button>
+      <button class="tab-btn" id="tabPending" onclick="setFilter('pending')">Pending (<span id="tabPendingCount">3</span>)</button>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search member…" oninput="renderList()">
+      </div>
+    </div>
+
+    <div class="member-list">
+      <div id="memberListBody"></div>
+      <div class="info-strip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Ensure all members have paid before making today's payout.
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom">
+    <a href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      Dashboard
+    </a>
+    <a href="contributions.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+      Contributions
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      Payout
+    </a>
+    <a href="cycle.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Cycle
+    </a>
+    <a href="reports.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      Reports
+    </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-overlay" id="receiptOverlay">
+    <div class="receipt-box">
+      <h3>Collection Receipt</h3>
+      <div class="rsub" id="receiptDate">18 May 2025 · Cycle 1, Day 12</div>
+      <div class="receipt-line"><span>Expected Amount</span><b id="rExpected">KSh 6,000</b></div>
+      <div class="receipt-line"><span>Collected Amount</span><b id="rCollected">KSh 5,400</b></div>
+      <div class="receipt-line"><span>Outstanding</span><b id="rOutstanding">KSh 600</b></div>
+      <div class="receipt-line"><span>Members Paid</span><b id="rPaid">27 / 30</b></div>
+      <div class="receipt-line"><span>Collection Rate</span><b id="rRate">90%</b></div>
+      <button class="receipt-close" onclick="closeReceipt()">Close</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const PER_MEMBER = 200;
+  let members = [
+    {name:"John Mwangi", phone:"0712 345 678", status:"Paid"},
+    {name:"Mary Wanjiku", phone:"0721 234 567", status:"Paid"},
+    {name:"Peter Kamau", phone:"0733 456 789", status:"Paid"},
+    {name:"Grace Njeri", phone:"0708 123 456", status:"Paid"},
+    {name:"David Ochieng", phone:"0745 678 901", status:"Pending"},
+    {name:"Sarah Akinyi", phone:"0790 234 567", status:"Pending"},
+    {name:"James Otieno", phone:"0726 345 678", status:"Pending"},
+    {name:"Beatrice Moraa", phone:"0783 456 789", status:"Paid"},
+    {name:"Samuel Kiptoo", phone:"0715 678 901", status:"Paid"},
+    {name:"Lucy Chebet", phone:"0701 122 334", status:"Paid"},
+    {name:"Brian Mutua", phone:"0712 233 445", status:"Paid"},
+    {name:"Ann Nduta", phone:"0723 344 556", status:"Paid"},
+    {name:"Kevin Omondi", phone:"0734 455 667", status:"Paid"},
+    {name:"Faith Wambui", phone:"0745 566 778", status:"Paid"},
+    {name:"Dennis Mwangi", phone:"0756 677 889", status:"Paid"},
+    {name:"Esther Nyambura", phone:"0767 788 990", status:"Paid"},
+    {name:"Collins Odhiambo", phone:"0778 899 001", status:"Paid"},
+    {name:"Naomi Wanjiru", phone:"0789 900 112", status:"Paid"},
+    {name:"Victor Kiplangat", phone:"0790 011 223", status:"Paid"},
+    {name:"Joyce Atieno", phone:"0701 234 567", status:"Paid"},
+    {name:"Patrick Njoroge", phone:"0712 345 987", status:"Paid"},
+    {name:"Christine Auma", phone:"0723 456 098", status:"Paid"},
+    {name:"Michael Kariuki", phone:"0734 567 109", status:"Paid"},
+    {name:"Rose Chepkoech", phone:"0745 678 210", status:"Paid"},
+    {name:"Elias Mwendwa", phone:"0756 789 321", status:"Paid"},
+    {name:"Winnie Adhiambo", phone:"0767 890 432", status:"Paid"},
+    {name:"George Njogu", phone:"0778 901 543", status:"Paid"},
+    {name:"Priscilla Wairimu", phone:"0789 012 654", status:"Paid"},
+    {name:"Stephen Barasa", phone:"0790 123 765", status:"Paid"},
+    {name:"Agnes Cherono", phone:"0701 345 876", status:"Paid"},
+  ];
+
+  let currentFilter = 'all';
+  const personSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+  const checkSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  const alertSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+  function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
+
+  function renderList(){
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const body = document.getElementById('memberListBody');
+    body.innerHTML = '';
+    members.forEach((m, i) => {
+      if(currentFilter === 'paid' && m.status !== 'Paid') return;
+      if(currentFilter === 'pending' && m.status !== 'Pending') return;
+      if(q && !(m.name.toLowerCase().includes(q) || m.phone.includes(q))) return;
+
+      const isPaid = m.status === 'Paid';
+      const row = document.createElement('div');
+      row.className = 'm-row';
+      row.innerHTML = `
+        <div class="m-idx">${i+1}</div>
+        <div class="m-avatar">${personSvg}</div>
+        <div class="m-info">
+          <div class="m-name">${m.name}</div>
+          <div class="m-phone">${m.phone}</div>
+        </div>
+        <div class="m-amount">${PER_MEMBER}</div>
+        <div class="m-status ${isPaid?'paid':'pending'}">${isPaid?checkSvg:alertSvg}${isPaid?'Paid':'Pending'}</div>
+        <div class="m-toggle ${isPaid?'to-unpaid':'to-paid'}" onclick="toggleStatus(${i})">
+          ${isPaid ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Unpaid` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Paid`}
+        </div>
+      `;
+      body.appendChild(row);
+    });
+    updateSummary();
+  }
+
+  function toggleStatus(i){
+    members[i].status = members[i].status === 'Paid' ? 'Pending' : 'Paid';
+    renderList();
+  }
+
+  function markAll(status){
+    members.forEach(m => m.status = status);
+    renderList();
+    showToast(status === 'Paid' ? 'All members marked as Paid' : 'All members marked as Unpaid');
+  }
+
+  function setFilter(f){
+    currentFilter = f;
+    document.getElementById('tabAll').className = 'tab-btn' + (f==='all' ? ' active-all' : '');
+    document.getElementById('tabPaid').className = 'tab-btn' + (f==='paid' ? ' active-paid' : '');
+    document.getElementById('tabPending').className = 'tab-btn' + (f==='pending' ? ' active-pending' : '');
+    renderList();
+  }
+
+  function updateSummary(){
+    const total = members.length;
+    const paidCount = members.filter(m => m.status === 'Paid').length;
+    const pendingCount = total - paidCount;
+    const expected = total * PER_MEMBER;
+    const collected = paidCount * PER_MEMBER;
+    const outstanding = expected - collected;
+    const pct = total ? Math.round((paidCount/total)*100) : 0;
+
+    document.getElementById('expectedAmt').textContent = fmtKsh(expected);
+    document.getElementById('collectedAmt').textContent = fmtKsh(collected);
+    document.getElementById('outstandingAmt').textContent = fmtKsh(outstanding);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('paidCountMini').textContent = paidCount;
+    document.getElementById('pendingCountMini').textContent = pendingCount;
+    document.getElementById('tabAllCount').textContent = total;
+    document.getElementById('tabPaidCount').textContent = paidCount;
+    document.getElementById('tabPendingCount').textContent = pendingCount;
+
+    document.getElementById('rExpected').textContent = fmtKsh(expected);
+    document.getElementById('rCollected').textContent = fmtKsh(collected);
+    document.getElementById('rOutstanding').textContent = fmtKsh(outstanding);
+    document.getElementById('rPaid').textContent = `${paidCount} / ${total}`;
+    document.getElementById('rRate').textContent = pct + '%';
+  }
+
+  function openReceipt(){
+    document.getElementById('receiptOverlay').classList.add('open');
+  }
+  function closeReceipt(){
+    document.getElementById('receiptOverlay').classList.remove('open');
+  }
+  document.getElementById('receiptOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeReceipt();
+  });
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  const dateInput = document.getElementById('realDateInput');
+  dateInput.addEventListener('change', function(){
+    const d = new Date(this.value + 'T00:00:00');
+    const formatted = d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('dateLabel').textContent = formatted;
+    document.getElementById('receiptDate').textContent = formatted + ' · Cycle 1';
+    showToast('Showing contributions for ' + formatted);
+  });
+
+  renderList();
+</script>
+
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>

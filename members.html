@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Members</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .icon-btn{
+    background:none;
+    border:none;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    padding:4px;
+    position:relative;
+  }
+  .icon-btn svg{ width:24px; height:24px; }
+  .bell-dot{
+    position:absolute;
+    top:2px; right:2px;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--gold);
+    border:2px solid var(--navy-deep);
+  }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  main{ padding:16px 14px 0; flex:1; }
+
+  /* ---------- TITLE CARD ---------- */
+  .title-card{
+    background:#fff;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 2px 12px rgba(10,26,60,0.06);
+  }
+  .title-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .title-icon{
+    width:56px; height:56px;
+    border-radius:50%;
+    background:var(--navy);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .title-icon svg{ width:28px; height:28px; color:#fff; }
+  .title-text h2{
+    font-size:21px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.5px;
+  }
+  .title-text p{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  .add-member-btn{
+    width:100%;
+    margin-top:16px;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:#fff;
+    border:none;
+    border-radius:11px;
+    padding:14px;
+    font-size:13.5px;
+    font-weight:800;
+    letter-spacing:1px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    cursor:pointer;
+    box-shadow:0 8px 18px rgba(10,26,60,0.25);
+    transition:transform .15s;
+  }
+  .add-member-btn:active{ transform:scale(0.99); }
+  .add-member-btn svg{ width:18px; height:18px; }
+
+  .search-row{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+  }
+  .search-box{
+    flex:1;
+    position:relative;
+  }
+  .search-box svg{
+    position:absolute;
+    left:14px; top:50%;
+    transform:translateY(-50%);
+    width:17px; height:17px;
+    color:var(--muted);
+  }
+  .search-box input{
+    width:100%;
+    border:1.5px solid #e4e6ec;
+    border-radius:11px;
+    padding:12px 12px 12px 40px;
+    font-size:13.5px;
+    outline:none;
+    background:#fff;
+  }
+  .search-box input:focus{ border-color:var(--gold); }
+  .filter-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1.5px solid var(--navy);
+    color:var(--navy);
+    background:#fff;
+    border-radius:11px;
+    padding:0 16px;
+    font-size:12.5px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    cursor:pointer;
+  }
+  .filter-btn svg{ width:14px; height:14px; }
+
+  .stat-strip{
+    margin-top:14px;
+    background:#eef1f7;
+    border-radius:12px;
+    padding:14px 8px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+  }
+  .stat-item{
+    text-align:center;
+  }
+  .stat-item .circ{
+    width:38px; height:38px;
+    border-radius:50%;
+    margin:0 auto 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+  }
+  .stat-item .circ svg{ width:18px; height:18px; }
+  .stat-item .num{
+    font-size:19px;
+    font-weight:800;
+    color:var(--navy-deep);
+  }
+  .stat-item .lbl{
+    font-size:10px;
+    color:var(--muted);
+    font-weight:700;
+    letter-spacing:0.3px;
+    margin-top:1px;
+  }
+  .c-navy{ background:var(--navy); }
+  .c-green{ background:var(--green); }
+  .c-gold{ background:var(--gold); }
+
+  /* ---------- TABLE CARD ---------- */
+  .table-card{
+    margin-top:14px;
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 2px 12px rgba(10,26,60,0.06);
+  }
+  .table-scroll{ overflow-x:auto; }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:640px;
+  }
+  thead tr{ background:var(--navy-deep); }
+  thead th{
+    color:#fff;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    text-align:left;
+    padding:13px 10px;
+    white-space:nowrap;
+  }
+  tbody tr{ border-bottom:1px solid #f0f1f4; }
+  tbody tr:last-child{ border-bottom:none; }
+  tbody td{
+    padding:12px 10px;
+    font-size:13px;
+    color:var(--ink);
+    vertical-align:middle;
+  }
+  .num-col{ color:var(--muted); font-weight:700; width:24px; }
+  .name-cell{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .mem-avatar{
+    width:36px; height:36px;
+    border-radius:50%;
+    background:#dbe0ea;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .mem-avatar svg{ width:19px; height:19px; color:var(--navy); }
+  .mem-name{ font-weight:700; font-size:13.5px; }
+  .mem-id{ font-size:11px; color:var(--muted); margin-top:1px; }
+  .status-pill{
+    background:var(--green-light);
+    color:var(--green);
+    font-size:11px;
+    font-weight:800;
+    padding:5px 12px;
+    border-radius:20px;
+    display:inline-block;
+  }
+  .status-pill.inactive{
+    background:#fdecec;
+    color:var(--red);
+  }
+  .actions-cell{
+    display:flex;
+    gap:10px;
+  }
+  .action-btn{
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:2px;
+    display:flex;
+  }
+  .action-btn svg{ width:17px; height:17px; }
+  .edit-icon{ color:var(--navy); }
+  .del-icon{ color:var(--red); }
+
+  .pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:16px;
+    flex-wrap:wrap;
+  }
+  .page-btn{
+    min-width:34px;
+    height:34px;
+    padding:0 10px;
+    border-radius:8px;
+    border:1.5px solid #e4e6ec;
+    background:#fff;
+    color:var(--navy);
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .page-btn svg{ width:13px; height:13px; }
+  .page-btn.active{
+    background:var(--navy-deep);
+    color:#fff;
+    border-color:var(--navy-deep);
+  }
+  .page-btn.disabled{ color:#c3c8d4; cursor:default; }
+
+  .info-strip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#eef1f7;
+    padding:14px 16px;
+    font-size:12px;
+    color:var(--navy);
+    font-weight:600;
+  }
+  .info-strip svg{ width:17px; height:17px; color:var(--navy); flex-shrink:0; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.bottom{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--navy-deep);
+    display:flex;
+    padding:10px 4px 12px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.25);
+  }
+  nav.bottom a{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-decoration:none;
+    color:rgba(255,255,255,0.55);
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    padding-top:4px;
+    position:relative;
+  }
+  nav.bottom a svg{ width:21px; height:21px; }
+  nav.bottom a.active{ color:var(--gold); }
+  nav.bottom a.active::before{
+    content:"";
+    position:absolute;
+    top:-10px; left:50%;
+    transform:translateX(-50%);
+    width:26px; height:2px;
+    background:var(--gold);
+    border-radius:2px;
+  }
+
+  /* ---------- ADD MEMBER MODAL ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(10,26,60,0.55);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:200;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-sheet{
+    background:#fff;
+    width:100%;
+    max-width:520px;
+    border-radius:20px 20px 0 0;
+    padding:22px 22px 26px;
+    animation: slideUp .3s ease;
+    max-height:88vh;
+    overflow-y:auto;
+  }
+  @keyframes slideUp{
+    from{ transform:translateY(30px); opacity:0; }
+    to{ transform:translateY(0); opacity:1; }
+  }
+  .modal-handle{
+    width:40px; height:4px;
+    background:#e0e2e8;
+    border-radius:3px;
+    margin:0 auto 16px;
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .modal-head h3{
+    font-size:18px;
+    font-weight:800;
+    color:var(--navy-deep);
+  }
+  .modal-close{
+    background:#f0f1f4;
+    border:none;
+    width:32px; height:32px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:var(--navy);
+  }
+  .modal-close svg{ width:16px; height:16px; }
+
+  .form-group{ margin-bottom:14px; }
+  .form-group label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--navy-deep);
+    margin-bottom:6px;
+    letter-spacing:0.3px;
+  }
+  .form-group input, .form-group select{
+    width:100%;
+    border:1.5px solid #e4e6ec;
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:14px;
+    outline:none;
+    color:var(--ink);
+    background:#fff;
+  }
+  .form-group input:focus, .form-group select:focus{ border-color:var(--gold); }
+
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+  }
+  .btn-cancel{
+    flex:1;
+    background:#fff;
+    border:1.5px solid #d9dce4;
+    color:var(--navy);
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.5px;
+    padding:13px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .btn-save{
+    flex:1.4;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    border:none;
+    color:#fff;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.5px;
+    padding:13px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+
+  .toast{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:var(--green);
+    color:#fff;
+    padding:12px 22px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:700;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    z-index:300;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* ---------- SIDE DRAWER ---------- */
+  .drawer-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.55);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.25s ease;
+    z-index:200;
+  }
+  .drawer-overlay.show{ opacity:1; visibility:visible; }
+  .side-drawer{
+    position:fixed;
+    top:0; left:0; bottom:0;
+    width:280px;
+    max-width:82%;
+    background:linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    transform:translateX(-100%);
+    transition:transform 0.28s ease;
+    z-index:201;
+    display:flex;
+    flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,0.3);
+  }
+  .side-drawer.open{ transform:translateX(0); }
+  .drawer-head{
+    padding:24px 20px 18px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    position:relative;
+  }
+  .drawer-close{
+    position:absolute; top:14px; right:12px;
+    background:none; border:none; color:rgba(255,255,255,0.7);
+    font-size:24px; line-height:1; cursor:pointer; padding:6px;
+  }
+  .drawer-avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:var(--gold); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; margin-bottom:12px;
+  }
+  .drawer-name{ color:#fff; font-weight:800; font-size:15px; }
+  .drawer-sub{ color:rgba(255,255,255,0.6); font-size:11.5px; margin-top:2px; }
+  .drawer-links{
+    flex:1;
+    padding:10px 10px;
+    overflow-y:auto;
+  }
+  .drawer-link{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 12px;
+    border-radius:10px;
+    color:rgba(255,255,255,0.85);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:2px;
+  }
+  .drawer-link svg{ width:19px; height:19px; flex-shrink:0; color:var(--gold-light); }
+  .drawer-link.active{ background:rgba(232,171,47,0.15); color:var(--gold-light); }
+  .drawer-foot{
+    padding:14px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .drawer-logout{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:rgba(214,59,59,0.15);
+    border:1px solid rgba(214,59,59,0.4);
+    color:#ff9d9d;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.3px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .drawer-logout svg{ width:17px; height:17px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
+    <div class="drawer-head">
+      <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
+      <div class="drawer-avatar">BR</div>
+      <div class="drawer-name">Bogonko Rosca</div>
+      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+    </div>
+    <div class="drawer-links">
+      <a href="dashboard.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="members.html" class="drawer-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Members
+      </a>
+      <a href="contributions.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+        Contributions
+      </a>
+      <a href="payout.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+        Payout
+      </a>
+      <a href="cycle.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Cycle
+      </a>
+      <a href="reports.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports
+      </a>
+      <a href="settings.html" class="drawer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings
+      </a>
+    </div>
+    <div class="drawer-foot">
+      <button class="drawer-logout" onclick="confirmLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </nav>
+
+<header>
+    <div class="header-row">
+      <button class="icon-btn" aria-label="Menu" onclick="openDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="brand">
+        <h1>BOGONKO <span>ROSCA</span></h1>
+        <p>Rotating Savings. Together We Grow.</p>
+      </div>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="bell-dot"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="title-card">
+      <div class="title-row">
+        <div class="title-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div class="title-text">
+          <h2>MEMBERS</h2>
+          <p id="memberSubtitle">Manage all group members (30 Members)</p>
+        </div>
+      </div>
+
+      <button class="add-member-btn" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        ADD MEMBER
+      </button>
+
+      <div class="search-row">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchInput" placeholder="Search by name or phone…" oninput="filterTable()">
+        </div>
+        <button class="filter-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          FILTER
+        </button>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-item">
+          <div class="circ c-navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+          <div class="num" id="totalCount">30</div>
+          <div class="lbl">TOTAL MEMBERS</div>
+        </div>
+        <div class="stat-item">
+          <div class="circ c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <div class="num" id="activeCount">30</div>
+          <div class="lbl">ACTIVE</div>
+        </div>
+        <div class="stat-item">
+          <div class="circ c-gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="4" x2="6" y2="20"></line><line x1="18" y1="4" x2="18" y2="20"></line></svg></div>
+          <div class="num" id="inactiveCount">0</div>
+          <div class="lbl">INACTIVE</div>
+        </div>
+        <div class="stat-item">
+          <div class="circ c-navy" style="font-size:9px; font-weight:800;">1-30</div>
+          <div class="num" style="font-size:13px; margin-top:6px;">&nbsp;</div>
+          <div class="lbl">PAYOUT ORDER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>NAME</th>
+              <th>PHONE NUMBER</th>
+              <th>PAYOUT<br>ORDER</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="membersBody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>PREV</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">NEXT<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+      </div>
+
+      <div class="info-strip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Payout order determines the sequence of receiving the daily collection.
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom">
+    <a href="dashboard.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      DASHBOARD
+    </a>
+    <a href="members.html" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      MEMBERS
+    </a>
+    <a href="contributions.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="18"></line><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
+      CONTRIBUTIONS
+    </a>
+    <a href="payout.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+      PAYOUT
+    </a>
+    <a href="cycle.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      CYCLE
+    </a>
+    <a href="reports.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      REPORTS
+    </a>
+  </nav>
+
+  <!-- ADD MEMBER MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h3>Add New Member</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form onsubmit="return addMember(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="newName" placeholder="e.g. Wilson Kiplagat" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="newPhone" placeholder="e.g. 0712 345 678" required>
+        </div>
+        <div class="form-group">
+          <label>National ID</label>
+          <input type="text" id="newId" placeholder="e.g. 12345678" required>
+        </div>
+        <div class="form-group">
+          <label>Payout Order</label>
+          <input type="number" id="newOrder" placeholder="Auto-assigned if left blank" min="1">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="newStatus">
+            <option value="Active" selected>Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save">Save Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Member added successfully</div>
+
+</div>
+
+<script>
+  let members = [
+    {name:"John Mwangi", id:"12345678", phone:"0712 345 678", order:1, status:"Active"},
+    {name:"Mary Wanjiku", id:"23456789", phone:"0721 234 567", order:2, status:"Active"},
+    {name:"Peter Kamau", id:"34567890", phone:"0733 456 789", order:3, status:"Active"},
+    {name:"Grace Njeri", id:"45678901", phone:"0708 123 456", order:4, status:"Active"},
+    {name:"David Ochieng", id:"56789012", phone:"0745 678 901", order:5, status:"Active"},
+    {name:"Sarah Akinyi", id:"67890123", phone:"0790 234 567", order:6, status:"Active"},
+    {name:"James Otieno", id:"78901234", phone:"0726 345 678", order:7, status:"Active"},
+    {name:"Beatrice Moraa", id:"89012345", phone:"0783 456 789", order:8, status:"Active"},
+    {name:"Samuel Kiptoo", id:"90123456", phone:"0715 678 901", order:9, status:"Active"},
+  ];
+
+  const personSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+  const editSvg = `<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>`;
+  const delSvg = `<svg class="del-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
+  function renderTable(){
+    const body = document.getElementById('membersBody');
+    body.innerHTML = '';
+    members.forEach((m, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="num-col">${i+1}</td>
+        <td>
+          <div class="name-cell">
+            <div class="mem-avatar">${personSvg}</div>
+            <div>
+              <div class="mem-name">${m.name}</div>
+              <div class="mem-id">ID: ${m.id}</div>
+            </div>
+          </div>
+        </td>
+        <td>${m.phone}</td>
+        <td>${m.order}</td>
+        <td><span class="status-pill ${m.status==='Inactive'?'inactive':''}">${m.status}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="action-btn">${editSvg}</button>
+            <button class="action-btn" onclick="removeMember(${i})">${delSvg}</button>
+          </div>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+    updateStats();
+  }
+
+  function updateStats(){
+    document.getElementById('totalCount').textContent = members.length;
+    document.getElementById('activeCount').textContent = members.filter(m => m.status === 'Active').length;
+    document.getElementById('inactiveCount').textContent = members.filter(m => m.status === 'Inactive').length;
+    document.getElementById('memberSubtitle').textContent = `Manage all group members (${members.length} Members)`;
+  }
+
+  function removeMember(index){
+    if(confirm(`Remove ${members[index].name} from the group?`)){
+      members.splice(index, 1);
+      renderTable();
+    }
+  }
+
+  function filterTable(){
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#membersBody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  function openModal(){
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('modalOverlay').querySelector('form').reset();
+  }
+  document.getElementById('modalOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeModal();
+  });
+
+  function addMember(e){
+    e.preventDefault();
+    const name = document.getElementById('newName').value.trim();
+    const phone = document.getElementById('newPhone').value.trim();
+    const id = document.getElementById('newId').value.trim();
+    const orderVal = document.getElementById('newOrder').value;
+    const status = document.getElementById('newStatus').value;
+    const order = orderVal ? parseInt(orderVal) : members.length + 1;
+
+    members.push({name, id, phone, order, status});
+    renderTable();
+    closeModal();
+    showToast(`${name} added to the group`);
+    return false;
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  renderTable();
+</script>
+
+
+<script>
+  function openDrawer(){
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function confirmLogout(){
+    closeDrawer();
+    if (confirm('Log out of Bogonko ROSCA?')) {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>
