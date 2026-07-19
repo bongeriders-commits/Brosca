@@ -1,0 +1,31 @@
+{
+  "name": "Bogonko ROSCA",
+  "short_name": "Bogonko ROSCA",
+  "description": "Bogonko-Ngelani Stage Welfare Programme — contributions, cycles, members, and payouts",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a1a3c",
+  "theme_color": "#0a1a3c",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
