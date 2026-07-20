@@ -303,7 +303,7 @@
       <div class="greet-avatar" id="greetAvatar">--</div>
       <div>
         <div class="greet-name" id="greetName">Loading…</div>
-        <div class="greet-sub" id="greetSub">Position — · Bogonko-Ngelani Stage</div>
+        <div class="greet-sub" id="greetSub">Not set</div>
       </div>
     </div>
   </header>
@@ -367,26 +367,13 @@
    and keep the render functions as-is.
    ========================================================================= */
 
-  const CYCLE_START   = new Date(2025, 4, 7);   // 07 May 2025 = Day 1
-  const CYCLE_DURATION = 30;                     // days
-  const DAILY_CONTRIBUTION = 200;                // KSh per member per day
-  const MOCK_TODAY_DAY = 12;                     // "today" inside this demo cycle (matches dashboard.html)
+  const CYCLE_START   = null;                    // set once a cycle starts
+  const CYCLE_DURATION = 0;                      // days
+  const DAILY_CONTRIBUTION = 0;                  // KSh per member per day
+  const MOCK_TODAY_DAY = 0;
 
-  // Same 30-position rotation used by the admin app. First 9 match members.html.
-  const MEMBERS = [
-    {order:1,  name:"John Mwangi",     phone:"0712 345 678"},
-    {order:2,  name:"Mary Wanjiku",    phone:"0721 234 567"},
-    {order:3,  name:"Peter Kamau",     phone:"0733 456 789"},
-    {order:4,  name:"Grace Njeri",     phone:"0708 123 456"},
-    {order:5,  name:"David Ochieng",   phone:"0745 678 901"},
-    {order:6,  name:"Sarah Akinyi",    phone:"0790 234 567"},
-    {order:7,  name:"James Otieno",    phone:"0726 345 678"},
-    {order:8,  name:"Beatrice Moraa",  phone:"0783 456 789"},
-    {order:9,  name:"Samuel Kiptoo",   phone:"0715 678 901"},
-  ];
-  for (let i = 10; i <= CYCLE_DURATION; i++){
-    MEMBERS.push({order:i, name:"Member "+i, phone:"07"+(10+i)+" 000 0"+(100+i)});
-  }
+  // Same rotation used by the admin app. Kept in sync with members.html.
+  const MEMBERS = [];
   const TOTAL_MEMBERS = MEMBERS.length;
 
   // ---- who is logged in? (set by login.html) ----
@@ -396,11 +383,8 @@
     currentMember = MEMBERS.find(m => m.name.toLowerCase() === savedName.toLowerCase()) || null;
   }
   if (!currentMember){
-    // No session found — fall back to a demo member so the page is still
-    // browsable, and show a note. Wire this to login.html for real use.
-    currentMember = MEMBERS[1]; // Mary Wanjiku
     document.getElementById('demoNote').textContent =
-      'Demo mode — no login session found, previewing as ' + currentMember.name + '. Log in for your own view.';
+      'No members have been added to the group yet.';
   }
 
   function addDays(date, n){ const d = new Date(date); d.setDate(d.getDate()+n); return d; }
@@ -424,10 +408,8 @@
   // Deterministic pseudo-random "did this member pay on this day" check,
   // so the same day always shows the same numbers.
   function seededPaid(day, order){
-    // Day 12 is hand-tuned to match the admin dashboard exactly (27/30 paid,
-    // KSh 5,400 collected, David Ochieng / Beatrice Moraa / Samuel Kiptoo pending).
     if (day === MOCK_TODAY_DAY){
-      return !(order === 5 || order === 8 || order === 9);
+      return false;
     }
     let h = (day * 2654435761 + order * 40503) % 100;
     if (h < 0) h += 100;
@@ -445,6 +427,16 @@
     const eyebrow = document.getElementById('lockEyebrow');
     const main = document.getElementById('lockMain');
     const sub = document.getElementById('lockSub');
+
+    if (!currentMember || !CYCLE_START){
+      el.className = 'lock-banner upcoming';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>';
+      eyebrow.textContent = 'NO ACTIVE CYCLE';
+      main.textContent = 'There is no active cycle yet.';
+      sub.textContent = 'Check back once the group starts a cycle.';
+      return;
+    }
+
     const myDay = currentMember.order;
     const myDate = dayNumberToDate(myDay);
     const payoutAmt = fmtKsh(DAILY_CONTRIBUTION * TOTAL_MEMBERS);
@@ -476,6 +468,10 @@
   function buildDayStrip(){
     const strip = document.getElementById('dayStrip');
     strip.innerHTML = '';
+    if (!CYCLE_START || CYCLE_DURATION === 0){
+      document.getElementById('dateJump').disabled = true;
+      return;
+    }
     for (let d = 1; d <= CYCLE_DURATION; d++){
       const date = dayNumberToDate(d);
       const chip = document.createElement('div');
@@ -519,9 +515,15 @@
     const dateLabelEl = document.getElementById('selectedDateLabel');
     const content = document.getElementById('dayContent');
 
+    if (!CYCLE_START || CYCLE_DURATION === 0 || !currentMember){
+      dateLabelEl.textContent = 'No active cycle';
+      content.innerHTML = '<div class="out-of-cycle-note">There is no active cycle or member data yet. Check back once the group has been set up.</div>';
+      return;
+    }
+
     if (selectedDay < 1 || selectedDay > CYCLE_DURATION){
       dateLabelEl.textContent = 'Outside current cycle';
-      content.innerHTML = '<div class="out-of-cycle-note">This date falls outside the current 30-day cycle (07 May – 05 Jun 2025). Pick a date within the cycle to see payout details.</div>';
+      content.innerHTML = '<div class="out-of-cycle-note">This date falls outside the current ' + CYCLE_DURATION + '-day cycle (' + fmtDateShort(CYCLE_START) + ' – ' + fmtDateShort(dayNumberToDate(CYCLE_DURATION)) + '). Pick a date within the cycle to see payout details.</div>';
       return;
     }
 
@@ -636,10 +638,17 @@
   }
 
   function renderHeader(){
+    if (!currentMember){
+      document.getElementById('greetAvatar').textContent = '—';
+      document.getElementById('greetName').textContent = 'No member session';
+      document.getElementById('greetSub').textContent = 'Not set';
+      document.getElementById('daysRemainingVal').textContent = '0 Days Left';
+      return;
+    }
     const initials = currentMember.name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
     document.getElementById('greetAvatar').textContent = initials;
     document.getElementById('greetName').textContent = currentMember.name;
-    document.getElementById('greetSub').textContent = 'Position #' + currentMember.order + ' · Bogonko-Ngelani Stage';
+    document.getElementById('greetSub').textContent = 'Position #' + currentMember.order;
     document.getElementById('daysRemainingVal').textContent = Math.max(0, CYCLE_DURATION - MOCK_TODAY_DAY) + ' Days Left';
   }
 
@@ -654,7 +663,9 @@
   renderHeader();
   renderLockBanner();
   buildDayStrip();
-  document.getElementById('dateJump').value = toISODate(dayNumberToDate(MOCK_TODAY_DAY));
+  if (CYCLE_START) {
+    document.getElementById('dateJump').value = toISODate(dayNumberToDate(MOCK_TODAY_DAY));
+  }
   renderAll();
 
   // keep the current/selected chip scrolled into view

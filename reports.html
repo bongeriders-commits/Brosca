@@ -466,7 +466,7 @@
       <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
       <div class="drawer-avatar">BR</div>
       <div class="drawer-name">Bogonko Rosca</div>
-      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+      <div class="drawer-sub">Not set</div>
     </div>
     <div class="drawer-links">
       <a href="dashboard.html" class="drawer-link">
@@ -517,7 +517,7 @@
       </div>
       <button class="icon-btn" aria-label="Notifications" onclick="showToast('No new notifications');">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        <span class="bell-badge">3</span>
+        <span class="bell-badge">0</span>
       </button>
     </div>
   </header>
@@ -536,14 +536,14 @@
       <div class="date-dropdown">
         <button class="date-btn" id="dateBtn" onclick="toggleDropdown('dateMenu', this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          <span id="dateLabel">18 May 2025</span>
+          <span id="dateLabel">Today</span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <div class="dropdown-menu" id="dateMenu">
-          <button class="sel" onclick="selectDate(this, '18 May 2025')">18 May 2025 (Today)</button>
-          <button onclick="selectDate(this, '17 May 2025')">17 May 2025 (Yesterday)</button>
-          <button onclick="selectDate(this, '12 – 18 May 2025')">This Week</button>
-          <button onclick="selectDate(this, '07 May – 05 Jun 2025')">This Cycle</button>
+          <button class="sel" onclick="selectDate(this, 'Today')">Today</button>
+          <button onclick="selectDate(this, 'Yesterday')">Yesterday</button>
+          <button onclick="selectDate(this, 'This Week')">This Week</button>
+          <button onclick="selectDate(this, 'This Cycle')">This Cycle</button>
         </div>
       </div>
     </div>
@@ -552,26 +552,26 @@
       <div class="stat4-card green">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="lbl">TOTAL MEMBERS</div>
-        <div class="val">30</div>
+        <div class="val">0</div>
         <div class="sub">Active Members</div>
       </div>
       <div class="stat4-card blue">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg></div>
         <div class="lbl">COLLECTED TODAY</div>
-        <div class="val">KSh 5,400</div>
-        <div class="sub">90% of target</div>
+        <div class="val">KSh 0</div>
+        <div class="sub">0% of target</div>
       </div>
       <div class="stat4-card orange">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg></div>
         <div class="lbl">PENDING AMOUNT</div>
-        <div class="val">KSh 600</div>
-        <div class="sub">3 Members</div>
+        <div class="val">KSh 0</div>
+        <div class="sub">0 Members</div>
       </div>
       <div class="stat4-card purple">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
         <div class="lbl">ACTIVE CYCLE</div>
-        <div class="val">Day 12 of 30</div>
-        <div class="sub">Cycle #1 - 2025</div>
+        <div class="val">—</div>
+        <div class="sub">No active cycle</div>
       </div>
     </div>
 
@@ -608,11 +608,11 @@
           <div class="section-title">OVERVIEW SUMMARY</div>
           <div class="mini-select">
             <button class="date-btn" id="rangeBtn" onclick="toggleDropdown('rangeMenu', this)">
-              <span id="rangeLabel">This Cycle (1 – 30 Days)</span>
+              <span id="rangeLabel">This Cycle</span>
               <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
             <div class="dropdown-menu" id="rangeMenu" style="left:auto; right:0;">
-              <button class="sel" onclick="selectRange(this, 'This Cycle (1 – 30 Days)')">This Cycle (1 – 30 Days)</button>
+              <button class="sel" onclick="selectRange(this, 'This Cycle')">This Cycle</button>
               <button onclick="selectRange(this, 'Previous Cycle')">Previous Cycle</button>
               <button onclick="selectRange(this, 'All Time')">All Time</button>
             </div>
@@ -622,17 +622,17 @@
         <div class="summary-cols">
           <div>
             <div class="summary-col-title green">COLLECTION SUMMARY</div>
-            <div class="summary-line"><span>Expected Amount</span><b>KSh 6,000</b></div>
-            <div class="summary-line"><span>Collected Amount</span><b>KSh 5,400</b></div>
-            <div class="summary-line"><span>Collection Rate</span><b>90%</b></div>
-            <div class="mini-progress"><div class="fill green" style="width:90%">90%</div></div>
+            <div class="summary-line"><span>Expected Amount</span><b>KSh 0</b></div>
+            <div class="summary-line"><span>Collected Amount</span><b>KSh 0</b></div>
+            <div class="summary-line"><span>Collection Rate</span><b>0%</b></div>
+            <div class="mini-progress"><div class="fill green" style="width:0%">0%</div></div>
           </div>
           <div>
             <div class="summary-col-title purple">PAYOUT SUMMARY</div>
-            <div class="summary-line"><span>Total Payouts</span><b>KSh 6,000</b></div>
-            <div class="summary-line"><span>Payouts Made</span><b>KSh 4,000</b></div>
-            <div class="summary-line"><span>Remaining Payouts</span><b>KSh 2,000</b></div>
-            <div class="mini-progress"><div class="fill purple" style="width:67%">67%</div></div>
+            <div class="summary-line"><span>Total Payouts</span><b>KSh 0</b></div>
+            <div class="summary-line"><span>Payouts Made</span><b>KSh 0</b></div>
+            <div class="summary-line"><span>Remaining Payouts</span><b>KSh 0</b></div>
+            <div class="mini-progress"><div class="fill purple" style="width:0%">0%</div></div>
           </div>
         </div>
       </div>
@@ -653,13 +653,7 @@
         <table class="rep-table">
           <thead><tr><th>Date</th><th>Paid</th><th style="text-align:right;">Collected</th></tr></thead>
           <tbody>
-            <tr><td>12 May</td><td>10 / 30</td><td class="num">KSh 2,000</td></tr>
-            <tr><td>13 May</td><td>16 / 30</td><td class="num">KSh 3,200</td></tr>
-            <tr><td>14 May</td><td>19 / 30</td><td class="num">KSh 3,800</td></tr>
-            <tr><td>15 May</td><td>21 / 30</td><td class="num">KSh 4,200</td></tr>
-            <tr><td>16 May</td><td>23 / 30</td><td class="num">KSh 4,600</td></tr>
-            <tr><td>17 May</td><td>25 / 30</td><td class="num">KSh 5,000</td></tr>
-            <tr><td>18 May</td><td>27 / 30</td><td class="num">KSh 5,400</td></tr>
+            <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No collection data yet</td></tr>
           </tbody>
         </table>
         <a class="rep-link" href="contributions.html">View full contributions →</a>
@@ -673,11 +667,7 @@
         <table class="rep-table">
           <thead><tr><th>Recipient</th><th>Position</th><th style="text-align:right;">Amount</th></tr></thead>
           <tbody>
-            <tr><td>John Mwangi</td><td>#1</td><td class="num pos">KSh 6,000</td></tr>
-            <tr><td>Grace Njeri</td><td>#2</td><td class="num pos">KSh 6,000</td></tr>
-            <tr><td>Peter Kamau</td><td>#3</td><td class="num pos">KSh 6,000</td></tr>
-            <tr><td>Sarah Akinyi</td><td>#4</td><td class="num pos">KSh 6,000</td></tr>
-            <tr><td>Mary Wanjiku</td><td>#13</td><td class="num">Scheduled — Day 13</td></tr>
+            <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No payout history yet</td></tr>
           </tbody>
         </table>
         <a class="rep-link" href="payout.html">View full payout schedule →</a>
@@ -691,10 +681,7 @@
         <table class="rep-table">
           <thead><tr><th>Member</th><th style="text-align:right;">Payments Made</th><th style="text-align:right;">Status</th></tr></thead>
           <tbody>
-            <tr><td>Mary Wanjiku</td><td class="num">12 / 12</td><td class="num pos">Current</td></tr>
-            <tr><td>John Mwangi</td><td class="num">12 / 12</td><td class="num pos">Current</td></tr>
-            <tr><td>David Ochieng</td><td class="num">9 / 12</td><td class="num neg">Behind</td></tr>
-            <tr><td>Sarah Akinyi</td><td class="num">9 / 12</td><td class="num neg">Behind</td></tr>
+            <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No members yet</td></tr>
           </tbody>
         </table>
         <a class="rep-link" href="members.html">View all members →</a>
@@ -708,7 +695,7 @@
         <table class="rep-table">
           <thead><tr><th>Cycle</th><th>Duration</th><th style="text-align:right;">Status</th></tr></thead>
           <tbody>
-            <tr><td>Cycle #1 – 2025</td><td>Day 12 of 30</td><td class="num pos">Active</td></tr>
+            <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No cycles yet</td></tr>
           </tbody>
         </table>
         <a class="rep-link" href="cycle.html">Manage current cycle →</a>
@@ -773,22 +760,21 @@
 
 <script>
   /* ================= Collection trend chart (data-driven SVG) ================= */
-  const trendData = [
-    { day: '12 May', value: 2000 },
-    { day: '13 May', value: 3200 },
-    { day: '14 May', value: 3800 },
-    { day: '15 May', value: 4200 },
-    { day: '16 May', value: 4600 },
-    { day: '17 May', value: 5000 },
-    { day: '18 May', value: 5400 }
-  ];
+  const trendData = [];
 
   function drawTrendChart(){
     const svg = document.getElementById('trendSvg');
     const daysRow = document.getElementById('trendDays');
+
+    if (trendData.length === 0){
+      svg.innerHTML = `<text x="190" y="95" font-size="12" fill="#7c8aa8" text-anchor="middle" font-family="Segoe UI, sans-serif">No collection data yet</text>`;
+      daysRow.innerHTML = '';
+      return;
+    }
+
     const W = 380, H = 190;
     const padL = 34, padR = 10, padT = 18, padB = 6;
-    const maxVal = 6000;
+    const maxVal = Math.max(...trendData.map(d => d.value), 1000);
     const plotW = W - padL - padR;
     const plotH = H - padT - padB;
 
@@ -797,9 +783,10 @@
 
     let svgHtml = '';
 
-    // gridlines + y labels (0 to 6K in 1K steps)
+    // gridlines + y labels (6 evenly spaced steps up to maxVal)
+    const step = maxVal / 6;
     for (let g = 0; g <= 6; g++){
-      const val = g * 1000;
+      const val = Math.round(g * step);
       const y = yFor(val);
       svgHtml += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e7e9ee" stroke-width="1"/>`;
       const label = val === 0 ? '0' : (val/1000) + 'K';
@@ -864,35 +851,34 @@
   /* ================= Report actions ================= */
   function currentReportText(){
     return "BOGONKO ROSCA — Report Summary\n" +
-      "Cycle #1 - 2025 (Day 12 of 30)\n\n" +
-      "Total Members: 30\n" +
-      "Collected Today: KSh 5,400 (90% of target)\n" +
-      "Pending Amount: KSh 600 (3 Members)\n\n" +
+      "No active cycle\n\n" +
+      "Total Members: 0\n" +
+      "Collected Today: KSh 0 (0% of target)\n" +
+      "Pending Amount: KSh 0 (0 Members)\n\n" +
       "Collection Summary:\n" +
-      "  Expected Amount: KSh 6,000\n" +
-      "  Collected Amount: KSh 5,400\n" +
-      "  Collection Rate: 90%\n\n" +
+      "  Expected Amount: KSh 0\n" +
+      "  Collected Amount: KSh 0\n" +
+      "  Collection Rate: 0%\n\n" +
       "Payout Summary:\n" +
-      "  Total Payouts: KSh 6,000\n" +
-      "  Payouts Made: KSh 4,000\n" +
-      "  Remaining Payouts: KSh 2,000";
+      "  Total Payouts: KSh 0\n" +
+      "  Payouts Made: KSh 0\n" +
+      "  Remaining Payouts: KSh 0";
   }
 
   function exportReport(){
     let csv = "Metric,Value\n";
-    csv += "Cycle,Cycle #1 - 2025 (Day 12 of 30)\n";
-    csv += "Total Members,30\n";
-    csv += "Collected Today,KSh 5400\n";
-    csv += "Pending Amount,KSh 600\n";
-    csv += "Expected Amount,KSh 6000\n";
-    csv += "Collected Amount,KSh 5400\n";
-    csv += "Collection Rate,90%\n";
-    csv += "Total Payouts,KSh 6000\n";
-    csv += "Payouts Made,KSh 4000\n";
-    csv += "Remaining Payouts,KSh 2000\n\n";
+    csv += "Cycle,No active cycle\n";
+    csv += "Total Members,0\n";
+    csv += "Collected Today,KSh 0\n";
+    csv += "Pending Amount,KSh 0\n";
+    csv += "Expected Amount,KSh 0\n";
+    csv += "Collected Amount,KSh 0\n";
+    csv += "Collection Rate,0%\n";
+    csv += "Total Payouts,KSh 0\n";
+    csv += "Payouts Made,KSh 0\n";
+    csv += "Remaining Payouts,KSh 0\n\n";
     csv += "Date,Members Paid,Collected\n";
-    const paidCounts = [10,16,19,21,23,25,27];
-    trendData.forEach((d,i) => { csv += `${d.day},${paidCounts[i]} / 30,KSh ${d.value}\n`; });
+    trendData.forEach((d,i) => { csv += `${d.day},${d.membersPaid || 0} / 0,KSh ${d.value}\n`; });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -912,7 +898,7 @@
   }
 
   function emailReport(){
-    const subject = encodeURIComponent('Bogonko ROSCA — Cycle #1 Report (Day 12 of 30)');
+    const subject = encodeURIComponent('Bogonko ROSCA — Report');
     const body = encodeURIComponent(currentReportText());
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
     showToast('Opening email client…');

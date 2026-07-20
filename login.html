@@ -504,20 +504,9 @@
 
   // Keep this list in sync with the MEMBERS array in member-portal.html.
   // password = last 4 digits of the member's phone on file.
-  const MEMBERS = [
-    {order:1,  name:"John Mwangi",     phone:"0712 345 678"},
-    {order:2,  name:"Mary Wanjiku",    phone:"0721 234 567"},
-    {order:3,  name:"Peter Kamau",     phone:"0733 456 789"},
-    {order:4,  name:"Grace Njeri",     phone:"0708 123 456"},
-    {order:5,  name:"David Ochieng",   phone:"0745 678 901"},
-    {order:6,  name:"Sarah Akinyi",    phone:"0790 234 567"},
-    {order:7,  name:"James Otieno",    phone:"0726 345 678"},
-    {order:8,  name:"Beatrice Moraa",  phone:"0783 456 789"},
-    {order:9,  name:"Samuel Kiptoo",   phone:"0715 678 901"},
-  ];
-  for (let i = 10; i <= 30; i++){
-    MEMBERS.push({order:i, name:"Member "+i, phone:"07"+(10+i)+" 000 0"+(100+i)});
-  }
+  // No members yet — add entries here (or wire up real authentication)
+  // once members have been added to the group.
+  const MEMBERS = [];
   function lastFour(phone){ return phone.replace(/\D/g,'').slice(-4); }
 
   function checkLogin(){

@@ -492,7 +492,7 @@
       <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
       <div class="drawer-avatar">BR</div>
       <div class="drawer-name">Bogonko Rosca</div>
-      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+      <div class="drawer-sub">Not set</div>
     </div>
     <div class="drawer-links">
       <a href="dashboard.html" class="drawer-link">
@@ -543,7 +543,7 @@
       </div>
       <button class="icon-btn" aria-label="Notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        <span class="bell-badge">3</span>
+        <span class="bell-badge">0</span>
       </button>
     </div>
   </header>
@@ -563,30 +563,30 @@
       <div class="date-picker-wrap">
         <div class="date-display">
           <svg class="cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          <span id="dateLabel">18 May 2025</span>
+          <span id="dateLabel">Select date</span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
-        <input type="date" id="realDateInput" value="2025-05-18">
+        <input type="date" id="realDateInput">
       </div>
     </div>
 
     <div class="recipient-card">
-      <span class="day-badge">DAY 12 OF 30</span>
+      <span class="day-badge">NO ACTIVE CYCLE</span>
 
       <div class="recipient-row">
         <div class="recipient-left">
           <div class="eyebrow">TODAY'S RECIPIENT</div>
-          <div class="name">John Mwangi</div>
+          <div class="name">—</div>
           <div class="phone">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            0712 345 678
+            —
           </div>
         </div>
         <div class="recipient-right">
           <div class="avatar-ring">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </div>
-          <div class="position-pill">POSITION #12</div>
+          <div class="position-pill">—</div>
         </div>
       </div>
 
@@ -595,18 +595,18 @@
       <div class="amount-grid">
         <div class="amount-col">
           <div class="lbl">PAYOUT AMOUNT</div>
-          <div class="val green" id="payoutAmt">KSh 6,000</div>
-          <div class="sub">(30 &times; KSh 200)</div>
+          <div class="val green" id="payoutAmt">KSh 0</div>
+          <div class="sub">(0 &times; KSh 0)</div>
         </div>
         <div class="amount-col">
           <div class="lbl">TOTAL COLLECTED TODAY</div>
-          <div class="val green" id="collectedAmt">KSh 5,400</div>
-          <div class="sub" id="paidRatio">27 / 30 Paid</div>
+          <div class="val green" id="collectedAmt">KSh 0</div>
+          <div class="sub" id="paidRatio">0 / 0 Paid</div>
         </div>
         <div class="amount-col">
           <div class="lbl">OUTSTANDING</div>
-          <div class="val red" id="outstandingAmt">KSh 600</div>
-          <div class="sub" id="pendingCountSub">3 Members</div>
+          <div class="val red" id="outstandingAmt">KSh 0</div>
+          <div class="sub" id="pendingCountSub">0 Members</div>
         </div>
       </div>
     </div>
@@ -617,7 +617,7 @@
       </div>
       <div class="txt">
         <strong id="bannerTitle">Ready for Payout</strong>
-        <p id="bannerSub">Mark payout as completed after giving the amount to the recipient.</p>
+        <p id="bannerSub">No payout is scheduled for today.</p>
       </div>
     </div>
 
@@ -625,21 +625,21 @@
       <div class="checklist-title">PAYOUT CHECKLIST</div>
 
       <div class="check-item">
-        <div class="check-circ on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
         <div class="check-label">All daily contributions recorded</div>
-        <div class="check-value">27 / 30 Paid</div>
+        <div class="check-value">0 / 0 Paid</div>
       </div>
 
       <div class="check-item">
-        <div class="check-circ on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
         <div class="check-label">Payout amount verified</div>
-        <div class="check-value">KSh 6,000</div>
+        <div class="check-value">KSh 0</div>
       </div>
 
       <div class="check-item">
-        <div class="check-circ on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
         <div class="check-label">Recipient confirmed</div>
-        <div class="check-value">John Mwangi</div>
+        <div class="check-value">—</div>
       </div>
 
       <div class="check-item">
@@ -649,12 +649,12 @@
       </div>
     </div>
 
-    <button class="main-action-btn" id="markCompletedBtn" onclick="markPayoutCompleted()">
+    <button class="main-action-btn" id="markCompletedBtn" onclick="markPayoutCompleted()" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg>
-      <span id="markBtnLabel">MARK PAYOUT AS COMPLETED</span>
+      <span id="markBtnLabel">NO PAYOUT SCHEDULED</span>
     </button>
 
-    <button class="print-btn" id="printBtn" onclick="printReceipt()">
+    <button class="print-btn" id="printBtn" onclick="printReceipt()" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
       PRINT PAYOUT RECEIPT
     </button>
@@ -698,13 +698,13 @@
   <div class="modal-overlay" id="receiptOverlay">
     <div class="receipt-box">
       <h3>Payout Receipt</h3>
-      <div class="rsub" id="receiptDate">18 May 2025 · Cycle 1, Day 12</div>
-      <div class="receipt-line"><span>Recipient</span><b>John Mwangi</b></div>
-      <div class="receipt-line"><span>Phone</span><b>0712 345 678</b></div>
+      <div class="rsub" id="receiptDate">—</div>
+      <div class="receipt-line"><span>Recipient</span><b>—</b></div>
+      <div class="receipt-line"><span>Phone</span><b>—</b></div>
       <div class="receipt-line"><span>Position</span><b>#12</b></div>
-      <div class="receipt-line"><span>Payout Amount</span><b>KSh 6,000</b></div>
-      <div class="receipt-line"><span>Collected Today</span><b>KSh 5,400</b></div>
-      <div class="receipt-line"><span>Outstanding</span><b>KSh 600</b></div>
+      <div class="receipt-line"><span>Payout Amount</span><b>KSh 0</b></div>
+      <div class="receipt-line"><span>Collected Today</span><b>KSh 0</b></div>
+      <div class="receipt-line"><span>Outstanding</span><b>KSh 0</b></div>
       <div class="receipt-line"><span>Status</span><b id="rStatus">Pending</b></div>
       <button class="receipt-close" onclick="closeReceipt()">Close</button>
     </div>
@@ -717,7 +717,7 @@
 
   function markPayoutCompleted(){
     if(payoutCompleted) return;
-    if(!confirm('Confirm that KSh 6,000 has been handed to John Mwangi?')) return;
+    if(!confirm('Confirm that this payout has been handed to the recipient?')) return;
 
     payoutCompleted = true;
 
@@ -735,7 +735,7 @@
     document.getElementById('markBtnLabel').textContent = 'PAYOUT COMPLETED ✓';
 
     document.getElementById('bannerTitle').textContent = 'Payout Completed';
-    document.getElementById('bannerSub').textContent = 'John Mwangi has received KSh 6,000. Day 13 is now active.';
+    document.getElementById('bannerSub').textContent = 'Payout has been recorded.';
 
     document.getElementById('rStatus').textContent = 'Completed';
 

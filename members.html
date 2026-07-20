@@ -590,7 +590,7 @@
       <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
       <div class="drawer-avatar">BR</div>
       <div class="drawer-name">Bogonko Rosca</div>
-      <div class="drawer-sub">Bogonko-Ngelani Stage</div>
+      <div class="drawer-sub">Not set</div>
     </div>
     <div class="drawer-links">
       <a href="dashboard.html" class="drawer-link">
@@ -654,7 +654,7 @@
         </div>
         <div class="title-text">
           <h2>MEMBERS</h2>
-          <p id="memberSubtitle">Manage all group members (30 Members)</p>
+          <p id="memberSubtitle">Manage all group members (0 Members)</p>
         </div>
       </div>
 
@@ -677,12 +677,12 @@
       <div class="stat-strip">
         <div class="stat-item">
           <div class="circ c-navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-          <div class="num" id="totalCount">30</div>
+          <div class="num" id="totalCount">0</div>
           <div class="lbl">TOTAL MEMBERS</div>
         </div>
         <div class="stat-item">
           <div class="circ c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-          <div class="num" id="activeCount">30</div>
+          <div class="num" id="activeCount">0</div>
           <div class="lbl">ACTIVE</div>
         </div>
         <div class="stat-item">
@@ -720,10 +720,7 @@
       <div class="pagination">
         <button class="page-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>PREV</button>
         <button class="page-btn active">1</button>
-        <button class="page-btn">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn">4</button>
-        <button class="page-btn">NEXT<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+        <button class="page-btn disabled">NEXT<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
       </div>
 
       <div class="info-strip">
@@ -809,17 +806,7 @@
 </div>
 
 <script>
-  let members = [
-    {name:"John Mwangi", id:"12345678", phone:"0712 345 678", order:1, status:"Active"},
-    {name:"Mary Wanjiku", id:"23456789", phone:"0721 234 567", order:2, status:"Active"},
-    {name:"Peter Kamau", id:"34567890", phone:"0733 456 789", order:3, status:"Active"},
-    {name:"Grace Njeri", id:"45678901", phone:"0708 123 456", order:4, status:"Active"},
-    {name:"David Ochieng", id:"56789012", phone:"0745 678 901", order:5, status:"Active"},
-    {name:"Sarah Akinyi", id:"67890123", phone:"0790 234 567", order:6, status:"Active"},
-    {name:"James Otieno", id:"78901234", phone:"0726 345 678", order:7, status:"Active"},
-    {name:"Beatrice Moraa", id:"89012345", phone:"0783 456 789", order:8, status:"Active"},
-    {name:"Samuel Kiptoo", id:"90123456", phone:"0715 678 901", order:9, status:"Active"},
-  ];
+  let members = [];
 
   const personSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
   const editSvg = `<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>`;
@@ -828,6 +815,11 @@
   function renderTable(){
     const body = document.getElementById('membersBody');
     body.innerHTML = '';
+    if (members.length === 0) {
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted);">No members yet. Tap "Add Member" to get started.</td></tr>';
+      updateStats();
+      return;
+    }
     members.forEach((m, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
