@@ -24,4 +24,4 @@ const BOGONKO_FIREBASE_CONFIG = {
  * etc). Everyone else — including anonymous member sessions — gets
  * read-only access.
  */
-const BOGONKO_ADMIN_UID = "U0Jw2uYaK5fIn096IjUk0WkfmHn2";
+const BOGONKO_ADMIN_UID = "NTdaL18pnfRTVAqcUKXtPW7IMe42";
