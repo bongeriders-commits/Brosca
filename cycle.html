@@ -715,36 +715,47 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
-  // ---- Cycle state (mock data matching the current active cycle) ----
-  let cycle = {
-    number: 0,
-    year: new Date().getFullYear(),
-    startedLabel: '—',
-    duration: 0,
-    currentDay: 0,
-    totalMembers: 0,
-    dailyContribution: 0,
-    membersPaid: 0,
-    collectedSoFar: 0
-  };
-
   function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
 
-  function render(){
+  function fmtDateLabel(iso){
+    if (!iso) return '—';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  async function render(){
+    const cycle = await BogonkoState.getCycle();
     const pct = cycle.duration ? Math.round((cycle.currentDay / cycle.duration) * 100) : 0;
     const daysRemaining = Math.max(0, cycle.duration - cycle.currentDay);
-    const cycleComplete = cycle.duration > 0 && cycle.currentDay >= cycle.duration;
+    const cycleComplete = !!cycle.completed;
+
+    // Members paid / collected-so-far for the *current* day only, derived
+    // from real payout records rather than a hand-set counter.
+    let membersPaid = 0, collectedSoFar = 0;
+    if (cycle.number > 0 && !cycleComplete){
+      const todaysRecord = await BogonkoState.getPayoutRecord(cycle.number, cycle.currentDay);
+      if (todaysRecord){
+        membersPaid = todaysRecord.membersPaid || 0;
+        collectedSoFar = todaysRecord.collectedAmount || 0;
+      }
+    }
 
     document.getElementById('cycleTitle').textContent = cycle.number ? `Cycle #${cycle.number} – ${cycle.year}` : 'No Active Cycle';
-    document.getElementById('startedOn').textContent = cycle.startedLabel;
+    document.getElementById('startedOn').textContent = fmtDateLabel(cycle.startISO);
     document.getElementById('dayNow').textContent = cycle.currentDay;
     document.getElementById('dayTotal').textContent = cycle.duration;
     document.getElementById('progressFill').style.width = pct + '%';
     document.getElementById('progressPct').textContent = pct + '%';
-    document.getElementById('membersPaid').textContent = cycle.membersPaid;
+    document.getElementById('membersPaid').textContent = membersPaid;
     document.getElementById('membersTotal').textContent = cycle.totalMembers;
-    document.getElementById('collectedSoFar').textContent = fmtKsh(cycle.collectedSoFar);
+    document.getElementById('collectedSoFar').textContent = fmtKsh(collectedSoFar);
     document.getElementById('daysRemaining').textContent = daysRemaining;
 
     const statusPill = document.getElementById('statusPill');
@@ -755,38 +766,54 @@
       statusPill.textContent = 'NO CYCLE';
       statusPill.classList.remove('done');
       startBtn.disabled = false;
+      startBtn.textContent = 'START CYCLE 1';
       startDesc.textContent = 'No cycle has been started yet.';
     } else if (cycleComplete){
       statusPill.textContent = 'CYCLE COMPLETE';
       statusPill.classList.add('done');
       startBtn.disabled = false;
+      startBtn.textContent = 'START CYCLE ' + (cycle.number + 1);
       startDesc.textContent = 'This cycle has finished its full ' + cycle.duration + '-day run. You can now start Cycle ' + (cycle.number + 1) + '.';
     } else {
       statusPill.textContent = 'ACTIVE';
       statusPill.classList.remove('done');
       startBtn.disabled = true;
-      startDesc.textContent = `Current cycle will end on Day ${cycle.duration}. You can start a new cycle on Day ${cycle.duration + 1}.`;
+      startBtn.textContent = 'START NEW CYCLE';
+      startDesc.textContent = `Current cycle will end on Day ${cycle.duration}. You can start a new cycle once Day ${cycle.duration} is closed out.`;
     }
   }
 
-  function handleStartNewCycle(){
-    const daysRemaining = cycle.duration - cycle.currentDay;
+  async function handleStartNewCycle(){
+    const cycle = await BogonkoState.getCycle();
 
-    if (daysRemaining > 0){
-      // Enforced rule: cycles can only be refreshed after the full 30 days are complete.
-      showToast(`Locked: ${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left before a new cycle can start.`);
+    if (cycle.number > 0 && !cycle.completed){
+      const daysRemaining = cycle.duration - cycle.currentDay;
+      showToast(`Locked: Day ${cycle.currentDay} of ${cycle.duration} is still open.`);
       return;
     }
 
-    if (!confirm(`Start Cycle ${cycle.number + 1}? This will reset the day count and payout order.`)) return;
+    const label = cycle.number === 0 ? 'Cycle 1' : ('Cycle ' + (cycle.number + 1));
 
-    cycle.number += 1;
-    cycle.currentDay = 1;
-    cycle.membersPaid = 0;
-    cycle.collectedSoFar = 0;
-    cycle.startedLabel = 'Today';
-    render();
-    showToast(`Cycle ${cycle.number} started.`);
+    const durationStr = prompt(`Setting up ${label}\n\nHow many days should this cycle run?`, cycle.duration || 30);
+    if (durationStr === null) return;
+    const duration = parseInt(durationStr, 10);
+    if (!duration || duration < 1){ showToast('Enter a valid number of days.'); return; }
+
+    const membersStr = prompt(`How many members are in the group?`, cycle.totalMembers || duration);
+    if (membersStr === null) return;
+    const totalMembers = parseInt(membersStr, 10);
+    if (!totalMembers || totalMembers < 1){ showToast('Enter a valid number of members.'); return; }
+
+    const contribStr = prompt(`Daily contribution per member (KSh)?`, cycle.dailyContribution || 200);
+    if (contribStr === null) return;
+    const dailyContribution = parseInt(contribStr, 10);
+    if (!dailyContribution || dailyContribution < 1){ showToast('Enter a valid amount.'); return; }
+
+    if (!confirm(`Start ${label} — ${duration} days, ${totalMembers} members, KSh ${dailyContribution}/day. This cannot be edited once started. Continue?`)) return;
+
+    const newCycle = await BogonkoState.startCycle({ duration, totalMembers, dailyContribution });
+    await render();
+    showToast(`Cycle ${newCycle.number} started.`);
   }
 
   function showToast(msg){

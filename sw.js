@@ -10,6 +10,7 @@ const ASSETS = [
   './reports.html',
   './settings.html',
   './member-portal.html',
+  './bogonko-state.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

@@ -606,12 +606,22 @@
         </div>
         <div class="mini-stat">
           <div class="circ bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M2 10h20"></path></svg></div>
-          <div class="txt"><div class="n">KSh 200</div><div class="l">Per Member</div></div>
+          <div class="txt"><div class="n" id="perMemberVal">KSh 0</div><div class="l">Per Member</div></div>
         </div>
       </div>
     </div>
 
-    <div class="action-row">
+    <div class="ready-banner" id="lockBanner" style="display:none; margin-bottom:14px;">
+      <div class="circ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <div class="txt">
+        <strong>Day Locked</strong>
+        <p id="lockBannerSub">This day's payout has already been recorded and can no longer be edited.</p>
+      </div>
+    </div>
+
+    <div class="action-row" id="actionRow">
       <button class="act-btn paid" onclick="markAll('Paid')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
         MARK ALL PAID
@@ -685,8 +695,14 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
-  const PER_MEMBER = 200;
+  let PER_MEMBER = 200;
   let members = [];
 
   let currentFilter = 'all';
@@ -696,9 +712,43 @@
 
   function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
 
-  function renderList(){
+  async function getSelectedDayLock(){
+    const cycle = await BogonkoState.getCycle();
+    const iso = document.getElementById('realDateInput').value;
+    if (!cycle.startISO || !iso) return { locked: false, cycle };
+    const day = BogonkoState.dateISOToDay(cycle, iso);
+    if (day === null || day < 1) return { locked: false, cycle };
+    const locked = await BogonkoState.isDayClosed(cycle.number, day);
+    return { locked, cycle, day };
+  }
+
+  async function renderList(){
     const q = document.getElementById('searchInput').value.toLowerCase();
     const body = document.getElementById('memberListBody');
+    const { locked, day, cycle } = await getSelectedDayLock();
+
+    // Pull the current roster and today's paid/pending status from
+    // Firestore. Members default to "Pending" until explicitly marked.
+    members = await BogonkoState.getMembers();
+    if (cycle && cycle.number > 0 && day) {
+      const statusMap = await BogonkoState.getContributionsForDay(cycle.number, day);
+      members = members.map(m => Object.assign({}, m, { status: statusMap[m.docId] || 'Pending' }));
+    } else {
+      members = members.map(m => Object.assign({}, m, { status: 'Pending' }));
+    }
+
+    const lockBanner = document.getElementById('lockBanner');
+    lockBanner.style.display = locked ? 'flex' : 'none';
+    if (locked){
+      document.getElementById('lockBannerSub').textContent =
+        `Day ${day}'s payout has already been recorded and can no longer be edited.`;
+    }
+    document.querySelectorAll('#actionRow .act-btn.paid, #actionRow .act-btn.unpaid').forEach(b => {
+      b.disabled = locked;
+      b.style.opacity = locked ? 0.45 : '';
+      b.style.pointerEvents = locked ? 'none' : '';
+    });
+
     body.innerHTML = '';
     if (members.length === 0) {
       body.innerHTML = '<div style="text-align:center; padding:24px; color:var(--muted); font-size:13px;">No members yet</div>';
@@ -722,22 +772,31 @@
         </div>
         <div class="m-amount">${PER_MEMBER}</div>
         <div class="m-status ${isPaid?'paid':'pending'}">${isPaid?checkSvg:alertSvg}${isPaid?'Paid':'Pending'}</div>
-        <div class="m-toggle ${isPaid?'to-unpaid':'to-paid'}" onclick="toggleStatus(${i})">
+        ${locked
+          ? `<div class="m-toggle" style="opacity:.45; pointer-events:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</div>`
+          : `<div class="m-toggle ${isPaid?'to-unpaid':'to-paid'}" onclick="toggleStatus('${m.docId}')">
           ${isPaid ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Unpaid` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Paid`}
-        </div>
+        </div>`}
       `;
       body.appendChild(row);
     });
     updateSummary();
   }
 
-  function toggleStatus(i){
-    members[i].status = members[i].status === 'Paid' ? 'Pending' : 'Paid';
+  async function toggleStatus(docId){
+    const { locked, day, cycle } = await getSelectedDayLock();
+    if (locked || !cycle || !cycle.number || !day) { showToast('This day is locked \u2014 payout already recorded.'); return; }
+    const m = members.find(x => x.docId === docId);
+    if (!m) return;
+    const newStatus = m.status === 'Paid' ? 'Pending' : 'Paid';
+    await BogonkoState.setContribution(cycle.number, day, docId, newStatus);
     renderList();
   }
 
-  function markAll(status){
-    members.forEach(m => m.status = status);
+  async function markAll(status){
+    const { locked, day, cycle } = await getSelectedDayLock();
+    if (locked || !cycle || !cycle.number || !day) { showToast('This day is locked \u2014 payout already recorded.'); return; }
+    await Promise.all(members.map(m => BogonkoState.setContribution(cycle.number, day, m.docId, status)));
     renderList();
     showToast(status === 'Paid' ? 'All members marked as Paid' : 'All members marked as Unpaid');
   }
@@ -761,6 +820,7 @@
 
     document.getElementById('expectedAmt').textContent = fmtKsh(expected);
     document.getElementById('expectedSub').textContent = `(${total} × ${fmtKsh(PER_MEMBER)})`;
+    document.getElementById('perMemberVal').textContent = fmtKsh(PER_MEMBER);
     document.getElementById('collectedAmt').textContent = fmtKsh(collected);
     document.getElementById('outstandingAmt').textContent = fmtKsh(outstanding);
     document.getElementById('progressFill').style.width = pct + '%';
@@ -796,19 +856,24 @@
   }
 
   const dateInput = document.getElementById('realDateInput');
-  dateInput.addEventListener('change', function(){
+  dateInput.addEventListener('change', async function(){
     const d = new Date(this.value + 'T00:00:00');
     const formatted = d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     document.getElementById('dateLabel').textContent = formatted;
     document.getElementById('receiptDate').textContent = formatted;
-    showToast('Showing contributions for ' + formatted);
+    await renderList();
+    const { locked } = await getSelectedDayLock();
+    showToast(locked ? 'This day is locked \u2014 payout already recorded.' : 'Showing contributions for ' + formatted);
   });
 
-  (function(){
-    const today = new Date();
-    const iso = today.toISOString().slice(0,10);
+  (async function(){
+    const cycle = await BogonkoState.getCycle();
+    PER_MEMBER = cycle.dailyContribution || 0;
+    const todayDay = cycle.startISO ? cycle.currentDay : null;
+    const iso = todayDay ? BogonkoState.dayToDateISO(cycle, todayDay) : new Date().toISOString().slice(0,10);
     dateInput.value = iso;
-    const formatted = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const [y,m,dd] = iso.split('-').map(Number);
+    const formatted = new Date(y, m-1, dd).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     document.getElementById('dateLabel').textContent = formatted;
   })();
 

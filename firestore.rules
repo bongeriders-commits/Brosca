@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Anyone signed in can read everything — that's the admin, or a
+    // member signed in with their real phone-based account (created
+    // automatically when the admin adds them in Members). There is no
+    // anonymous sign-in anymore, so random visitors can't read anything.
+    // Only the admin account (matched by UID) can write: add/edit/remove
+    // members, start cycles, record contributions and payouts.
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == "U0Jw2uYaK5fIn096IjUk0WkfmHn2";
+    }
+  }
+}

@@ -454,17 +454,20 @@
         <span class="icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </span>
-        <input id="user" type="text" placeholder="Full Name or Admin Username" autocomplete="username">
+        <input id="user" type="text" placeholder="Phone Number (member) or Admin Email" autocomplete="username" oninput="updateLoginMode()">
       </div>
 
-      <div class="field">
+      <div class="field" id="pwField">
         <span class="icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         </span>
-        <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+        <input id="pw" type="password" placeholder="Password (admin only)" autocomplete="current-password">
         <button type="button" class="toggle-eye" onclick="togglePw()" aria-label="Show password">
           <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </button>
+      </div>
+      <div id="memberHint" style="display:none; color:var(--muted); font-size:12.5px; margin:-8px 0 14px; text-align:center;">
+        Members: just tap LOGIN with your phone number above — no password needed.
       </div>
 
       <div id="loginError" style="display:none; color:#d63b3b; font-size:13px; margin:-6px 0 14px; text-align:center;">
@@ -492,43 +495,59 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
-  // TEMPORARY credentials for testing/demo purposes only.
-  // Replace with real authentication (Firebase Auth, etc.) before going live.
-  // The admin still uses the fixed username/password below. Each member
-  // logs in with their full NAME + their own designated password (their
-  // phone number's last 4 digits) — no email involved. The app looks the
-  // name up in MEMBERS and routes to the right portal automatically.
-  const ADMIN_USERNAME = 'bogonko_admin';
-  const ADMIN_PASSWORD = 'Rosca2026!';
+  // Admin logs in with a real Firebase Auth account (create it once in
+  // Firebase Console → Authentication → Users, using an email address —
+  // any email works, e.g. admin@bogonko.local). Members log in with just
+  // their phone number — the number is both their ID and their account's
+  // password behind the scenes (set up automatically when the admin adds
+  // them in Members), so there's nothing extra to remember or type twice.
+  function looksLikeEmail(s){ return /\S+@\S+\.\S+/.test(s); }
 
-  // Keep this list in sync with the MEMBERS array in member-portal.html.
-  // password = last 4 digits of the member's phone on file.
-  // No members yet — add entries here (or wire up real authentication)
-  // once members have been added to the group.
-  const MEMBERS = [];
-  function lastFour(phone){ return phone.replace(/\D/g,'').slice(-4); }
+  function updateLoginMode(){
+    const userRaw = document.getElementById('user').value.trim();
+    const isAdminField = userRaw === '' || looksLikeEmail(userRaw) || userRaw.includes('@');
+    document.getElementById('pwField').style.display = isAdminField ? 'block' : 'none';
+    document.getElementById('memberHint').style.display = isAdminField ? 'none' : 'block';
+  }
 
-  function checkLogin(){
+  async function checkLogin(){
     const userRaw = document.getElementById('user').value.trim();
     const pass = document.getElementById('pw').value;
     const errorBox = document.getElementById('loginError');
+    const submitBtn = document.querySelector('.login-btn');
+    errorBox.style.display = 'none';
+    submitBtn.disabled = true;
 
-    const isAdmin = userRaw === ADMIN_USERNAME && pass === ADMIN_PASSWORD;
-    const member = MEMBERS.find(m => m.name.toLowerCase() === userRaw.toLowerCase());
-    const isMember = member && pass === lastFour(member.phone);
+    try {
+      if (looksLikeEmail(userRaw)) {
+        // Admin path — real Firebase Auth sign-in.
+        await BogonkoFirebase.auth.signInWithEmailAndPassword(userRaw, pass);
+        localStorage.setItem('bogonkoRole', 'admin');
+        window.location.href = 'dashboard.html';
+        return false;
+      }
 
-    if (isAdmin){
-      errorBox.style.display = 'none';
-      localStorage.setItem('bogonkoRole', 'admin');
-      window.location.href = 'dashboard.html';
-    } else if (isMember){
-      errorBox.style.display = 'none';
+      // Member path — phone number is the whole credential.
+      const email = BogonkoState.phoneToEmail(userRaw);
+      const password = BogonkoState.normalizePhone(userRaw);
+      await BogonkoFirebase.auth.signInWithEmailAndPassword(email, password);
+      const member = await BogonkoState.findMemberByPhone(userRaw);
       localStorage.setItem('bogonkoRole', 'member');
-      localStorage.setItem('bogonkoMemberName', member.name);
+      localStorage.setItem('bogonkoMemberName', member ? member.name : '');
+      localStorage.setItem('bogonkoMemberDocId', member ? member.docId : '');
       window.location.href = 'member-portal.html';
-    } else {
+    } catch (err) {
+      errorBox.textContent = 'Invalid phone number, email, or password.';
       errorBox.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
     }
     return false;
   }

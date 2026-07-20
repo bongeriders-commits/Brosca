@@ -805,6 +805,12 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
   let members = [];
 
@@ -855,10 +861,15 @@
     document.getElementById('memberSubtitle').textContent = `Manage all group members (${members.length} Members)`;
   }
 
-  function removeMember(index){
-    if(confirm(`Remove ${members[index].name} from the group?`)){
-      members.splice(index, 1);
-      renderTable();
+  async function removeMember(index){
+    const m = members[index];
+    if(confirm(`Remove ${m.name} from the group? Their login will still work unless you also delete it in Firebase Console \u2192 Authentication \u2192 Users (can't be done from this device).`)){
+      try {
+        await BogonkoState.removeMember(m.docId);
+        showToast(`${m.name} removed`);
+      } catch (e) {
+        alert('Could not remove member: ' + e.message);
+      }
     }
   }
 
@@ -882,7 +893,23 @@
     if(e.target === this) closeModal();
   });
 
-  function addMember(e){
+  // Creating a member's login account with createUserWithEmailAndPassword
+  // would normally sign the admin OUT and sign the new member IN on this
+  // device — using a throwaway secondary Firebase app instance avoids that,
+  // so the admin stays logged in after adding someone.
+  async function createMemberAccount(phone) {
+    const email = BogonkoState.phoneToEmail(phone);
+    const password = BogonkoState.normalizePhone(phone);
+    const secondary = firebase.apps.find(a => a.name === 'MemberCreate')
+      || firebase.initializeApp(BOGONKO_FIREBASE_CONFIG, 'MemberCreate');
+    try {
+      await secondary.auth().createUserWithEmailAndPassword(email, password);
+    } finally {
+      await secondary.auth().signOut();
+    }
+  }
+
+  async function addMember(e){
     e.preventDefault();
     const name = document.getElementById('newName').value.trim();
     const phone = document.getElementById('newPhone').value.trim();
@@ -891,10 +918,17 @@
     const status = document.getElementById('newStatus').value;
     const order = orderVal ? parseInt(orderVal) : members.length + 1;
 
-    members.push({name, id, phone, order, status});
-    renderTable();
-    closeModal();
-    showToast(`${name} added to the group`);
+    try {
+      await createMemberAccount(phone);
+      await BogonkoState.addMember({name, id, phone, order, status});
+      closeModal();
+      showToast(`${name} added \u2014 they can log in with their phone number`);
+    } catch (err) {
+      const msg = err.code === 'auth/email-already-in-use'
+        ? 'That phone number already has a login account (maybe added before?).'
+        : 'Could not add member: ' + err.message;
+      alert(msg);
+    }
     return false;
   }
 
@@ -905,7 +939,12 @@
     setTimeout(() => t.classList.remove('show'), 2600);
   }
 
-  renderTable();
+  // Live-updates whenever members are added/edited/removed from any
+  // device (admin phone, or this same page after a write).
+  BogonkoState.watchMembers(function(list){
+    members = list;
+    renderTable();
+  });
 </script>
 
 

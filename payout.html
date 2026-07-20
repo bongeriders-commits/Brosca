@@ -566,27 +566,27 @@
           <span id="dateLabel">Select date</span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </div>
-        <input type="date" id="realDateInput">
+        <input type="date" id="realDateInput" disabled>
       </div>
     </div>
 
     <div class="recipient-card">
-      <span class="day-badge">NO ACTIVE CYCLE</span>
+      <span class="day-badge" id="dayBadge">NO ACTIVE CYCLE</span>
 
       <div class="recipient-row">
         <div class="recipient-left">
           <div class="eyebrow">TODAY'S RECIPIENT</div>
-          <div class="name">—</div>
+          <div class="name" id="recipientName">—</div>
           <div class="phone">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            —
+            <span id="recipientPhone">—</span>
           </div>
         </div>
         <div class="recipient-right">
           <div class="avatar-ring">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </div>
-          <div class="position-pill">—</div>
+          <div class="position-pill" id="positionPill">—</div>
         </div>
       </div>
 
@@ -596,7 +596,7 @@
         <div class="amount-col">
           <div class="lbl">PAYOUT AMOUNT</div>
           <div class="val green" id="payoutAmt">KSh 0</div>
-          <div class="sub">(0 &times; KSh 0)</div>
+          <div class="sub" id="payoutAmtSub">(0 &times; KSh 0)</div>
         </div>
         <div class="amount-col">
           <div class="lbl">TOTAL COLLECTED TODAY</div>
@@ -625,21 +625,21 @@
       <div class="checklist-title">PAYOUT CHECKLIST</div>
 
       <div class="check-item">
-        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ" id="checkContrib"></div>
         <div class="check-label">All daily contributions recorded</div>
-        <div class="check-value">0 / 0 Paid</div>
+        <div class="check-value" id="checkContribVal">0 / 0 Paid</div>
       </div>
 
       <div class="check-item">
-        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ" id="checkAmount"></div>
         <div class="check-label">Payout amount verified</div>
-        <div class="check-value">KSh 0</div>
+        <div class="check-value" id="checkAmountVal">KSh 0</div>
       </div>
 
       <div class="check-item">
-        <div class="check-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="check-circ" id="checkRecipient"></div>
         <div class="check-label">Recipient confirmed</div>
-        <div class="check-value">—</div>
+        <div class="check-value" id="checkRecipientVal">—</div>
       </div>
 
       <div class="check-item">
@@ -699,12 +699,12 @@
     <div class="receipt-box">
       <h3>Payout Receipt</h3>
       <div class="rsub" id="receiptDate">—</div>
-      <div class="receipt-line"><span>Recipient</span><b>—</b></div>
-      <div class="receipt-line"><span>Phone</span><b>—</b></div>
-      <div class="receipt-line"><span>Position</span><b>#12</b></div>
-      <div class="receipt-line"><span>Payout Amount</span><b>KSh 0</b></div>
-      <div class="receipt-line"><span>Collected Today</span><b>KSh 0</b></div>
-      <div class="receipt-line"><span>Outstanding</span><b>KSh 0</b></div>
+      <div class="receipt-line"><span>Recipient</span><b id="rRecipient">—</b></div>
+      <div class="receipt-line"><span>Phone</span><b id="rPhone">—</b></div>
+      <div class="receipt-line"><span>Position</span><b id="rPosition">—</b></div>
+      <div class="receipt-line"><span>Payout Amount</span><b id="rAmount">KSh 0</b></div>
+      <div class="receipt-line"><span>Collected Today</span><b id="rCollectedToday">KSh 0</b></div>
+      <div class="receipt-line"><span>Outstanding</span><b id="rOutstanding">KSh 0</b></div>
       <div class="receipt-line"><span>Status</span><b id="rStatus">Pending</b></div>
       <button class="receipt-close" onclick="closeReceipt()">Close</button>
     </div>
@@ -712,34 +712,139 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
-  let payoutCompleted = false;
+  function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
 
-  function markPayoutCompleted(){
-    if(payoutCompleted) return;
-    if(!confirm('Confirm that this payout has been handed to the recipient?')) return;
+  function fmtDateLabel(iso){
+    if (!iso) return '\u2014';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  }
 
-    payoutCompleted = true;
+  function setChecklistItem(circId, valueId, done, text){
+    const circ = document.getElementById(circId);
+    const val = document.getElementById(valueId);
+    circ.classList.toggle('on', done);
+    circ.innerHTML = done
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+      : '';
+    val.textContent = text;
+  }
 
-    document.getElementById('finalCheckCirc').classList.add('on');
-    document.getElementById('finalCheckCirc').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  async function render(){
+    const cycle = await BogonkoState.getCycle();
+    const noCycle = cycle.number === 0 || !cycle.startISO;
+    const dayClosed = !noCycle && await BogonkoState.isDayClosed(cycle.number, cycle.currentDay);
+    const cycleComplete = !!cycle.completed;
+    const canPay = !noCycle && !cycleComplete && !dayClosed;
 
-    const fv = document.getElementById('finalCheckValue');
-    fv.textContent = 'Completed';
-    fv.classList.remove('pending-pill');
-    fv.classList.add('done-pill');
+    const dateISO = BogonkoState.dayToDateISO(cycle, cycle.currentDay) || BogonkoState.todayISO();
+    document.getElementById('dateLabel').textContent = fmtDateLabel(dateISO);
+    document.getElementById('realDateInput').value = dateISO;
+
+    document.getElementById('dayBadge').textContent = noCycle
+      ? 'NO ACTIVE CYCLE'
+      : (cycleComplete ? 'CYCLE COMPLETE' : `DAY ${cycle.currentDay} OF ${cycle.duration}`);
+
+    const expected = cycle.totalMembers * cycle.dailyContribution;
+    document.getElementById('recipientName').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
+    document.getElementById('recipientPhone').textContent = '\u2014';
+    document.getElementById('positionPill').textContent = noCycle ? '\u2014' : `POSITION #${cycle.currentDay}`;
+    document.getElementById('payoutAmt').textContent = fmtKsh(expected);
+    document.getElementById('payoutAmtSub').textContent = `(${cycle.totalMembers} \u00d7 ${fmtKsh(cycle.dailyContribution)})`;
+    document.getElementById('collectedAmt').textContent = fmtKsh(canPay ? expected : 0);
+    document.getElementById('paidRatio').textContent = canPay ? `${cycle.totalMembers} / ${cycle.totalMembers} Paid` : '0 / 0 Paid';
+    document.getElementById('outstandingAmt').textContent = fmtKsh(0);
+    document.getElementById('pendingCountSub').textContent = '0 Members';
 
     const btn = document.getElementById('markCompletedBtn');
-    btn.classList.add('completed');
-    btn.disabled = true;
-    document.getElementById('markBtnLabel').textContent = 'PAYOUT COMPLETED ✓';
+    const printBtn = document.getElementById('printBtn');
+    const label = document.getElementById('markBtnLabel');
+    const bannerTitle = document.getElementById('bannerTitle');
+    const bannerSub = document.getElementById('bannerSub');
 
-    document.getElementById('bannerTitle').textContent = 'Payout Completed';
-    document.getElementById('bannerSub').textContent = 'Payout has been recorded.';
+    if (noCycle){
+      btn.disabled = true;
+      printBtn.disabled = true;
+      label.textContent = 'NO PAYOUT SCHEDULED';
+      bannerTitle.textContent = 'No Active Cycle';
+      bannerSub.textContent = 'Start a cycle to begin scheduling payouts.';
+    } else if (cycleComplete){
+      btn.disabled = true;
+      printBtn.disabled = true;
+      label.textContent = 'CYCLE COMPLETE';
+      bannerTitle.textContent = 'Cycle Complete';
+      bannerSub.textContent = `Cycle ${cycle.number} finished its full ${cycle.duration}-day run.`;
+    } else if (dayClosed){
+      // Shouldn't normally be seen (we advance immediately after recording),
+      // but covers a reload landing exactly on an already-closed day.
+      btn.disabled = true;
+      printBtn.disabled = false;
+      btn.classList.add('completed');
+      label.textContent = 'PAYOUT COMPLETED \u2713';
+      bannerTitle.textContent = 'Payout Completed';
+      bannerSub.textContent = `Day ${cycle.currentDay} is locked \u2014 payout already recorded.`;
+    } else {
+      btn.disabled = false;
+      printBtn.disabled = false;
+      btn.classList.remove('completed');
+      label.textContent = 'MARK PAYOUT AS COMPLETED';
+      bannerTitle.textContent = 'Ready for Payout';
+      bannerSub.textContent = `Mark Day ${cycle.currentDay}'s payout as completed after handing over the amount.`;
+    }
 
-    document.getElementById('rStatus').textContent = 'Completed';
+    setChecklistItem('checkContrib', 'checkContribVal', canPay, canPay ? `${cycle.totalMembers} / ${cycle.totalMembers} Paid` : '0 / 0 Paid');
+    setChecklistItem('checkAmount', 'checkAmountVal', canPay, fmtKsh(canPay ? expected : 0));
+    setChecklistItem('checkRecipient', 'checkRecipientVal', !noCycle, noCycle ? '\u2014' : `Position #${cycle.currentDay}`);
 
-    showToast('Payout marked as completed — moving to Day 13');
+    const finalCirc = document.getElementById('finalCheckCirc');
+    const finalVal = document.getElementById('finalCheckValue');
+    finalCirc.classList.toggle('on', dayClosed);
+    finalCirc.innerHTML = dayClosed
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+      : '';
+    finalVal.textContent = dayClosed ? 'Completed' : 'Pending';
+    finalVal.classList.toggle('done-pill', dayClosed);
+    finalVal.classList.toggle('pending-pill', !dayClosed);
+
+    document.getElementById('rStatus').textContent = dayClosed ? 'Completed' : 'Pending';
+
+    document.getElementById('receiptDate').textContent = noCycle ? '\u2014' : `${fmtDateLabel(dateISO)} \u00b7 Cycle ${cycle.number}, Day ${cycle.currentDay}`;
+    document.getElementById('rRecipient').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
+    document.getElementById('rPhone').textContent = '\u2014';
+    document.getElementById('rPosition').textContent = noCycle ? '\u2014' : `#${cycle.currentDay}`;
+    document.getElementById('rAmount').textContent = fmtKsh(expected);
+    document.getElementById('rCollectedToday').textContent = fmtKsh(canPay || dayClosed ? expected : 0);
+    document.getElementById('rOutstanding').textContent = fmtKsh(0);
+  }
+
+  async function markPayoutCompleted(){
+    const cycle = await BogonkoState.getCycle();
+    if (cycle.number === 0 || cycle.completed) return;
+    if (await BogonkoState.isDayClosed(cycle.number, cycle.currentDay)) return;
+    if (!confirm(`Confirm that Day ${cycle.currentDay}'s payout has been handed to the recipient? This cannot be edited once recorded.`)) return;
+
+    const expected = cycle.totalMembers * cycle.dailyContribution;
+    const updated = await BogonkoState.recordPayoutAndAdvance({
+      recipientLabel: `Position #${cycle.currentDay}`,
+      amount: expected,
+      collectedAmount: expected,
+      membersPaid: cycle.totalMembers
+    });
+
+    if (updated.completed){
+      showToast(`Day ${cycle.currentDay} recorded and locked. Cycle ${updated.number} is complete.`);
+    } else {
+      showToast(`Day ${cycle.currentDay} recorded and locked \u2014 Day ${updated.currentDay} is now active.`);
+    }
+
+    render();
   }
 
   function printReceipt(){
@@ -759,14 +864,7 @@
     setTimeout(() => t.classList.remove('show'), 2600);
   }
 
-  const dateInput = document.getElementById('realDateInput');
-  dateInput.addEventListener('change', function(){
-    const d = new Date(this.value + 'T00:00:00');
-    const formatted = d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
-    document.getElementById('dateLabel').textContent = formatted;
-    document.getElementById('receiptDate').textContent = formatted + ' · Cycle 1';
-    showToast('Showing payout for ' + formatted);
-  });
+  render();
 </script>
 
 
