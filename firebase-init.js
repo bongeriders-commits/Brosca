@@ -12,9 +12,6 @@ const BogonkoFirebase = {
   adminUid: BOGONKO_ADMIN_UID
 };
 
-// Keep Firestore usable offline (matches the app's existing offline-first
-// PWA behavior from the service worker).
-BogonkoFirebase.db.enablePersistence({ synchronizeTabs: true }).catch(() => {
-  // Multiple tabs open, or browser doesn't support it — app still works,
-  // just without offline cache in that tab.
-});
+// Offline support intentionally removed: every read/write goes straight
+// to the server. Simpler and easier to debug — no local cache that can
+// disagree with what security rules actually allow.

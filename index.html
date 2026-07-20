@@ -79,8 +79,12 @@
   </div>
 
   <script>
+    // Offline support removed — actively unregister any old cached
+    // service worker instead of installing a new one.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      });
     }
     function goToLogin(){
       window.location.href = 'login.html';
