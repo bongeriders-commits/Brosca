@@ -10,7 +10,7 @@ service cloud.firestore {
     // members, start cycles, record contributions and payouts.
     match /{document=**} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == "U0Jw2uYaK5fIn096IjUk0WkfmHn2";
+      allow write: if request.auth != null && request.auth.uid == "NTdaL18pnfRTVAqcUKXtPW7IMe42";
     }
   }
 }
