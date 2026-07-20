@@ -357,34 +357,72 @@
   <div class="demo-note" id="demoNote"></div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
 /* =========================================================================
-   DEMO DATA MODEL
-   This app has no backend yet — everything below is mock data mirroring
-   the numbers used across the admin pages (dashboard.html / cycle.html).
-   When Bonge/Bogonko moves to Firebase, replace this block with real
-   Firestore reads (members, contributions/{date}/{memberId}, cycles/{id})
-   and keep the render functions as-is.
+   Live data, read straight from Firestore via BogonkoState — the same
+   source of truth cycle.html, members.html and contributions.html write
+   to. Nothing here is mock/demo data any more.
    ========================================================================= */
 
-  const CYCLE_START   = null;                    // set once a cycle starts
-  const CYCLE_DURATION = 0;                      // days
-  const DAILY_CONTRIBUTION = 0;                  // KSh per member per day
-  const MOCK_TODAY_DAY = 0;
+  // Mutable — filled in by loadData() below before anything renders.
+  let CYCLE_START = null;          // Date object, start of current cycle
+  let CYCLE_DURATION = 0;          // days
+  let DAILY_CONTRIBUTION = 0;      // KSh per member per day
+  let MOCK_TODAY_DAY = 0;          // cycle's current day (admin payout cursor)
+  let cycleData = null;
+  let contributionsForSelectedDay = {}; // memberDocId -> 'Paid' | 'Pending'
 
-  // Same rotation used by the admin app. Kept in sync with members.html.
-  const MEMBERS = [];
-  const TOTAL_MEMBERS = MEMBERS.length;
+  let MEMBERS = [];
+  let TOTAL_MEMBERS = 0;
 
   // ---- who is logged in? (set by login.html) ----
   let currentMember = null;
-  const savedName = localStorage.getItem('bogonkoMemberName');
-  if (savedName){
-    currentMember = MEMBERS.find(m => m.name.toLowerCase() === savedName.toLowerCase()) || null;
+
+  async function loadData(){
+    const memberDocId = localStorage.getItem('bogonkoMemberDocId');
+    const savedName = localStorage.getItem('bogonkoMemberName');
+
+    const [cycle, members] = await Promise.all([
+      BogonkoState.getCycle(),
+      BogonkoState.getMembers()
+    ]);
+
+    cycleData = cycle;
+    MEMBERS = members;
+    TOTAL_MEMBERS = MEMBERS.length;
+
+    if (cycle.startISO){
+      const [y, m, d] = cycle.startISO.split('-').map(Number);
+      CYCLE_START = new Date(y, m - 1, d);
+    } else {
+      CYCLE_START = null;
+    }
+    CYCLE_DURATION = cycle.duration || 0;
+    DAILY_CONTRIBUTION = cycle.dailyContribution || 0;
+    MOCK_TODAY_DAY = cycle.startISO ? cycle.currentDay : 0;
+
+    currentMember = memberDocId
+      ? MEMBERS.find(m => m.docId === memberDocId) || null
+      : (savedName ? MEMBERS.find(m => m.name.toLowerCase() === savedName.toLowerCase()) || null : null);
+
+    if (!currentMember){
+      document.getElementById('demoNote').textContent =
+        'No members have been added to the group yet.';
+    }
   }
-  if (!currentMember){
-    document.getElementById('demoNote').textContent =
-      'No members have been added to the group yet.';
+
+  async function loadContributionsForSelectedDay(day){
+    if (!cycleData || !cycleData.number || day < 1 || day > CYCLE_DURATION){
+      contributionsForSelectedDay = {};
+      return;
+    }
+    contributionsForSelectedDay = await BogonkoState.getContributionsForDay(cycleData.number, day);
   }
 
   function addDays(date, n){ const d = new Date(date); d.setDate(d.getDate()+n); return d; }
@@ -405,15 +443,10 @@
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
 
-  // Deterministic pseudo-random "did this member pay on this day" check,
-  // so the same day always shows the same numbers.
-  function seededPaid(day, order){
-    if (day === MOCK_TODAY_DAY){
-      return false;
-    }
-    let h = (day * 2654435761 + order * 40503) % 100;
-    if (h < 0) h += 100;
-    return h >= 10; // ~90% paid rate
+  // Real payment status for a member on the currently-selected day, read
+  // from contributionsForSelectedDay (loaded from Firestore before render).
+  function isPaid(memberDocId){
+    return contributionsForSelectedDay[memberDocId] === 'Paid';
   }
 
   function recipientForDay(day){
@@ -488,25 +521,25 @@
     document.getElementById('dateJump').max = toISODate(dayNumberToDate(CYCLE_DURATION));
   }
 
-  function jumpToDate(iso){
+  async function jumpToDate(iso){
     if (!iso) return;
     const [y,m,dd] = iso.split('-').map(Number);
     const day = dateToDayNumber(new Date(y, m-1, dd));
     if (day < 1 || day > CYCLE_DURATION){
       selectedDay = day; // will render the "outside cycle" message
-      renderAll();
+      await renderAll();
       return;
     }
-    selectDay(day);
+    await selectDay(day);
   }
 
-  function selectDay(d){
+  async function selectDay(d){
     selectedDay = d;
     document.getElementById('dateJump').value = toISODate(dayNumberToDate(Math.max(1, Math.min(CYCLE_DURATION, d))));
-    renderAll();
+    await renderAll();
   }
 
-  function renderAll(){
+  async function renderAll(){
     // update chip highlight
     document.querySelectorAll('.day-chip').forEach(c => {
       c.classList.toggle('is-selected', Number(c.dataset.day) === selectedDay);
@@ -533,10 +566,12 @@
     const recipient = recipientForDay(selectedDay);
     const isFuture = selectedDay > MOCK_TODAY_DAY;
 
+    await loadContributionsForSelectedDay(selectedDay);
+
     let paidCount = 0, pendingMembers = [];
     if (!isFuture){
       MEMBERS.forEach(m => {
-        if (seededPaid(selectedDay, m.order)) paidCount++;
+        if (isPaid(m.docId)) paidCount++;
         else pendingMembers.push(m);
       });
     }
@@ -544,7 +579,7 @@
     const expected = TOTAL_MEMBERS * DAILY_CONTRIBUTION;
     const pendingAmt = expected - collected;
 
-    const iAmPaid = !isFuture && seededPaid(selectedDay, currentMember.order);
+    const iAmPaid = !isFuture && isPaid(currentMember.docId);
 
     let html = '';
 
@@ -655,24 +690,30 @@
   function doLogout(){
     if (confirm('Log out of Bogonko ROSCA?')){
       localStorage.removeItem('bogonkoMemberName');
+      localStorage.removeItem('bogonkoMemberDocId');
       localStorage.removeItem('bogonkoRole');
       window.location.href = 'login.html';
     }
   }
 
-  renderHeader();
-  renderLockBanner();
-  buildDayStrip();
-  if (CYCLE_START) {
-    document.getElementById('dateJump').value = toISODate(dayNumberToDate(MOCK_TODAY_DAY));
-  }
-  renderAll();
+  (async function init(){
+    await loadData();
+    selectedDay = MOCK_TODAY_DAY;
 
-  // keep the current/selected chip scrolled into view
-  setTimeout(() => {
-    const sel = document.querySelector('.day-chip.is-selected');
-    if (sel) sel.scrollIntoView({ inline:'center', block:'nearest' });
-  }, 50);
+    renderHeader();
+    renderLockBanner();
+    buildDayStrip();
+    if (CYCLE_START) {
+      document.getElementById('dateJump').value = toISODate(dayNumberToDate(MOCK_TODAY_DAY));
+    }
+    await renderAll();
+
+    // keep the current/selected chip scrolled into view
+    setTimeout(() => {
+      const sel = document.querySelector('.day-chip.is-selected');
+      if (sel) sel.scrollIntoView({ inline:'center', block:'nearest' });
+    }, 50);
+  })();
 </script>
 
 <script>

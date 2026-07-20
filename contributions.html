@@ -869,8 +869,10 @@
   (async function(){
     const cycle = await BogonkoState.getCycle();
     PER_MEMBER = cycle.dailyContribution || 0;
-    const todayDay = cycle.startISO ? cycle.currentDay : null;
-    const iso = todayDay ? BogonkoState.dayToDateISO(cycle, todayDay) : new Date().toISOString().slice(0,10);
+    // Always default to the real calendar date, not the cycle's currentDay
+    // counter — currentDay only advances when a payout is recorded, so it
+    // can lag behind the actual date and get "stuck" on the start date.
+    const iso = BogonkoState.todayISO();
     dateInput.value = iso;
     const [y,m,dd] = iso.split('-').map(Number);
     const formatted = new Date(y, m-1, dd).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
