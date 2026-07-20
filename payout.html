@@ -665,7 +665,7 @@
       </div>
       <div class="txt">
         <strong>Important</strong>
-        <p>Once marked as completed, the system will automatically move to Day 13.</p>
+        <p id="importantNote">Once marked as completed, the system will automatically move to Day 13.</p>
       </div>
     </div>
   </main>
@@ -822,6 +822,17 @@
     document.getElementById('rAmount').textContent = fmtKsh(expected);
     document.getElementById('rCollectedToday').textContent = fmtKsh(canPay || dayClosed ? expected : 0);
     document.getElementById('rOutstanding').textContent = fmtKsh(0);
+
+    const note = document.getElementById('importantNote');
+    if (noCycle){
+      note.textContent = 'No cycle has started yet \u2014 payouts will begin once a cycle is created.';
+    } else if (cycleComplete){
+      note.textContent = `Cycle ${cycle.number} is complete \u2014 start a new cycle to schedule further payouts.`;
+    } else if (cycle.currentDay >= cycle.duration){
+      note.textContent = `Once marked as completed, this will be the final payout of Cycle ${cycle.number}.`;
+    } else {
+      note.textContent = `Once marked as completed, the system will automatically move to Day ${cycle.currentDay + 1}.`;
+    }
   }
 
   async function markPayoutCompleted(){
