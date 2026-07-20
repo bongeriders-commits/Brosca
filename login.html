@@ -517,18 +517,33 @@
     document.getElementById('memberHint').style.display = isAdminField ? 'none' : 'block';
   }
 
+  // On a slow/flaky mobile connection, a Firebase request can hang with
+  // no error for a long time. Race it against a timeout so the person
+  // always sees feedback instead of a button that looks frozen.
+  function withTimeout(promise, ms, message){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))
+    ]);
+  }
+
   async function checkLogin(){
     const userRaw = document.getElementById('user').value.trim();
     const pass = document.getElementById('pw').value;
     const errorBox = document.getElementById('loginError');
     const submitBtn = document.querySelector('.login-btn');
-    errorBox.style.display = 'none';
+    errorBox.style.color = '#7c8aa8';
+    errorBox.textContent = 'Signing in\u2026';
+    errorBox.style.display = 'block';
     submitBtn.disabled = true;
 
     try {
       if (looksLikeEmail(userRaw)) {
         // Admin path — real Firebase Auth sign-in.
-        await BogonkoFirebase.auth.signInWithEmailAndPassword(userRaw, pass);
+        await withTimeout(
+          BogonkoFirebase.auth.signInWithEmailAndPassword(userRaw, pass),
+          20000, 'Connection too slow \u2014 try again or switch to WiFi.'
+        );
         localStorage.setItem('bogonkoRole', 'admin');
         window.location.href = 'dashboard.html';
         return false;
@@ -537,14 +552,23 @@
       // Member path — phone number is the whole credential.
       const email = BogonkoState.phoneToEmail(userRaw);
       const password = BogonkoState.normalizePhone(userRaw);
-      await BogonkoFirebase.auth.signInWithEmailAndPassword(email, password);
-      const member = await BogonkoState.findMemberByPhone(userRaw);
+      await withTimeout(
+        BogonkoFirebase.auth.signInWithEmailAndPassword(email, password),
+        20000, 'Connection too slow \u2014 try again or switch to WiFi.'
+      );
+      const member = await withTimeout(
+        BogonkoState.findMemberByPhone(userRaw),
+        20000, 'Connection too slow \u2014 try again or switch to WiFi.'
+      );
       localStorage.setItem('bogonkoRole', 'member');
       localStorage.setItem('bogonkoMemberName', member ? member.name : '');
       localStorage.setItem('bogonkoMemberDocId', member ? member.docId : '');
       window.location.href = 'member-portal.html';
     } catch (err) {
-      errorBox.textContent = 'Invalid phone number, email, or password.';
+      errorBox.style.color = '#d63b3b';
+      errorBox.textContent = err.message && err.message.includes('slow')
+        ? err.message
+        : 'Invalid phone number, email, or password.';
       errorBox.style.display = 'block';
     } finally {
       submitBtn.disabled = false;
