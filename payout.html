@@ -752,16 +752,36 @@
       ? 'NO ACTIVE CYCLE'
       : (cycleComplete ? 'CYCLE COMPLETE' : `DAY ${cycle.currentDay} OF ${cycle.duration}`);
 
-    const expected = cycle.totalMembers * cycle.dailyContribution;
+    // Live member count and actual contribution records for today, rather
+    // than assuming every member paid.
+    const members = noCycle ? [] : await BogonkoState.getMembers();
+    const totalMembers = members.length;
+    const expected = totalMembers * (cycle.dailyContribution || 0);
+
+    let paidCount = 0, collected = 0;
+    if (canPay){
+      const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+      paidCount = members.filter(m => statusMap[m.docId] === 'Paid').length;
+      collected = paidCount * (cycle.dailyContribution || 0);
+    } else if (dayClosed || cycleComplete){
+      const record = await BogonkoState.getPayoutRecord(cycle.number, cycle.currentDay);
+      if (record){
+        paidCount = record.membersPaid || 0;
+        collected = record.collectedAmount || 0;
+      }
+    }
+    const outstanding = Math.max(0, expected - collected);
+    const pendingCount = Math.max(0, totalMembers - paidCount);
+
     document.getElementById('recipientName').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
     document.getElementById('recipientPhone').textContent = '\u2014';
     document.getElementById('positionPill').textContent = noCycle ? '\u2014' : `POSITION #${cycle.currentDay}`;
     document.getElementById('payoutAmt').textContent = fmtKsh(expected);
-    document.getElementById('payoutAmtSub').textContent = `(${cycle.totalMembers} \u00d7 ${fmtKsh(cycle.dailyContribution)})`;
-    document.getElementById('collectedAmt').textContent = fmtKsh(canPay ? expected : 0);
-    document.getElementById('paidRatio').textContent = canPay ? `${cycle.totalMembers} / ${cycle.totalMembers} Paid` : '0 / 0 Paid';
-    document.getElementById('outstandingAmt').textContent = fmtKsh(0);
-    document.getElementById('pendingCountSub').textContent = '0 Members';
+    document.getElementById('payoutAmtSub').textContent = `(${totalMembers} \u00d7 ${fmtKsh(cycle.dailyContribution || 0)})`;
+    document.getElementById('collectedAmt').textContent = fmtKsh(collected);
+    document.getElementById('paidRatio').textContent = `${paidCount} / ${totalMembers} Paid`;
+    document.getElementById('outstandingAmt').textContent = fmtKsh(outstanding);
+    document.getElementById('pendingCountSub').textContent = pendingCount + ' Members';
 
     const btn = document.getElementById('markCompletedBtn');
     const printBtn = document.getElementById('printBtn');
@@ -799,7 +819,7 @@
       bannerSub.textContent = `Mark Day ${cycle.currentDay}'s payout as completed after handing over the amount.`;
     }
 
-    setChecklistItem('checkContrib', 'checkContribVal', canPay, canPay ? `${cycle.totalMembers} / ${cycle.totalMembers} Paid` : '0 / 0 Paid');
+    setChecklistItem('checkContrib', 'checkContribVal', canPay && paidCount === totalMembers && totalMembers > 0, `${paidCount} / ${totalMembers} Paid`);
     setChecklistItem('checkAmount', 'checkAmountVal', canPay, fmtKsh(canPay ? expected : 0));
     setChecklistItem('checkRecipient', 'checkRecipientVal', !noCycle, noCycle ? '\u2014' : `Position #${cycle.currentDay}`);
 
@@ -820,8 +840,8 @@
     document.getElementById('rPhone').textContent = '\u2014';
     document.getElementById('rPosition').textContent = noCycle ? '\u2014' : `#${cycle.currentDay}`;
     document.getElementById('rAmount').textContent = fmtKsh(expected);
-    document.getElementById('rCollectedToday').textContent = fmtKsh(canPay || dayClosed ? expected : 0);
-    document.getElementById('rOutstanding').textContent = fmtKsh(0);
+    document.getElementById('rCollectedToday').textContent = fmtKsh(collected);
+    document.getElementById('rOutstanding').textContent = fmtKsh(outstanding);
 
     const note = document.getElementById('importantNote');
     if (noCycle){
@@ -841,12 +861,17 @@
     if (await BogonkoState.isDayClosed(cycle.number, cycle.currentDay)) return;
     if (!confirm(`Confirm that Day ${cycle.currentDay}'s payout has been handed to the recipient? This cannot be edited once recorded.`)) return;
 
-    const expected = cycle.totalMembers * cycle.dailyContribution;
+    const members = await BogonkoState.getMembers();
+    const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+    const paidCount = members.filter(m => statusMap[m.docId] === 'Paid').length;
+    const expected = members.length * (cycle.dailyContribution || 0);
+    const collected = paidCount * (cycle.dailyContribution || 0);
+
     const updated = await BogonkoState.recordPayoutAndAdvance({
       recipientLabel: `Position #${cycle.currentDay}`,
       amount: expected,
-      collectedAmount: expected,
-      membersPaid: cycle.totalMembers
+      collectedAmount: collected,
+      membersPaid: paidCount
     });
 
     if (updated.completed){

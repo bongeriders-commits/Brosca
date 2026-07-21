@@ -716,9 +716,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
         </div>
         <div class="stat-label">TOTAL COLLECTED TODAY</div>
-        <div class="stat-value">KSh 0</div>
-        <div class="stat-sub">of KSh 0</div>
-        <div class="progress-bar"><div class="fill" style="width:0%"></div></div>
+        <div class="stat-value" id="collectedTodayVal">KSh 0</div>
+        <div class="stat-sub" id="collectedTodaySub">of KSh 0</div>
+        <div class="progress-bar"><div class="fill" id="collectedTodayFill" style="width:0%"></div></div>
       </div>
 
       <div class="stat-card">
@@ -726,27 +726,27 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
         </div>
         <div class="stat-label">OUTSTANDING</div>
-        <div class="stat-value red">KSh 0</div>
-        <div class="stat-sub">0 Members Pending</div>
+        <div class="stat-value red" id="outstandingVal">KSh 0</div>
+        <div class="stat-sub" id="outstandingSub">0 Members Pending</div>
       </div>
     </div>
 
     <div class="section-card">
       <div class="section-title">TODAY'S COLLECTION PROGRESS</div>
       <div class="progress-flex">
-        <div class="progress-count"><span class="g">0</span> / 0 <span class="lbl">Members Paid</span></div>
-        <div class="donut"><div class="donut-inner">0%</div></div>
+        <div class="progress-count"><span class="g" id="progressPaidVal">0</span> / <span id="progressTotalVal">0</span> <span class="lbl">Members Paid</span></div>
+        <div class="donut"><div class="donut-inner" id="progressPct">0%</div></div>
       </div>
-      <div class="progress-bar"><div class="fill green" style="width:0%"></div></div>
+      <div class="progress-bar"><div class="fill green" id="progressFill" style="width:0%"></div></div>
     </div>
 
     <div class="two-col">
       <div class="mini-card">
         <div class="mini-title green">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          MEMBERS PAID (0)
+          MEMBERS PAID (<span id="paidCountVal">0</span>)
         </div>
-        <div class="avatar-row">
+        <div class="avatar-row" id="paidAvatarRow">
           <span class="mini-avatar more" style="width:auto; border-radius:8px; padding:0 8px; font-size:11px; color:var(--muted);">No members yet</span>
         </div>
       </div>
@@ -754,12 +754,12 @@
       <div class="mini-card">
         <div class="mini-title red">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
-          PENDING (0)
+          PENDING (<span id="pendingCountVal">0</span>)
         </div>
-        <div class="avatar-row">
+        <div class="avatar-row" id="pendingAvatarRow">
           <span class="mini-avatar more" style="width:auto; border-radius:8px; padding:0 8px; font-size:11px; color:var(--muted);">No members yet</span>
         </div>
-        <button class="view-details-btn">VIEW DETAILS</button>
+        <button class="view-details-btn" onclick="window.location.href='contributions.html'">VIEW DETAILS</button>
       </div>
     </div>
 
@@ -824,18 +824,67 @@
 <script>
   function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
 
+  function initials(name){
+    return (name || '?').trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
+  }
+
+  function renderAvatarRow(el, list){
+    if (!list.length){
+      el.innerHTML = '<span class="mini-avatar more" style="width:auto; border-radius:8px; padding:0 8px; font-size:11px; color:var(--muted);">No members yet</span>';
+      return;
+    }
+    const shown = list.slice(0, 5);
+    const extra = list.length - shown.length;
+    el.innerHTML = shown.map(m => `<span class="mini-avatar" title="${m.name}">${initials(m.name)}</span>`).join('')
+      + (extra > 0 ? `<span class="mini-avatar more">+${extra}</span>` : '');
+  }
+
   (async function(){
     const cycle = await BogonkoState.getCycle();
     const noCycle = cycle.number === 0 || !cycle.startISO;
+
+    // Live data — members and today's contributions — rather than the
+    // one-off totals typed in when the cycle was started.
+    const members = await BogonkoState.getMembers();
+    const totalMembers = members.length;
+    const dailyContribution = cycle.dailyContribution || 0;
+    const expectedToday = totalMembers * dailyContribution;
+
+    let statusMap = {};
+    if (!noCycle && !cycle.completed){
+      statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+    }
+    const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
+    const pendingMembers = members.filter(m => statusMap[m.docId] !== 'Paid');
+    const collectedToday = paidMembers.length * dailyContribution;
+    const outstanding = expectedToday - collectedToday;
+    const pct = expectedToday ? Math.round((collectedToday / expectedToday) * 100) : 0;
 
     document.getElementById('cycleBadge').textContent = noCycle ? 'NO CYCLE' : (cycle.completed ? 'COMPLETE' : `CYCLE ${cycle.number}`);
     document.getElementById('dayNum').textContent = cycle.currentDay || 0;
     document.getElementById('dayOf').textContent = 'OF ' + (cycle.duration || 0);
     document.getElementById('recipientName').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
-    document.getElementById('payoutAmount').textContent = fmtKsh(noCycle ? 0 : cycle.totalMembers * cycle.dailyContribution);
-    document.getElementById('totalMembersVal').textContent = cycle.totalMembers || 0;
-    document.getElementById('dailyContribVal').textContent = fmtKsh(cycle.dailyContribution || 0);
+    document.getElementById('payoutAmount').textContent = fmtKsh(noCycle ? 0 : expectedToday);
+    document.getElementById('totalMembersVal').textContent = totalMembers;
+    document.getElementById('dailyContribVal').textContent = fmtKsh(dailyContribution);
     document.getElementById('daysLeftVal').textContent = Math.max(0, (cycle.duration || 0) - (cycle.currentDay || 0)) + ' Days Left';
+
+    document.getElementById('collectedTodayVal').textContent = fmtKsh(collectedToday);
+    document.getElementById('collectedTodaySub').textContent = 'of ' + fmtKsh(expectedToday);
+    document.getElementById('collectedTodayFill').style.width = pct + '%';
+
+    document.getElementById('outstandingVal').textContent = fmtKsh(Math.max(0, outstanding));
+    document.getElementById('outstandingSub').textContent = pendingMembers.length + ' Members Pending';
+
+    document.getElementById('progressPaidVal').textContent = paidMembers.length;
+    document.getElementById('progressTotalVal').textContent = totalMembers;
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('paidCountVal').textContent = paidMembers.length;
+    document.getElementById('pendingCountVal').textContent = pendingMembers.length;
+    renderAvatarRow(document.getElementById('paidAvatarRow'), paidMembers);
+    renderAvatarRow(document.getElementById('pendingAvatarRow'), pendingMembers);
   })();
 </script>
 

@@ -620,31 +620,31 @@
       <div class="info-row">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="info-label">Total Members</div>
-        <div class="info-value">0</div>
+        <div class="info-value" id="infoTotalMembers">0</div>
       </div>
 
       <div class="info-row">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
         <div class="info-label">Daily Contribution</div>
-        <div class="info-value">KSh 0</div>
+        <div class="info-value" id="infoDailyContrib">KSh 0</div>
       </div>
 
       <div class="info-row">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div>
         <div class="info-label">Expected Daily Collection</div>
-        <div class="info-value">KSh 0</div>
+        <div class="info-value" id="infoExpectedDaily">KSh 0</div>
       </div>
 
       <div class="info-row">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
         <div class="info-label">Cycle Duration</div>
-        <div class="info-value">0 Days</div>
+        <div class="info-value" id="infoCycleDuration">0 Days</div>
       </div>
 
       <div class="info-row">
         <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M9.21 13.89 8 22l4-2 4 2-1.21-8.11"></path></svg></div>
         <div class="info-label">Payout Order</div>
-        <div class="info-value">—</div>
+        <div class="info-value" id="infoPayoutOrder">—</div>
       </div>
     </div>
 
@@ -736,14 +736,24 @@
     const daysRemaining = Math.max(0, cycle.duration - cycle.currentDay);
     const cycleComplete = !!cycle.completed;
 
-    // Members paid / collected-so-far for the *current* day only, derived
-    // from real payout records rather than a hand-set counter.
+    // Live member count, not the one-off total typed in when the cycle
+    // was started.
+    const members = await BogonkoState.getMembers();
+    const totalMembers = members.length;
+
+    // Members paid / collected-so-far for the *current* day, derived from
+    // today's actual contribution records (falls back to a closed day's
+    // immutable payout record once one exists).
     let membersPaid = 0, collectedSoFar = 0;
     if (cycle.number > 0 && !cycleComplete){
       const todaysRecord = await BogonkoState.getPayoutRecord(cycle.number, cycle.currentDay);
       if (todaysRecord){
         membersPaid = todaysRecord.membersPaid || 0;
         collectedSoFar = todaysRecord.collectedAmount || 0;
+      } else {
+        const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+        membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
+        collectedSoFar = membersPaid * (cycle.dailyContribution || 0);
       }
     }
 
@@ -754,9 +764,15 @@
     document.getElementById('progressFill').style.width = pct + '%';
     document.getElementById('progressPct').textContent = pct + '%';
     document.getElementById('membersPaid').textContent = membersPaid;
-    document.getElementById('membersTotal').textContent = cycle.totalMembers;
+    document.getElementById('membersTotal').textContent = totalMembers;
     document.getElementById('collectedSoFar').textContent = fmtKsh(collectedSoFar);
     document.getElementById('daysRemaining').textContent = daysRemaining;
+
+    document.getElementById('infoTotalMembers').textContent = totalMembers;
+    document.getElementById('infoDailyContrib').textContent = fmtKsh(cycle.dailyContribution || 0);
+    document.getElementById('infoExpectedDaily').textContent = fmtKsh(totalMembers * (cycle.dailyContribution || 0));
+    document.getElementById('infoCycleDuration').textContent = (cycle.duration || 0) + ' Days';
+    document.getElementById('infoPayoutOrder').textContent = cycle.number ? `Position #${cycle.currentDay} of ${cycle.duration}` : '\u2014';
 
     const statusPill = document.getElementById('statusPill');
     const startBtn = document.getElementById('startBtn');
@@ -799,10 +815,11 @@
     const duration = parseInt(durationStr, 10);
     if (!duration || duration < 1){ showToast('Enter a valid number of days.'); return; }
 
-    const membersStr = prompt(`How many members are in the group?`, cycle.totalMembers || duration);
-    if (membersStr === null) return;
-    const totalMembers = parseInt(membersStr, 10);
-    if (!totalMembers || totalMembers < 1){ showToast('Enter a valid number of members.'); return; }
+    // Member count comes from the live Members list — not a hand-typed
+    // number — so it can never drift out of sync with who's actually there.
+    const members = await BogonkoState.getMembers();
+    const totalMembers = members.length;
+    if (totalMembers < 1){ showToast('Add at least one member before starting a cycle.'); return; }
 
     const contribStr = prompt(`Daily contribution per member (KSh)?`, cycle.dailyContribution || 200);
     if (contribStr === null) return;
