@@ -136,6 +136,17 @@ const BogonkoState = (function () {
   // already immutable in the `payouts` collection.
   async function startCycle({ duration, totalMembers, dailyContribution, startISO }) {
     const prev = await getCycle();
+
+    // meta/cycle only ever holds the *live* cycle — once a new one starts,
+    // the outgoing cycle's parameters (duration, member count, daily
+    // amount) would otherwise be gone for good. Archive it first so
+    // Reports can still show accurate Previous Cycle / All Time figures.
+    if (prev.number > 0) {
+      await db().collection('cycles').doc(String(prev.number)).set(Object.assign({}, prev, {
+        archivedAt: new Date().toISOString()
+      }));
+    }
+
     const start = startISO || todayISO();
     const cycle = {
       number: prev.number + 1,
@@ -213,9 +224,10 @@ const BogonkoState = (function () {
         continue;
       }
 
-      let membersPaid = 0, collectedAmount = 0;
+      let membersPaid = 0, collectedAmount = 0, totalMembers = 0;
       try {
         const members = await getMembers();
+        totalMembers = members.length;
         const statusMap = await getContributionsForDay(cycle.number, cycle.currentDay);
         membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
         collectedAmount = membersPaid * (cycle.dailyContribution || 0);
@@ -224,7 +236,11 @@ const BogonkoState = (function () {
       try {
         cycle = await recordPayoutAndAdvance({
           recipientLabel: `Position #${cycle.currentDay}`,
-          amount: collectedAmount,
+          // "amount" is the position's target payout (what the recipient
+          // is entitled to per the schedule), same definition used by the
+          // manual close in payout.html — kept consistent so Reports can
+          // sum it without caring which path closed the day.
+          amount: totalMembers * (cycle.dailyContribution || 0),
           collectedAmount,
           membersPaid,
           autoClosed: true
@@ -297,6 +313,106 @@ const BogonkoState = (function () {
     });
   }
 
+  // ---------- Reporting ----------
+  // Everything below reads across days/cycles instead of one day at a
+  // time — used by reports.html to build historical summaries.
+
+  // All closed-day payout records for one cycle, keyed by day number.
+  async function getPayoutsForCycle(cycleNumber) {
+    const snap = await db().collection('payouts').where('cycleNumber', '==', cycleNumber).get();
+    const map = {};
+    snap.docs.forEach(d => { map[d.data().day] = d.data(); });
+    return map;
+  }
+
+  // Every contribution doc ever written for a cycle (all days, all
+  // members) — used for member-standing rollups across a whole cycle.
+  async function getContributionsForCycle(cycleNumber) {
+    const snap = await db().collection('contributions').where('cycleNumber', '==', cycleNumber).get();
+    return snap.docs.map(d => d.data());
+  }
+
+  async function getCycleArchive(cycleNumber) {
+    const snap = await db().collection('cycles').doc(String(cycleNumber)).get();
+    return snap.exists ? snap.data() : null;
+  }
+
+  async function getAllCycleArchives() {
+    const snap = await db().collection('cycles').orderBy('number', 'desc').get();
+    return snap.docs.map(d => d.data());
+  }
+
+  // Every cycle number we have any record of at all — archived, live, or
+  // (for cycles that finished before archiving existed) only visible via
+  // their leftover payout docs. Only sweeps the whole payouts collection
+  // when the archive doesn't already account for every past cycle, so a
+  // fully-migrated app never pays that cost.
+  async function getCycleNumbers() {
+    const live = await getCycle();
+    const archives = await getAllCycleArchives();
+    const nums = new Set(archives.map(c => c.number));
+    if (live.number > 0) nums.add(live.number);
+
+    const expectedPastCount = live.number > 0 ? live.number - 1 : 0;
+    if (archives.length < expectedPastCount) {
+      const snap = await db().collection('payouts').get();
+      snap.docs.forEach(d => nums.add(d.data().cycleNumber));
+    }
+    return Array.from(nums).sort((a, b) => b - a);
+  }
+
+  // Best-effort reconstruction of a cycle's parameters purely from its
+  // payout records — for cycles that finished before the `cycles`
+  // archive existed, so Reports still has something to show for them.
+  // amount = totalMembers * dailyContribution and collectedAmount =
+  // membersPaid * dailyContribution (see recordPayoutAndAdvance), so both
+  // figures can be recovered algebraically from any day with a paid
+  // member — everything else (duration, start date) reads straight off
+  // the day numbers/dates already stamped on each payout doc.
+  function reconstructCycleFromPayouts(cycleNumber, payoutsByDay) {
+    const days = Object.values(payoutsByDay).sort((a, b) => a.day - b.day);
+    if (days.length === 0) return null;
+
+    const duration = days[days.length - 1].day;
+    const sample = days.find(p => p.membersPaid > 0 && p.collectedAmount > 0);
+    const dailyContribution = sample ? Math.round(sample.collectedAmount / sample.membersPaid) : null;
+    const totalMembers = (sample && dailyContribution)
+      ? Math.round((sample.amount || sample.collectedAmount) / dailyContribution)
+      : null;
+
+    const first = days[0];
+    const startISO = first.day === 1 ? first.dateISO : addDays(first.dateISO, -(first.day - 1));
+    const last = days[days.length - 1];
+
+    return {
+      number: cycleNumber,
+      year: last.dateISO ? Number(last.dateISO.slice(0, 4)) : new Date().getFullYear(),
+      startISO,
+      duration,
+      totalMembers,
+      dailyContribution,
+      completed: true,
+      isCurrent: false,
+      legacy: true
+    };
+  }
+
+  // Normalized summary for any cycle number — whether it's the live
+  // cycle, an archived past one, or a pre-archiving legacy cycle that has
+  // to be reconstructed from its payout trail.
+  async function getCycleSummary(cycleNumber) {
+    const live = await getCycle();
+    if (live.number === cycleNumber) {
+      return Object.assign({}, live, { isCurrent: true, legacy: false });
+    }
+    const archived = await getCycleArchive(cycleNumber);
+    if (archived) {
+      return Object.assign({}, archived, { isCurrent: false, legacy: false });
+    }
+    const payoutsByDay = await getPayoutsForCycle(cycleNumber);
+    return reconstructCycleFromPayouts(cycleNumber, payoutsByDay);
+  }
+
   return {
     todayISO,
     dayToDateISO,
@@ -319,6 +435,12 @@ const BogonkoState = (function () {
     removeMember,
     findMemberByPhone,
     getContributionsForDay,
-    setContribution
+    setContribution,
+    getPayoutsForCycle,
+    getContributionsForCycle,
+    getCycleArchive,
+    getAllCycleArchives,
+    getCycleNumbers,
+    getCycleSummary
   };
 })();

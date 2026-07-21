@@ -271,6 +271,9 @@
     font-size:12px; font-weight:800; color:var(--navy);
     text-decoration:none;
   }
+  .rep-note{
+    font-size:11px; color:var(--muted); margin-top:10px; line-height:1.4;
+  }
 
   /* ---------- REPORT ACTIONS ---------- */
   .actions-grid{
@@ -552,26 +555,26 @@
       <div class="stat4-card green">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="lbl">TOTAL MEMBERS</div>
-        <div class="val">0</div>
+        <div class="val" id="statTotalMembers">0</div>
         <div class="sub">Active Members</div>
       </div>
       <div class="stat4-card blue">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9 9a3 3 0 0 1 3-1.5c1.66 0 3 1 3 2.5s-1.34 2.5-3 2.5-3 1-3 2.5 1.34 2.5 3 2.5a3 3 0 0 0 3-1.5"></path></svg></div>
         <div class="lbl">COLLECTED TODAY</div>
-        <div class="val">KSh 0</div>
-        <div class="sub">0% of target</div>
+        <div class="val" id="statCollectedToday">KSh 0</div>
+        <div class="sub" id="statCollectedTodaySub">0% of target</div>
       </div>
       <div class="stat4-card orange">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg></div>
         <div class="lbl">PENDING AMOUNT</div>
-        <div class="val">KSh 0</div>
-        <div class="sub">0 Members</div>
+        <div class="val" id="statPendingAmount">KSh 0</div>
+        <div class="sub" id="statPendingSub">0 Members</div>
       </div>
       <div class="stat4-card purple">
         <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
         <div class="lbl">ACTIVE CYCLE</div>
-        <div class="val">—</div>
-        <div class="sub">No active cycle</div>
+        <div class="val" id="statActiveCycle">—</div>
+        <div class="sub" id="statActiveCycleSub">No active cycle</div>
       </div>
     </div>
 
@@ -622,17 +625,17 @@
         <div class="summary-cols">
           <div>
             <div class="summary-col-title green">COLLECTION SUMMARY</div>
-            <div class="summary-line"><span>Expected Amount</span><b>KSh 0</b></div>
-            <div class="summary-line"><span>Collected Amount</span><b>KSh 0</b></div>
-            <div class="summary-line"><span>Collection Rate</span><b>0%</b></div>
-            <div class="mini-progress"><div class="fill green" style="width:0%">0%</div></div>
+            <div class="summary-line"><span>Expected Amount</span><b id="sumExpected">KSh 0</b></div>
+            <div class="summary-line"><span>Collected Amount</span><b id="sumCollected">KSh 0</b></div>
+            <div class="summary-line"><span>Collection Rate</span><b id="sumRate">0%</b></div>
+            <div class="mini-progress"><div class="fill green" id="sumRateFill" style="width:0%">0%</div></div>
           </div>
           <div>
             <div class="summary-col-title purple">PAYOUT SUMMARY</div>
-            <div class="summary-line"><span>Total Payouts</span><b>KSh 0</b></div>
-            <div class="summary-line"><span>Payouts Made</span><b>KSh 0</b></div>
-            <div class="summary-line"><span>Remaining Payouts</span><b>KSh 0</b></div>
-            <div class="mini-progress"><div class="fill purple" style="width:0%">0%</div></div>
+            <div class="summary-line"><span>Total Payouts</span><b id="sumTotalPayouts">KSh 0</b></div>
+            <div class="summary-line"><span>Payouts Made</span><b id="sumPayoutsMade">KSh 0</b></div>
+            <div class="summary-line"><span>Remaining Payouts</span><b id="sumRemainingPayouts">KSh 0</b></div>
+            <div class="mini-progress"><div class="fill purple" id="sumPayoutFill" style="width:0%">0%</div></div>
           </div>
         </div>
       </div>
@@ -652,7 +655,7 @@
         <div class="section-title">DAILY COLLECTIONS (LAST 7 DAYS)</div>
         <table class="rep-table">
           <thead><tr><th>Date</th><th>Paid</th><th style="text-align:right;">Collected</th></tr></thead>
-          <tbody>
+          <tbody id="collectionsTableBody">
             <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No collection data yet</td></tr>
           </tbody>
         </table>
@@ -666,7 +669,7 @@
         <div class="section-title">PAYOUT HISTORY</div>
         <table class="rep-table">
           <thead><tr><th>Recipient</th><th>Position</th><th style="text-align:right;">Amount</th></tr></thead>
-          <tbody>
+          <tbody id="payoutsTableBody">
             <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No payout history yet</td></tr>
           </tbody>
         </table>
@@ -680,7 +683,7 @@
         <div class="section-title">MEMBER STANDING</div>
         <table class="rep-table">
           <thead><tr><th>Member</th><th style="text-align:right;">Payments Made</th><th style="text-align:right;">Status</th></tr></thead>
-          <tbody>
+          <tbody id="membersTableBody">
             <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No members yet</td></tr>
           </tbody>
         </table>
@@ -694,10 +697,11 @@
         <div class="section-title">CYCLE HISTORY</div>
         <table class="rep-table">
           <thead><tr><th>Cycle</th><th>Duration</th><th style="text-align:right;">Status</th></tr></thead>
-          <tbody>
+          <tbody id="cyclesTableBody">
             <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No cycles yet</td></tr>
           </tbody>
         </table>
+        <p class="rep-note" id="cyclesLegacyNote" style="display:none;">* Reconstructed from payout records — this cycle finished before per-cycle history was tracked, so its member count/amount are estimated.</p>
         <a class="rep-link" href="cycle.html">Manage current cycle →</a>
       </div>
     </div>
@@ -758,9 +762,179 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
 <script>
-  /* ================= Collection trend chart (data-driven SVG) ================= */
-  const trendData = [];
+  function fmtKsh(n){ return "KSh " + Math.round(n || 0).toLocaleString(); }
+  function escapeHtml(s){
+    return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function addDaysLocal(iso, n){
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + n);
+    return dt.toISOString().slice(0, 10);
+  }
+  function fmtDateShort(iso){
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
+  let trendData = [];
+  let currentRange = 'This Cycle';
+  let latestReportData = null;
+  let allTimeCyclesCache = null;
+  let cachedMembers = [];
+  let cachedPayoutRows = [];
+  let cachedMemberTotals = {};
+  let cachedTotalOpportunities = 0;
+
+  /* ================= Data loading ================= */
+
+  // Per-day figures for one cycle: closed days come straight from its
+  // (immutable) payout records; for the live cycle, any day that's
+  // elapsed but not yet closed is read from its live contributions
+  // instead, so today's in-progress numbers show up too.
+  async function buildCycleDays(summary){
+    const payoutsByDay = await BogonkoState.getPayoutsForCycle(summary.number);
+    const days = [];
+    const closedDayNums = Object.keys(payoutsByDay).map(Number).sort((a, b) => a - b);
+    const maxClosed = closedDayNums.length ? Math.max(...closedDayNums) : 0;
+
+    closedDayNums.forEach(dayNum => {
+      const rec = payoutsByDay[dayNum];
+      days.push({
+        day: dayNum,
+        dateISO: rec.dateISO,
+        expected: rec.amount || 0,
+        collected: rec.collectedAmount || 0,
+        membersPaid: rec.membersPaid || 0,
+        amount: rec.amount || 0,
+        recipientLabel: rec.recipientLabel || ('Position #' + dayNum),
+        closed: true
+      });
+    });
+
+    if (summary.isCurrent && !summary.completed && summary.startISO){
+      const members = await BogonkoState.getMembers();
+      const totalMembers = members.length;
+      const dailyContribution = summary.dailyContribution || 0;
+      const today = BogonkoState.todayISO();
+      const rawTodayDay = BogonkoState.dateISOToDay(summary, today) || summary.currentDay;
+      const todayDay = Math.min(rawTodayDay, summary.duration || rawTodayDay);
+      for (let d = maxClosed + 1; d <= todayDay; d++){
+        const statusMap = await BogonkoState.getContributionsForDay(summary.number, d);
+        const membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
+        days.push({
+          day: d,
+          dateISO: BogonkoState.dayToDateISO(summary, d),
+          expected: totalMembers * dailyContribution,
+          collected: membersPaid * dailyContribution,
+          membersPaid,
+          amount: totalMembers * dailyContribution,
+          recipientLabel: 'Position #' + d,
+          closed: false
+        });
+      }
+    }
+
+    return days.sort((a, b) => a.day - b.day);
+  }
+
+  // Every cycle we have any record of at all (archived, live, or
+  // reconstructed from leftover payout docs), each with its day-by-day
+  // breakdown. Loaded once and cached — every panel/tab reads from this.
+  async function loadAllTimeCycles(){
+    if (allTimeCyclesCache) return allTimeCyclesCache;
+    const nums = await BogonkoState.getCycleNumbers();
+    const cyclesData = [];
+    for (const num of nums){
+      const summary = await BogonkoState.getCycleSummary(num);
+      if (!summary) continue;
+      const days = await buildCycleDays(summary);
+      cyclesData.push({ summary, days });
+    }
+    allTimeCyclesCache = cyclesData;
+    return cyclesData;
+  }
+
+  function cyclesForRange(allCycles, live, range){
+    if (range === 'This Cycle'){
+      return allCycles.filter(c => c.summary.number === live.number);
+    }
+    if (range === 'Previous Cycle'){
+      return allCycles.filter(c => c.summary.number === live.number - 1);
+    }
+    return allCycles; // All Time
+  }
+
+  // Expected/Collected (collection side) and Total/Made/Remaining
+  // (payout side) for one cycle. For a completed cycle "Total Payouts"
+  // is simply what was actually paid out (every day is closed); for the
+  // still-running current cycle it's the full projected amount across
+  // its whole duration, so "Remaining" reflects what's still ahead.
+  function cycleFinancials(summary, days){
+    const expected = days.reduce((s, d) => s + d.expected, 0);
+    const collected = days.reduce((s, d) => s + d.collected, 0);
+    const payoutsMade = days.filter(d => d.closed).reduce((s, d) => s + d.amount, 0);
+    const dailyTarget = (summary.totalMembers || 0) * (summary.dailyContribution || 0);
+    const totalPayouts = summary.completed ? payoutsMade : dailyTarget * (summary.duration || 0);
+    const remainingPayouts = summary.completed ? 0 : Math.max(0, totalPayouts - payoutsMade);
+    return { expected, collected, payoutsMade, totalPayouts, remainingPayouts };
+  }
+
+  async function buildTrendData(cycle){
+    if (!cycle.startISO || cycle.number === 0) return [];
+    const payoutsByDay = await BogonkoState.getPayoutsForCycle(cycle.number);
+    const members = await BogonkoState.getMembers();
+    const today = BogonkoState.todayISO();
+
+    const isoList = [];
+    for (let offset = 6; offset >= 0; offset--){
+      const iso = addDaysLocal(today, -offset);
+      if (iso >= cycle.startISO && iso <= today) isoList.push(iso);
+    }
+
+    const result = [];
+    for (const iso of isoList){
+      const dayNum = BogonkoState.dateISOToDay(cycle, iso);
+      if (dayNum < 1 || dayNum > cycle.duration) continue;
+      const rec = payoutsByDay[dayNum];
+      let value, membersPaid;
+      if (rec){
+        value = rec.collectedAmount || 0;
+        membersPaid = rec.membersPaid || 0;
+      } else {
+        const statusMap = await BogonkoState.getContributionsForDay(cycle.number, dayNum);
+        membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
+        value = membersPaid * (cycle.dailyContribution || 0);
+      }
+      result.push({ day: fmtDateShort(iso), value, membersPaid });
+    }
+    return result;
+  }
+
+  async function buildMemberStanding(allCycles, members){
+    const totals = {};
+    members.forEach(m => { totals[m.docId] = 0; });
+    let totalOpportunities = 0;
+
+    for (const { summary, days } of allCycles){
+      totalOpportunities += days.length;
+      const contribDocs = await BogonkoState.getContributionsForCycle(summary.number);
+      contribDocs.forEach(c => {
+        if (c.status === 'Paid' && totals.hasOwnProperty(c.memberDocId)) totals[c.memberDocId] += 1;
+      });
+    }
+    return { totals, totalOpportunities };
+  }
+
+  /* ================= Rendering ================= */
 
   function drawTrendChart(){
     const svg = document.getElementById('trendSvg');
@@ -778,27 +952,23 @@
     const plotW = W - padL - padR;
     const plotH = H - padT - padB;
 
-    const xFor = i => padL + (i / (trendData.length - 1)) * plotW;
+    const xFor = i => trendData.length > 1 ? padL + (i / (trendData.length - 1)) * plotW : padL + plotW / 2;
     const yFor = v => padT + plotH - (v / maxVal) * plotH;
 
     let svgHtml = '';
-
-    // gridlines + y labels (6 evenly spaced steps up to maxVal)
     const step = maxVal / 6;
     for (let g = 0; g <= 6; g++){
       const val = Math.round(g * step);
       const y = yFor(val);
       svgHtml += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e7e9ee" stroke-width="1"/>`;
-      const label = val === 0 ? '0' : (val/1000) + 'K';
+      const label = val === 0 ? '0' : (val / 1000) + 'K';
       svgHtml += `<text x="${padL - 8}" y="${y + 3}" font-size="9" fill="#7c8aa8" text-anchor="end" font-family="Segoe UI, sans-serif">${label}</text>`;
     }
 
-    // line path
-    const points = trendData.map((d,i) => `${xFor(i)},${yFor(d.value)}`).join(' ');
+    const points = trendData.map((d, i) => `${xFor(i)},${yFor(d.value)}`).join(' ');
     svgHtml += `<polyline points="${points}" fill="none" stroke="#1e9e50" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
 
-    // dots + value labels
-    trendData.forEach((d,i) => {
+    trendData.forEach((d, i) => {
       const x = xFor(i), y = yFor(d.value);
       svgHtml += `<circle cx="${x}" cy="${y}" r="4" fill="#1e9e50" stroke="#fff" stroke-width="1.5"/>`;
       svgHtml += `<text x="${x}" y="${y - 10}" font-size="10" font-weight="700" fill="#0a1a3c" text-anchor="middle" font-family="Segoe UI, sans-serif">${d.value.toLocaleString()}</text>`;
@@ -807,7 +977,174 @@
     svg.innerHTML = svgHtml;
     daysRow.innerHTML = trendData.map(d => `<span>${d.day}</span>`).join('');
   }
-  drawTrendChart();
+
+  function renderCollectionsTable(trend, totalMembers){
+    const tbody = document.getElementById('collectionsTableBody');
+    if (!trend.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No collection data yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = trend.slice().reverse().map(d => `
+      <tr>
+        <td>${d.day}</td>
+        <td>${d.membersPaid} / ${totalMembers}</td>
+        <td style="text-align:right;">${fmtKsh(d.value)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPayoutsTable(rows){
+    const tbody = document.getElementById('payoutsTableBody');
+    if (!rows.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No payout history yet</td></tr>';
+      return;
+    }
+    const shown = rows.slice(0, 40);
+    tbody.innerHTML = shown.map(r => `
+      <tr>
+        <td>Cycle ${r.cycleNumber} — ${escapeHtml(r.recipientLabel)}</td>
+        <td>Day ${r.day}</td>
+        <td style="text-align:right;">${fmtKsh(r.amount)}</td>
+      </tr>
+    `).join('') + (rows.length > shown.length
+      ? `<tr><td colspan="3" style="text-align:center; padding:10px; color:var(--muted); font-size:11px;">+ ${rows.length - shown.length} earlier payouts — showing most recent 40</td></tr>`
+      : '');
+  }
+
+  function renderMembersTable(members, totals, totalOpportunities){
+    const tbody = document.getElementById('membersTableBody');
+    if (!members.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No members yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = members.map(m => {
+      const paid = totals[m.docId] || 0;
+      const pending = Math.max(0, totalOpportunities - paid);
+      const statusHtml = pending === 0
+        ? `<span style="color:#1e9e50; font-weight:700;">Up to Date</span>`
+        : `<span style="color:#c9701c; font-weight:700;">${pending} Pending</span>`;
+      return `
+        <tr>
+          <td>${escapeHtml(m.name)}</td>
+          <td style="text-align:right;">${paid} / ${totalOpportunities}</td>
+          <td style="text-align:right;">${statusHtml}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderCyclesTable(allCycles){
+    const tbody = document.getElementById('cyclesTableBody');
+    if (!allCycles.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--muted);">No cycles yet</td></tr>';
+      document.getElementById('cyclesLegacyNote').style.display = 'none';
+      return;
+    }
+    const sorted = allCycles.slice().sort((a, b) => b.summary.number - a.summary.number);
+    tbody.innerHTML = sorted.map(({ summary }) => {
+      const statusHtml = (summary.isCurrent && !summary.completed)
+        ? `<span style="color:#2a6de0; font-weight:700;">Active</span>`
+        : `<span style="color:#1e9e50; font-weight:700;">Complete</span>`;
+      return `
+        <tr>
+          <td>Cycle ${summary.number}${summary.legacy ? ' *' : ''}</td>
+          <td>${summary.duration || '—'} days</td>
+          <td style="text-align:right;">${statusHtml}</td>
+        </tr>
+      `;
+    }).join('');
+    document.getElementById('cyclesLegacyNote').style.display = sorted.some(c => c.summary.legacy) ? 'block' : 'none';
+  }
+
+  async function refreshOverview(allCycles){
+    const live = await BogonkoState.getCycle();
+    const inRange = cyclesForRange(allCycles, live, currentRange);
+
+    let expected = 0, collected = 0, payoutsMade = 0, totalPayouts = 0, remainingPayouts = 0;
+    inRange.forEach(({ summary, days }) => {
+      const f = cycleFinancials(summary, days);
+      expected += f.expected; collected += f.collected;
+      payoutsMade += f.payoutsMade; totalPayouts += f.totalPayouts; remainingPayouts += f.remainingPayouts;
+    });
+
+    const rate = expected ? Math.round((collected / expected) * 100) : 0;
+    const payoutRate = totalPayouts ? Math.round((payoutsMade / totalPayouts) * 100) : 0;
+
+    document.getElementById('sumExpected').textContent = fmtKsh(expected);
+    document.getElementById('sumCollected').textContent = fmtKsh(collected);
+    document.getElementById('sumRate').textContent = rate + '%';
+    document.getElementById('sumRateFill').style.width = Math.min(100, rate) + '%';
+    document.getElementById('sumRateFill').textContent = rate + '%';
+
+    document.getElementById('sumTotalPayouts').textContent = fmtKsh(totalPayouts);
+    document.getElementById('sumPayoutsMade').textContent = fmtKsh(payoutsMade);
+    document.getElementById('sumRemainingPayouts').textContent = fmtKsh(remainingPayouts);
+    document.getElementById('sumPayoutFill').style.width = Math.min(100, payoutRate) + '%';
+    document.getElementById('sumPayoutFill').textContent = payoutRate + '%';
+
+    latestReportData = { range: currentRange, expected, collected, rate, totalPayouts, payoutsMade, remainingPayouts };
+  }
+
+  async function refreshStatCards(){
+    const cycle = await BogonkoState.autoCloseElapsedDays();
+    const members = await BogonkoState.getMembers();
+    const totalMembers = members.length;
+    document.getElementById('statTotalMembers').textContent = totalMembers;
+
+    const noCycle = cycle.number === 0 || !cycle.startISO;
+    const dailyContribution = cycle.dailyContribution || 0;
+    const expectedToday = totalMembers * dailyContribution;
+
+    let statusMap = {};
+    const todayDay = (!noCycle && cycle.startISO)
+      ? (BogonkoState.dateISOToDay(cycle, BogonkoState.todayISO()) || cycle.currentDay)
+      : cycle.currentDay;
+    if (!noCycle && !cycle.completed){
+      statusMap = await BogonkoState.getContributionsForDay(cycle.number, todayDay);
+    }
+    const paidCount = members.filter(m => statusMap[m.docId] === 'Paid').length;
+    const pendingCount = (noCycle || cycle.completed) ? 0 : (totalMembers - paidCount);
+    const collectedToday = paidCount * dailyContribution;
+    const pendingAmount = pendingCount * dailyContribution;
+    const pct = expectedToday ? Math.round((collectedToday / expectedToday) * 100) : 0;
+
+    document.getElementById('statCollectedToday').textContent = fmtKsh(collectedToday);
+    document.getElementById('statCollectedTodaySub').textContent = pct + '% of target';
+    document.getElementById('statPendingAmount').textContent = fmtKsh(pendingAmount);
+    document.getElementById('statPendingSub').textContent = pendingCount + (pendingCount === 1 ? ' Member' : ' Members');
+    document.getElementById('statActiveCycle').textContent = noCycle ? '—' : ('Cycle ' + cycle.number);
+    document.getElementById('statActiveCycleSub').textContent = noCycle ? 'No active cycle' :
+      (cycle.completed ? 'Completed' : `Day ${cycle.currentDay} of ${cycle.duration}`);
+
+    return cycle;
+  }
+
+  async function refreshEverything(){
+    const cycle = await refreshStatCards();
+    const allCycles = await loadAllTimeCycles();
+    cachedMembers = await BogonkoState.getMembers();
+
+    await refreshOverview(allCycles);
+
+    trendData = await buildTrendData(cycle);
+    drawTrendChart();
+    renderCollectionsTable(trendData, cachedMembers.length);
+
+    cachedPayoutRows = [];
+    allCycles.slice().sort((a, b) => b.summary.number - a.summary.number).forEach(({ summary, days }) => {
+      days.filter(d => d.closed).sort((a, b) => b.day - a.day).forEach(d => {
+        cachedPayoutRows.push(Object.assign({ cycleNumber: summary.number }, d));
+      });
+    });
+    renderPayoutsTable(cachedPayoutRows);
+
+    const standing = await buildMemberStanding(allCycles, cachedMembers);
+    cachedMemberTotals = standing.totals;
+    cachedTotalOpportunities = standing.totalOpportunities;
+    renderMembersTable(cachedMembers, cachedMemberTotals, cachedTotalOpportunities);
+
+    renderCyclesTable(allCycles);
+  }
 
   /* ================= Dropdowns ================= */
   function toggleDropdown(id, btn){
@@ -828,14 +1165,16 @@
     document.getElementById('dateLabel').textContent = label;
     document.getElementById('dateMenu').classList.remove('open');
     document.getElementById('dateBtn').classList.remove('open');
-    showToast('Showing report data for ' + label);
   }
-  function selectRange(el, label){
+  async function selectRange(el, label){
     document.querySelectorAll('#rangeMenu button').forEach(b => b.classList.remove('sel'));
     el.classList.add('sel');
     document.getElementById('rangeLabel').textContent = label;
     document.getElementById('rangeMenu').classList.remove('open');
     document.getElementById('rangeBtn').classList.remove('open');
+    currentRange = label;
+    const allCycles = await loadAllTimeCycles();
+    await refreshOverview(allCycles);
     showToast('Overview updated: ' + label);
   }
 
@@ -850,35 +1189,60 @@
 
   /* ================= Report actions ================= */
   function currentReportText(){
+    if (!latestReportData) return 'Report data is still loading — try again in a moment.';
+    const r = latestReportData;
     return "BOGONKO ROSCA — Report Summary\n" +
-      "No active cycle\n\n" +
-      "Total Members: 0\n" +
-      "Collected Today: KSh 0 (0% of target)\n" +
-      "Pending Amount: KSh 0 (0 Members)\n\n" +
-      "Collection Summary:\n" +
-      "  Expected Amount: KSh 0\n" +
-      "  Collected Amount: KSh 0\n" +
-      "  Collection Rate: 0%\n\n" +
-      "Payout Summary:\n" +
-      "  Total Payouts: KSh 0\n" +
-      "  Payouts Made: KSh 0\n" +
-      "  Remaining Payouts: KSh 0";
+      document.getElementById('statActiveCycle').textContent + ' — ' + document.getElementById('statActiveCycleSub').textContent + "\n\n" +
+      "Total Members: " + document.getElementById('statTotalMembers').textContent + "\n" +
+      "Collected Today: " + document.getElementById('statCollectedToday').textContent + " (" + document.getElementById('statCollectedTodaySub').textContent + ")\n" +
+      "Pending Amount: " + document.getElementById('statPendingAmount').textContent + " (" + document.getElementById('statPendingSub').textContent + ")\n\n" +
+      "Collection Summary (" + r.range + "):\n" +
+      "  Expected Amount: " + fmtKsh(r.expected) + "\n" +
+      "  Collected Amount: " + fmtKsh(r.collected) + "\n" +
+      "  Collection Rate: " + r.rate + "%\n\n" +
+      "Payout Summary (" + r.range + "):\n" +
+      "  Total Payouts: " + fmtKsh(r.totalPayouts) + "\n" +
+      "  Payouts Made: " + fmtKsh(r.payoutsMade) + "\n" +
+      "  Remaining Payouts: " + fmtKsh(r.remainingPayouts);
   }
 
   function exportReport(){
+    if (!latestReportData){ showToast('Report data still loading — try again in a moment.'); return; }
+    const r = latestReportData;
     let csv = "Metric,Value\n";
-    csv += "Cycle,No active cycle\n";
-    csv += "Total Members,0\n";
-    csv += "Collected Today,KSh 0\n";
-    csv += "Pending Amount,KSh 0\n";
-    csv += "Expected Amount,KSh 0\n";
-    csv += "Collected Amount,KSh 0\n";
-    csv += "Collection Rate,0%\n";
-    csv += "Total Payouts,KSh 0\n";
-    csv += "Payouts Made,KSh 0\n";
-    csv += "Remaining Payouts,KSh 0\n\n";
+    csv += `Range,${r.range}\n`;
+    csv += `Active Cycle,"${document.getElementById('statActiveCycle').textContent} (${document.getElementById('statActiveCycleSub').textContent})"\n`;
+    csv += `Total Members,${document.getElementById('statTotalMembers').textContent}\n`;
+    csv += `Collected Today,${document.getElementById('statCollectedToday').textContent}\n`;
+    csv += `Pending Amount,${document.getElementById('statPendingAmount').textContent}\n`;
+    csv += `Expected Amount,${fmtKsh(r.expected)}\n`;
+    csv += `Collected Amount,${fmtKsh(r.collected)}\n`;
+    csv += `Collection Rate,${r.rate}%\n`;
+    csv += `Total Payouts,${fmtKsh(r.totalPayouts)}\n`;
+    csv += `Payouts Made,${fmtKsh(r.payoutsMade)}\n`;
+    csv += `Remaining Payouts,${fmtKsh(r.remainingPayouts)}\n\n`;
+
+    csv += "Daily Collections (Last 7 Days)\n";
     csv += "Date,Members Paid,Collected\n";
-    trendData.forEach((d,i) => { csv += `${d.day},${d.membersPaid || 0} / 0,KSh ${d.value}\n`; });
+    trendData.forEach(d => { csv += `${d.day},${d.membersPaid},${d.value}\n`; });
+    csv += "\n";
+
+    csv += "Payout History\n";
+    csv += "Cycle,Day,Recipient,Amount\n";
+    cachedPayoutRows.forEach(row => { csv += `${row.cycleNumber},${row.day},"${(row.recipientLabel || '').replace(/"/g,'')}",${row.amount}\n`; });
+    csv += "\n";
+
+    csv += "Member Standing\n";
+    csv += "Member,Payments Made,Total Opportunities\n";
+    cachedMembers.forEach(m => { csv += `"${(m.name || '').replace(/"/g,'')}",${cachedMemberTotals[m.docId] || 0},${cachedTotalOpportunities}\n`; });
+    csv += "\n";
+
+    csv += "Cycle History\n";
+    csv += "Cycle,Duration,Status\n";
+    (allTimeCyclesCache || []).forEach(({ summary }) => {
+      const status = (summary.isCurrent && !summary.completed) ? 'Active' : 'Complete';
+      csv += `${summary.number},${summary.duration || ''},${status}\n`;
+    });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -921,6 +1285,8 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2600);
   }
+
+  refreshEverything();
 </script>
 
 
