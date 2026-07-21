@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1a3c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bogonko ROSCA">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bogonko ROSCA — Cycle History</title>
+<style>
+  :root{
+    --navy-deep:#0a1a3c;
+    --navy:#0e2a5e;
+    --navy-light:#16386f;
+    --gold:#e8ab2f;
+    --gold-light:#f5c85a;
+    --cream:#f4f5f7;
+    --ink:#0a1a3c;
+    --muted:#7c8aa8;
+    --green:#1e9e50;
+    --green-light:#e8f7ee;
+    --red:#d63b3b;
+    --red-light:#fdecec;
+    --amber-light:#fdf3e0;
+    --amber:#a6740e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--cream);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    padding-bottom:30px;
+    position:relative;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    padding:20px 20px 26px;
+    color:#fff;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:4px; position:relative;
+  }
+  .icon-btn svg{ width:22px; height:22px; }
+  .brand{ text-align:center; flex:1; }
+  .brand h1{ font-size:22px; font-weight:800; letter-spacing:1px; }
+  .brand h1 span{ color:var(--gold); }
+  .brand p{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; font-weight:500; }
+
+  /* ---------- MAIN ---------- */
+  main{ padding:18px 16px 0; flex:1; }
+
+  .page-title-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:#fff;
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .page-icon{
+    width:52px; height:52px; flex-shrink:0;
+    border-radius:50%;
+    background:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .page-icon svg{ width:24px; height:24px; color:#fff; }
+  .page-title{ flex:1; }
+  .page-title h2{
+    font-size:16.5px;
+    font-weight:800;
+    color:var(--navy-deep);
+    letter-spacing:0.3px;
+  }
+  .page-title p{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  /* ---------- CYCLE LIST ---------- */
+  .cycles-list{ margin-top:16px; }
+  .empty-state{
+    background:#fff; border-radius:16px; padding:34px 20px;
+    text-align:center; color:var(--muted);
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+  }
+  .empty-state svg{ width:38px; height:38px; color:#c7cddb; margin-bottom:10px; }
+  .empty-state p{ font-size:13px; font-weight:600; }
+
+  .cycle-card{
+    background:#fff;
+    border-radius:14px;
+    padding:15px;
+    box-shadow:0 2px 10px rgba(10,26,60,0.06);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:13px;
+    cursor:pointer;
+    border:none;
+    width:100%;
+    text-align:left;
+    font-family:inherit;
+  }
+  .cycle-card:active{ transform:scale(0.98); }
+  .cycle-avatar{
+    width:48px; height:48px; flex-shrink:0;
+    border-radius:50%;
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    color:var(--gold-light);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px;
+  }
+  .cycle-info{ flex:1; min-width:0; }
+  .cycle-info-top{ display:flex; align-items:center; gap:8px; }
+  .cycle-info-top h3{ font-size:14.5px; font-weight:800; color:var(--navy-deep); }
+  .cycle-pill{
+    font-size:9.5px; font-weight:800; letter-spacing:0.3px;
+    padding:2.5px 8px; border-radius:20px; text-transform:uppercase;
+  }
+  .cycle-pill.current{ background:var(--green-light); color:var(--green); }
+  .cycle-pill.completed{ background:#eef0f5; color:var(--muted); }
+  .cycle-dates{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .cycle-stats{ font-size:11px; color:var(--navy-light); margin-top:4px; font-weight:600; }
+  .cycle-chevron{ flex-shrink:0; color:#c7cddb; }
+  .cycle-chevron svg{ width:18px; height:18px; }
+
+  .loading-row{ text-align:center; padding:30px; color:var(--muted); font-size:13px; font-weight:600; }
+
+  /* ---------- DETAIL MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.6);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:250;
+  }
+  .modal-overlay.open{ display:flex; }
+  .detail-box{
+    background:var(--cream);
+    border-radius:20px 20px 0 0;
+    width:100%;
+    max-width:520px;
+    max-height:92vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .detail-head{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 100%);
+    color:#fff;
+    padding:18px 18px 16px;
+    position:sticky; top:0; z-index:5;
+    border-radius:20px 20px 0 0;
+  }
+  .detail-head-top{ display:flex; align-items:center; justify-content:space-between; }
+  .detail-close{
+    background:rgba(255,255,255,0.12); border:none; color:#fff;
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:18px; line-height:1;
+  }
+  .detail-head h2{ font-size:16px; font-weight:800; }
+  .detail-head .dsub{ font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px; }
+  .detail-summary-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    margin-top:14px;
+  }
+  .dsum-box{
+    background:rgba(255,255,255,0.08);
+    border-radius:10px; padding:9px 8px; text-align:center;
+  }
+  .dsum-box .v{ font-size:14px; font-weight:800; color:var(--gold-light); }
+  .dsum-box .l{ font-size:9px; color:rgba(255,255,255,0.65); font-weight:700; text-transform:uppercase; margin-top:2px; letter-spacing:0.2px; }
+
+  .detail-body{ padding:14px 14px 24px; }
+  .detail-loading{ text-align:center; padding:40px 0; color:var(--muted); font-size:13px; font-weight:600; }
+
+  .day-acc{
+    background:#fff;
+    border:1px solid #e4e6ec;
+    border-radius:12px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .day-acc summary{
+    cursor:pointer;
+    list-style:none;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .day-acc summary::-webkit-details-marker{ display:none; }
+  .day-acc[open] summary{ border-bottom:1px solid #eef0f5; background:#fafbfd; }
+  .day-head-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .day-num{
+    width:32px; height:32px; flex-shrink:0; border-radius:9px;
+    background:var(--navy-deep); color:var(--gold-light);
+    font-size:12px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .day-num.open-day{ background:var(--gold); color:var(--navy-deep); }
+  .day-head-text .dt{ font-size:13px; font-weight:800; color:var(--navy-deep); }
+  .day-head-text .dd{ font-size:10.5px; color:var(--muted); margin-top:1px; }
+  .day-head-right{ text-align:right; flex-shrink:0; }
+  .day-status-pill{
+    font-size:9px; font-weight:800; letter-spacing:0.2px;
+    padding:2.5px 7px; border-radius:20px; text-transform:uppercase;
+    display:inline-block;
+  }
+  .day-status-pill.closed{ background:var(--green-light); color:var(--green); }
+  .day-status-pill.openpill{ background:var(--amber-light); color:var(--amber); }
+  .day-status-pill.future{ background:#eef0f5; color:var(--muted); }
+  .day-collected{ font-size:11px; font-weight:800; color:var(--navy-deep); margin-top:3px; }
+  .chevron-icon{ width:14px; height:14px; color:#b7bdcc; flex-shrink:0; transition:transform 0.15s; }
+  .day-acc[open] .chevron-icon{ transform:rotate(180deg); }
+
+  .day-body{ padding:4px 14px 12px; }
+  .pay-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 0; border-bottom:1px solid #f0f1f4;
+    gap:10px;
+  }
+  .pay-row:last-child{ border-bottom:none; }
+  .pay-row-left{ min-width:0; }
+  .pay-row-left .pname{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .pay-row-left .pmeta{ font-size:10px; color:var(--muted); margin-top:1px; }
+  .pay-row-right{ text-align:right; flex-shrink:0; }
+  .pay-status{
+    font-size:9.5px; font-weight:800; padding:2.5px 8px; border-radius:20px;
+    display:inline-block; text-transform:uppercase; letter-spacing:0.2px;
+  }
+  .pay-status.paid{ background:var(--green-light); color:var(--green); }
+  .pay-status.pending{ background:var(--red-light); color:var(--red); }
+  .pay-amount{ font-size:12px; font-weight:800; color:var(--navy-deep); margin-top:4px; }
+  .pay-timedate{ font-size:9.5px; color:var(--muted); margin-top:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="header-row">
+    <button class="icon-btn" aria-label="Back" onclick="window.location.href='cycle.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </button>
+    <div class="brand">
+      <h1>BOGONKO <span>ROSCA</span></h1>
+      <p>Rotating Savings. Together We Grow.</p>
+    </div>
+    <span class="icon-btn" style="visibility:hidden;">
+      <svg viewBox="0 0 24 24"></svg>
+    </span>
+  </div>
+</header>
+
+<main>
+
+  <div class="page-title-row">
+    <div class="page-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+    </div>
+    <div class="page-title">
+      <h2>Cycle History</h2>
+      <p>Tap a cycle to see full daily payout details</p>
+    </div>
+  </div>
+
+  <div class="cycles-list" id="cyclesList">
+    <div class="loading-row">Loading cycles…</div>
+  </div>
+
+</main>
+
+</div>
+
+<!-- ---------- CYCLE DETAIL MODAL ---------- -->
+<div class="modal-overlay" id="detailOverlay">
+  <div class="detail-box">
+    <div class="detail-head">
+      <div class="detail-head-top">
+        <div>
+          <h2 id="detailTitle">Cycle</h2>
+          <div class="dsub" id="detailSub">—</div>
+        </div>
+        <button class="detail-close" aria-label="Close" onclick="closeDetail()">&times;</button>
+      </div>
+      <div class="detail-summary-grid">
+        <div class="dsum-box"><div class="v" id="dsDuration">—</div><div class="l">Days</div></div>
+        <div class="dsum-box"><div class="v" id="dsMembers">—</div><div class="l">Members</div></div>
+        <div class="dsum-box"><div class="v" id="dsDaily">—</div><div class="l">Per Day</div></div>
+      </div>
+    </div>
+    <div class="detail-body" id="detailBody">
+      <div class="detail-loading">Loading cycle details…</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:var(--navy-deep); color:#fff; padding:11px 18px; border-radius:10px; font-size:12.5px; font-weight:600; opacity:0; pointer-events:none; transition:all 0.25s; z-index:400; max-width:88%; text-align:center;"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="bogonko-state.js"></script>
+<script>
+  function fmtKsh(n){ return "KSh " + Math.round(n || 0).toLocaleString(); }
+
+  function fmtDateLabel(iso){
+    if (!iso) return '—';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function fmtDateShort(iso){
+    if (!iso) return '—';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  }
+
+  function fmtTime(isoTimestamp){
+    if (!isoTimestamp) return null;
+    const d = new Date(isoTimestamp);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(window._toastT);
+    window._toastT = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 2600);
+  }
+
+  async function renderCycleList(){
+    const listEl = document.getElementById('cyclesList');
+    try {
+      const nums = await BogonkoState.getCycleNumbers();
+      if (!nums.length){
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+            <p>No cycles have started yet.</p>
+          </div>`;
+        return;
+      }
+
+      const summaries = await Promise.all(nums.map(n => BogonkoState.getCycleSummary(n)));
+      listEl.innerHTML = summaries.map(cycle => {
+        if (!cycle) return '';
+        const isCurrent = !!cycle.isCurrent && !cycle.completed;
+        const pillClass = isCurrent ? 'current' : 'completed';
+        const pillText = isCurrent ? 'Current' : 'Completed';
+        const endISO = cycle.startISO ? BogonkoState.dayToDateISO(cycle, cycle.duration) : null;
+        const dateRange = cycle.startISO
+          ? `${fmtDateShort(cycle.startISO)} — ${fmtDateShort(endISO)}, ${cycle.year || ''}`
+          : 'Dates unavailable';
+        return `
+          <button class="cycle-card" onclick="openDetail(${cycle.number})">
+            <div class="cycle-avatar">#${cycle.number}</div>
+            <div class="cycle-info">
+              <div class="cycle-info-top">
+                <h3>Cycle ${cycle.number}</h3>
+                <span class="cycle-pill ${pillClass}">${pillText}</span>
+              </div>
+              <div class="cycle-dates">${dateRange}</div>
+              <div class="cycle-stats">${cycle.duration || 0} days • ${cycle.totalMembers ?? '—'} members • ${cycle.dailyContribution != null ? fmtKsh(cycle.dailyContribution) + '/day' : '—'}</div>
+            </div>
+            <div class="cycle-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          </button>`;
+      }).join('');
+    } catch (e){
+      listEl.innerHTML = `<div class="empty-state"><p>Couldn't load cycle history. Pull to refresh and try again.</p></div>`;
+    }
+  }
+
+  async function openDetail(cycleNumber){
+    document.getElementById('detailOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const bodyEl = document.getElementById('detailBody');
+    bodyEl.innerHTML = '<div class="detail-loading">Loading cycle details…</div>';
+    document.getElementById('detailTitle').textContent = `Cycle ${cycleNumber}`;
+    document.getElementById('detailSub').textContent = 'Loading…';
+    document.getElementById('dsDuration').textContent = '—';
+    document.getElementById('dsMembers').textContent = '—';
+    document.getElementById('dsDaily').textContent = '—';
+
+    try {
+      const cycle = await BogonkoState.getCycleSummary(cycleNumber);
+      if (!cycle){ bodyEl.innerHTML = '<div class="detail-loading">No data found for this cycle.</div>'; return; }
+
+      const [members, contributions, payouts] = await Promise.all([
+        BogonkoState.getMembers(),
+        BogonkoState.getContributionsForCycle(cycleNumber),
+        BogonkoState.getPayoutsForCycle(cycleNumber)
+      ]);
+
+      const endISO = cycle.startISO ? BogonkoState.dayToDateISO(cycle, cycle.duration) : null;
+      document.getElementById('detailSub').textContent = cycle.startISO
+        ? `${fmtDateLabel(cycle.startISO)} — ${fmtDateLabel(endISO)}${cycle.isCurrent ? ' (in progress)' : ''}`
+        : 'Start date unavailable';
+      document.getElementById('dsDuration').textContent = cycle.duration || 0;
+      document.getElementById('dsMembers').textContent = cycle.totalMembers ?? '—';
+      document.getElementById('dsDaily').textContent = cycle.dailyContribution != null ? fmtKsh(cycle.dailyContribution) : '—';
+
+      // Group contribution docs by day.
+      const contribsByDay = {};
+      contributions.forEach(c => {
+        if (!contribsByDay[c.day]) contribsByDay[c.day] = {};
+        contribsByDay[c.day][c.memberDocId] = c;
+      });
+
+      // Roster = current members (in order) plus any member ids that only
+      // show up in this cycle's contribution records (e.g. someone since
+      // removed from the group) so their payout history isn't lost.
+      const currentById = {};
+      const rosterIds = [];
+      members.forEach(m => { currentById[m.docId] = m; rosterIds.push(m.docId); });
+      Object.values(contribsByDay).forEach(dayMap => {
+        Object.keys(dayMap).forEach(id => {
+          if (!currentById[id] && !rosterIds.includes(id)) rosterIds.push(id);
+        });
+      });
+
+      const todayISO = BogonkoState.todayISO();
+      const duration = cycle.duration || 0;
+      let html = '';
+
+      for (let day = 1; day <= duration; day++){
+        const dateISO = cycle.startISO ? BogonkoState.dayToDateISO(cycle, day) : null;
+        const payoutRec = payouts[day] || null;
+        const dayMap = contribsByDay[day] || {};
+        const isClosed = !!payoutRec;
+        const isFuture = dateISO ? dateISO > todayISO : false;
+
+        let statusClass = 'openpill', statusText = 'Open', dayNumClass = 'open-day';
+        if (isClosed){ statusClass = 'closed'; statusText = 'Closed'; dayNumClass = ''; }
+        else if (isFuture){ statusClass = 'future'; statusText = 'Upcoming'; dayNumClass = ''; }
+
+        const collected = payoutRec ? (payoutRec.collectedAmount || 0)
+          : rosterIds.filter(id => dayMap[id] && dayMap[id].status === 'Paid').length * (cycle.dailyContribution || 0);
+        const recipientLabel = payoutRec ? (payoutRec.recipientLabel || `Position #${day}`) : `Position #${day}`;
+
+        const rows = rosterIds.map(id => {
+          const m = currentById[id];
+          const name = m ? m.name : 'Former member';
+          const phone = m ? m.phone : '';
+          const rec = dayMap[id];
+          const paid = rec && rec.status === 'Paid';
+          const amount = paid ? (cycle.dailyContribution || 0) : 0;
+          const timeStr = paid ? fmtTime(rec.updatedAt) : null;
+          const dateStr = paid && dateISO ? fmtDateShort(dateISO) : '—';
+          return `
+            <div class="pay-row">
+              <div class="pay-row-left">
+                <div class="pname">${name}</div>
+                <div class="pmeta">${phone || ''}</div>
+              </div>
+              <div class="pay-row-right">
+                <span class="pay-status ${paid ? 'paid' : 'pending'}">${paid ? 'Paid' : 'Pending'}</span>
+                <div class="pay-amount">${fmtKsh(amount)}</div>
+                <div class="pay-timedate">${dateStr}${timeStr ? ' • ' + timeStr : ''}</div>
+              </div>
+            </div>`;
+        }).join('');
+
+        html += `
+          <details class="day-acc">
+            <summary>
+              <div class="day-head-left">
+                <div class="day-num ${dayNumClass}">${day}</div>
+                <div class="day-head-text">
+                  <div class="dt">Day ${day} — ${recipientLabel}</div>
+                  <div class="dd">${dateISO ? fmtDateLabel(dateISO) : 'Date unavailable'}</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="day-head-right">
+                  <span class="day-status-pill ${statusClass}">${statusText}</span>
+                  <div class="day-collected">${fmtKsh(collected)}</div>
+                </div>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </summary>
+            <div class="day-body">${rows || '<div class="detail-loading">No members on record.</div>'}</div>
+          </details>`;
+      }
+
+      bodyEl.innerHTML = html || '<div class="detail-loading">This cycle has no recorded days.</div>';
+    } catch (e){
+      bodyEl.innerHTML = '<div class="detail-loading">Couldn\'t load this cycle\'s details. Try again.</div>';
+    }
+  }
+
+  function closeDetail(){
+    document.getElementById('detailOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('detailOverlay').addEventListener('click', function(e){
+    if (e.target === this) closeDetail();
+  });
+
+  renderCycleList();
+</script>
+
+<script>
+  // Offline support removed — actively unregister any old cached
+  // service worker instead of installing a new one.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(reg => reg.unregister());
+    });
+  }
+</script>
+</body>
+</html>
