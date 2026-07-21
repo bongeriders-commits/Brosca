@@ -134,18 +134,38 @@ const BogonkoState = (function () {
   // Starts a brand-new cycle (Cycle 1, or the next one after the previous
   // one finished). Past cycles' payout history is untouched — it's
   // already immutable in the `payouts` collection.
-  async function startCycle({ duration, totalMembers, dailyContribution }) {
+  async function startCycle({ duration, totalMembers, dailyContribution, startISO }) {
     const prev = await getCycle();
+    const start = startISO || todayISO();
     const cycle = {
       number: prev.number + 1,
       year: new Date().getFullYear(),
-      startISO: todayISO(),
+      startISO: start,
       duration: Number(duration),
       totalMembers: Number(totalMembers),
       dailyContribution: Number(dailyContribution),
       currentDay: 1,
-      completed: false
+      completed: false,
+      // When the admin backdates a cycle's start, every day between then
+      // and today is technically "elapsed" the instant it's created.
+      // Left alone, autoCloseElapsedDays would sweep through all of them
+      // right away and lock in 0-collected payouts before the admin gets
+      // a chance to mark who actually paid on each of those days. This
+      // flag pauses that sweep until the admin confirms via
+      // finishBackfill() that the history has been entered.
+      backfillPending: start < todayISO()
     };
+    await saveCycle(cycle);
+    return cycle;
+  }
+
+  // Called once the admin has gone through Contributions and marked
+  // historical days for a backdated cycle. Lifts the pause on
+  // autoCloseElapsedDays so the cycle resumes normal day-by-day tracking.
+  async function finishBackfill() {
+    const cycle = await getCycle();
+    if (!cycle.backfillPending) return cycle;
+    cycle.backfillPending = false;
     await saveCycle(cycle);
     return cycle;
   }
@@ -182,6 +202,7 @@ const BogonkoState = (function () {
   async function autoCloseElapsedDays() {
     let cycle = await getCycle();
     if (!cycle.startISO || cycle.currentDay < 1 || cycle.completed) return cycle;
+    if (cycle.backfillPending) return cycle;
 
     const today = todayISO();
     let guard = 0; // hard cap so a very stale/misconfigured cycle can't loop forever
@@ -288,6 +309,7 @@ const BogonkoState = (function () {
     getPayoutRecord,
     recordPayoutAndAdvance,
     startCycle,
+    finishBackfill,
     dayStatus,
     autoCloseElapsedDays,
     getMembers,

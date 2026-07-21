@@ -370,6 +370,27 @@
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
+  /* ---------- LOCK / BACKFILL BANNERS ---------- */
+  .ready-banner{
+    display:flex; align-items:flex-start; gap:12px;
+    background:#fdf3e0;
+    border:1px solid #f3d896;
+    border-radius:14px;
+    padding:14px 16px;
+  }
+  .ready-banner .circ{
+    width:36px; height:36px; border-radius:50%;
+    background:#a6740e; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ready-banner .circ svg{ width:18px; height:18px; color:#fff; }
+  .ready-banner .txt strong{ font-size:13px; color:#7a5a10; display:block; margin-bottom:2px; }
+  .ready-banner .txt p{ font-size:12px; color:#8a6a20; line-height:1.4; }
+  .ready-banner.backfill-banner{ background:#e8f0fd; border-color:#bcd6f7; }
+  .ready-banner.backfill-banner .circ{ background:#2a6de0; }
+  .ready-banner.backfill-banner .txt strong{ color:#1e4a94; }
+  .ready-banner.backfill-banner .txt p{ color:#2c56a0; }
+
   /* ---------- RECEIPT MODAL ---------- */
   .modal-overlay{
     position:fixed; inset:0;
@@ -608,6 +629,16 @@
           <div class="circ bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M2 10h20"></path></svg></div>
           <div class="txt"><div class="n" id="perMemberVal">KSh 0</div><div class="l">Per Member</div></div>
         </div>
+      </div>
+    </div>
+
+    <div class="ready-banner backfill-banner" id="backfillBanner" style="display:none; margin-bottom:14px;">
+      <div class="circ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+      </div>
+      <div class="txt">
+        <strong>Backfilling history</strong>
+        <p>This cycle was backdated. Pick each past date above and mark members Paid/Pending, then finish setup on the Cycle page.</p>
       </div>
     </div>
 
@@ -909,6 +940,7 @@
     dateInput.value = iso;
     dateInput.max = iso; // can't pick a future day and record payments in advance
     if (cycle.startISO) dateInput.min = cycle.startISO;
+    document.getElementById('backfillBanner').style.display = cycle.backfillPending ? 'flex' : 'none';
     const [y,m,dd] = iso.split('-').map(Number);
     const formatted = new Date(y, m-1, dd).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     document.getElementById('dateLabel').textContent = formatted;

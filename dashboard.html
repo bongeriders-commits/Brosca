@@ -959,8 +959,16 @@
     const expectedToday = totalMembers * dailyContribution;
 
     let statusMap = {};
+    // cycle.currentDay tracks payout *position* (only advances when a
+    // payout is recorded) — it can lag behind the actual calendar date,
+    // especially for a backdated cycle still being backfilled. "Today's"
+    // contributions always live under the day-number the calendar date
+    // maps to, not whatever position the payout order is stuck on.
+    const todayDay = (!noCycle && cycle.startISO)
+      ? (BogonkoState.dateISOToDay(cycle, BogonkoState.todayISO()) || cycle.currentDay)
+      : cycle.currentDay;
     if (!noCycle && !cycle.completed){
-      statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+      statusMap = await BogonkoState.getContributionsForDay(cycle.number, todayDay);
     }
     const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
     const pendingMembers = noCycle || cycle.completed ? [] : members.filter(m => statusMap[m.docId] !== 'Paid');

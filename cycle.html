@@ -317,6 +317,98 @@
   }
   .start-note svg{ width:14px; height:14px; flex-shrink:0; margin-top:1px; }
 
+  /* ---------- START CYCLE MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.6);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:250;
+    padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{
+    background:#fff;
+    border-radius:16px;
+    width:100%;
+    max-width:400px;
+    padding:24px;
+    max-height:86vh;
+    overflow-y:auto;
+  }
+  .modal-box h3{
+    font-size:16px; font-weight:800; color:var(--navy-deep);
+    text-align:center;
+  }
+  .modal-box .msub{
+    text-align:center; font-size:11.5px; color:var(--muted);
+    margin-top:4px; margin-bottom:18px;
+  }
+  .form-group{ margin-bottom:16px; }
+  .form-group:last-of-type{ margin-bottom:0; }
+  .form-label{
+    display:block; font-size:12px; font-weight:700;
+    color:var(--navy-deep); margin-bottom:6px;
+  }
+  .form-input{
+    width:100%;
+    border:1.5px solid #e4e6ec;
+    border-radius:10px;
+    padding:11px 12px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .form-input:focus{ outline:none; border-color:var(--navy); }
+  .form-hint{ font-size:11px; color:var(--muted); margin-top:7px; line-height:1.4; }
+  .toggle-group{ display:flex; gap:8px; }
+  .toggle-opt{
+    flex:1;
+    padding:11px;
+    border-radius:10px;
+    border:1.5px solid #e4e6ec;
+    background:#fff;
+    color:var(--navy-deep);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .toggle-opt.active{
+    background:var(--navy-deep);
+    border-color:var(--navy-deep);
+    color:#fff;
+  }
+  .modal-btn-row{ display:flex; gap:10px; margin-top:20px; }
+  .modal-btn{
+    flex:1;
+    padding:13px;
+    border-radius:10px;
+    border:none;
+    font-size:13.5px;
+    font-weight:800;
+    cursor:pointer;
+    text-align:center;
+    text-decoration:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-btn.ghost{ background:#f0f1f4; color:var(--navy-deep); }
+  .modal-btn.primary{ background:var(--navy-deep); color:#fff; }
+
+  /* ---------- BACKFILL NOTICE ---------- */
+  .backfill-box{
+    background:var(--amber-light);
+    border:1px solid #f3d896;
+  }
+  .backfill-box .section-title{ color:#a6740e; }
+  .backfill-box p.desc{
+    font-size:12.5px;
+    color:#7a5a10;
+    margin:6px 0 0;
+    line-height:1.5;
+  }
+  .backfill-box .modal-btn.primary{ background:#a6740e; }
+
   /* ---------- UPCOMING PAYOUT ---------- */
   .payout-card-row{
     display:flex;
@@ -651,13 +743,22 @@
     <div class="start-box">
       <div class="section-title">START NEW CYCLE</div>
       <p class="desc" id="startDesc">No cycle has been started yet.</p>
-      <button class="start-btn" id="startBtn" onclick="handleStartNewCycle()">
+      <button class="start-btn" id="startBtn" onclick="tryOpenStartModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         Start New Cycle
       </button>
       <div class="start-note">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
         Starting a new cycle will reset day count and payout order.
+      </div>
+    </div>
+
+    <div class="section-card backfill-box" id="backfillBox" style="display:none;">
+      <div class="section-title">HISTORY BACKFILL IN PROGRESS</div>
+      <p class="desc" id="backfillDesc">This cycle started in the past.</p>
+      <div class="modal-btn-row">
+        <a href="contributions.html" class="modal-btn ghost">Go to Contributions</a>
+        <button class="modal-btn primary" onclick="handleFinishBackfill()">Finish Backfilling</button>
       </div>
     </div>
 
@@ -687,6 +788,42 @@
     </div>
 
   </main>
+
+  <div class="modal-overlay" id="startModalOverlay">
+    <div class="modal-box">
+      <h3>Start New Cycle</h3>
+      <div class="msub" id="startModalSub">Cycle 1</div>
+
+      <div class="form-group">
+        <label class="form-label">Cycle duration (days)</label>
+        <input type="number" id="inpDuration" class="form-input" min="1" value="30">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Daily contribution per member (KSh)</label>
+        <input type="number" id="inpContribution" class="form-input" min="1" value="200">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">When did this cycle start?</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-opt active" id="whenTodayBtn" onclick="setStartWhen('today')">Today</button>
+          <button type="button" class="toggle-opt" id="whenPastBtn" onclick="setStartWhen('past')">Not Today</button>
+        </div>
+      </div>
+
+      <div class="form-group" id="pastDateGroup" style="display:none;">
+        <label class="form-label">Cycle start date</label>
+        <input type="date" id="inpStartDate" class="form-input">
+        <p class="form-hint">After starting, go to Contributions to mark each day between this date and today as Paid or Pending — that builds the cycle's history.</p>
+      </div>
+
+      <div class="modal-btn-row">
+        <button class="modal-btn ghost" onclick="closeStartModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="confirmStartCycle()">Start Cycle</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -743,15 +880,19 @@
 
     // Members paid / collected-so-far for the *current* day, derived from
     // today's actual contribution records (falls back to a closed day's
-    // immutable payout record once one exists).
+    // immutable payout record once one exists). cycle.currentDay is the
+    // payout-order position, not necessarily today's calendar day — it
+    // can lag behind (e.g. a backdated cycle mid-backfill), so today's
+    // records are looked up by the day-number the actual date maps to.
     let membersPaid = 0, collectedSoFar = 0;
     if (cycle.number > 0 && !cycleComplete){
-      const todaysRecord = await BogonkoState.getPayoutRecord(cycle.number, cycle.currentDay);
+      const todayDay = BogonkoState.dateISOToDay(cycle, BogonkoState.todayISO()) || cycle.currentDay;
+      const todaysRecord = await BogonkoState.getPayoutRecord(cycle.number, todayDay);
       if (todaysRecord){
         membersPaid = todaysRecord.membersPaid || 0;
         collectedSoFar = todaysRecord.collectedAmount || 0;
       } else {
-        const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
+        const statusMap = await BogonkoState.getContributionsForDay(cycle.number, todayDay);
         membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
         collectedSoFar = membersPaid * (cycle.dailyContribution || 0);
       }
@@ -797,23 +938,60 @@
       startBtn.textContent = 'START NEW CYCLE';
       startDesc.textContent = `Current cycle will end on Day ${cycle.duration}. You can start a new cycle once Day ${cycle.duration} is closed out.`;
     }
+
+    const backfillBox = document.getElementById('backfillBox');
+    if (cycle.backfillPending){
+      backfillBox.style.display = 'block';
+      document.getElementById('backfillDesc').textContent =
+        `This cycle was started on ${fmtDateLabel(cycle.startISO)}. Open Contributions and mark each day up to today as Paid or Pending, then come back here and confirm — until you do, this cycle won't auto-close any days on its own.`;
+    } else {
+      backfillBox.style.display = 'none';
+    }
   }
 
-  async function handleStartNewCycle(){
-    const cycle = await BogonkoState.getCycle();
+  let pendingCycle = null;
 
+  async function tryOpenStartModal(){
+    const cycle = await BogonkoState.getCycle();
     if (cycle.number > 0 && !cycle.completed){
-      const daysRemaining = cycle.duration - cycle.currentDay;
       showToast(`Locked: Day ${cycle.currentDay} of ${cycle.duration} is still open.`);
       return;
     }
+    pendingCycle = cycle;
 
     const label = cycle.number === 0 ? 'Cycle 1' : ('Cycle ' + (cycle.number + 1));
+    document.getElementById('startModalSub').textContent = 'Setting up ' + label;
+    document.getElementById('inpDuration').value = cycle.duration || 30;
+    document.getElementById('inpContribution').value = cycle.dailyContribution || 200;
 
-    const durationStr = prompt(`Setting up ${label}\n\nHow many days should this cycle run?`, cycle.duration || 30);
-    if (durationStr === null) return;
-    const duration = parseInt(durationStr, 10);
+    const today = BogonkoState.todayISO();
+    const dateInput = document.getElementById('inpStartDate');
+    dateInput.max = today;
+    dateInput.value = today;
+    setStartWhen('today');
+
+    document.getElementById('startModalOverlay').classList.add('open');
+  }
+
+  function closeStartModal(){
+    document.getElementById('startModalOverlay').classList.remove('open');
+  }
+
+  function setStartWhen(mode){
+    document.getElementById('whenTodayBtn').classList.toggle('active', mode === 'today');
+    document.getElementById('whenPastBtn').classList.toggle('active', mode === 'past');
+    document.getElementById('pastDateGroup').style.display = mode === 'past' ? 'block' : 'none';
+    document.getElementById('startModalOverlay').dataset.mode = mode;
+  }
+
+  async function confirmStartCycle(){
+    const cycle = pendingCycle || await BogonkoState.getCycle();
+
+    const duration = parseInt(document.getElementById('inpDuration').value, 10);
     if (!duration || duration < 1){ showToast('Enter a valid number of days.'); return; }
+
+    const dailyContribution = parseInt(document.getElementById('inpContribution').value, 10);
+    if (!dailyContribution || dailyContribution < 1){ showToast('Enter a valid amount.'); return; }
 
     // Member count comes from the live Members list — not a hand-typed
     // number — so it can never drift out of sync with who's actually there.
@@ -821,16 +999,36 @@
     const totalMembers = members.length;
     if (totalMembers < 1){ showToast('Add at least one member before starting a cycle.'); return; }
 
-    const contribStr = prompt(`Daily contribution per member (KSh)?`, cycle.dailyContribution || 200);
-    if (contribStr === null) return;
-    const dailyContribution = parseInt(contribStr, 10);
-    if (!dailyContribution || dailyContribution < 1){ showToast('Enter a valid amount.'); return; }
+    const mode = document.getElementById('startModalOverlay').dataset.mode || 'today';
+    const today = BogonkoState.todayISO();
+    let startISO = today;
+    if (mode === 'past'){
+      startISO = document.getElementById('inpStartDate').value;
+      if (!startISO){ showToast('Pick the date this cycle started.'); return; }
+      if (startISO > today){ showToast("Start date can't be in the future."); return; }
+    }
 
-    if (!confirm(`Start ${label} — ${duration} days, ${totalMembers} members, KSh ${dailyContribution}/day. This cannot be edited once started. Continue?`)) return;
+    const label = cycle.number === 0 ? 'Cycle 1' : ('Cycle ' + (cycle.number + 1));
+    const startLabel = mode === 'past' ? fmtDateLabel(startISO) : 'today';
+    if (!confirm(`Start ${label} — ${duration} days, ${totalMembers} members, KSh ${dailyContribution}/day, starting ${startLabel}. This cannot be edited once started. Continue?`)) return;
 
-    const newCycle = await BogonkoState.startCycle({ duration, totalMembers, dailyContribution });
+    const newCycle = await BogonkoState.startCycle({
+      duration, totalMembers, dailyContribution,
+      startISO: mode === 'past' ? startISO : undefined
+    });
+    closeStartModal();
     await render();
-    showToast(`Cycle ${newCycle.number} started.`);
+    showToast(newCycle.backfillPending
+      ? `Cycle ${newCycle.number} started from ${fmtDateLabel(startISO)}. Mark past days in Contributions, then finish backfilling below.`
+      : `Cycle ${newCycle.number} started.`);
+  }
+
+  async function handleFinishBackfill(){
+    if (!confirm("Finish backfilling? Any day you haven't marked yet will close out with 0 collected once you continue.")) return;
+    await BogonkoState.finishBackfill();
+    await BogonkoState.autoCloseElapsedDays();
+    await render();
+    showToast('Backfilling complete — history locked in.');
   }
 
   function showToast(msg){
@@ -839,6 +1037,10 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2600);
   }
+
+  document.getElementById('startModalOverlay').addEventListener('click', function(e){
+    if (e.target === this) closeStartModal();
+  });
 
   render();
 </script>
