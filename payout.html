@@ -738,7 +738,7 @@
   }
 
   async function render(){
-    const cycle = await BogonkoState.getCycle();
+    const cycle = await BogonkoState.autoCloseElapsedDays();
     const noCycle = cycle.number === 0 || !cycle.startISO;
     const dayClosed = !noCycle && await BogonkoState.isDayClosed(cycle.number, cycle.currentDay);
     const cycleComplete = !!cycle.completed;
@@ -811,12 +811,16 @@
       bannerTitle.textContent = 'Payout Completed';
       bannerSub.textContent = `Day ${cycle.currentDay} is locked \u2014 payout already recorded.`;
     } else {
-      btn.disabled = false;
-      printBtn.disabled = false;
+      // A day literally can't complete before it ends — this is always
+      // "today"'s slot at this point (autoCloseElapsedDays already closed
+      // out anything from a prior date). It closes on its own,
+      // automatically, once the day is over.
+      btn.disabled = true;
+      printBtn.disabled = true;
       btn.classList.remove('completed');
-      label.textContent = 'MARK PAYOUT AS COMPLETED';
-      bannerTitle.textContent = 'Ready for Payout';
-      bannerSub.textContent = `Mark Day ${cycle.currentDay}'s payout as completed after handing over the amount.`;
+      label.textContent = 'CLOSES AUTOMATICALLY AT END OF DAY';
+      bannerTitle.textContent = 'Collecting for Today';
+      bannerSub.textContent = `Day ${cycle.currentDay} closes automatically once today ends \u2014 whatever's marked Paid by then becomes the final payout. Mark contributions from the Contributions tab.`;
     }
 
     setChecklistItem('checkContrib', 'checkContribVal', canPay && paidCount === totalMembers && totalMembers > 0, `${paidCount} / ${totalMembers} Paid`);
@@ -859,6 +863,10 @@
     const cycle = await BogonkoState.getCycle();
     if (cycle.number === 0 || cycle.completed) return;
     if (await BogonkoState.isDayClosed(cycle.number, cycle.currentDay)) return;
+    if (BogonkoState.dayStatus(cycle, cycle.currentDay) !== 'past') {
+      showToast(`Day ${cycle.currentDay} can't close before it ends \u2014 it closes automatically at end of day.`);
+      return;
+    }
     if (!confirm(`Confirm that Day ${cycle.currentDay}'s payout has been handed to the recipient? This cannot be edited once recorded.`)) return;
 
     const members = await BogonkoState.getMembers();

@@ -731,7 +731,7 @@
   }
 
   async function render(){
-    const cycle = await BogonkoState.getCycle();
+    const cycle = await BogonkoState.autoCloseElapsedDays();
     const pct = cycle.duration ? Math.round((cycle.currentDay / cycle.duration) * 100) : 0;
     const daysRemaining = Math.max(0, cycle.duration - cycle.currentDay);
     const cycleComplete = !!cycle.completed;

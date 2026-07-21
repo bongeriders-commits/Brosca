@@ -715,17 +715,25 @@
   async function getSelectedDayLock(){
     const cycle = await BogonkoState.getCycle();
     const iso = document.getElementById('realDateInput').value;
-    if (!cycle.startISO || !iso) return { locked: false, cycle };
+    if (!cycle.startISO || !iso) return { status: 'today', closed: false, cycle };
     const day = BogonkoState.dateISOToDay(cycle, iso);
-    if (day === null || day < 1) return { locked: false, cycle };
-    const locked = await BogonkoState.isDayClosed(cycle.number, day);
-    return { locked, cycle, day };
+    if (day === null || day < 1) return { status: 'today', closed: false, cycle };
+    const status = BogonkoState.dayStatus(cycle, day);
+    const closed = await BogonkoState.isDayClosed(cycle.number, day);
+    return { status, closed, cycle, day };
   }
 
   async function renderList(){
     const q = document.getElementById('searchInput').value.toLowerCase();
     const body = document.getElementById('memberListBody');
-    const { locked, day, cycle } = await getSelectedDayLock();
+    const { status, closed, day, cycle } = await getSelectedDayLock();
+    const isFuture = status === 'future';
+    const isPast = status === 'past';
+    // Future: nothing editable at all. Past: Pending -> Paid still allowed
+    // (recording a late payment), but Paid can never revert to Pending.
+    // Today: fully editable both ways, always.
+    const bulkPaidAllowed = !isFuture;
+    const bulkUnpaidAllowed = status === 'today';
 
     // Pull the current roster and today's paid/pending status from
     // Firestore. Members default to "Pending" until explicitly marked.
@@ -738,16 +746,21 @@
     }
 
     const lockBanner = document.getElementById('lockBanner');
-    lockBanner.style.display = locked ? 'flex' : 'none';
-    if (locked){
+    lockBanner.style.display = (isFuture || isPast) ? 'flex' : 'none';
+    if (isFuture){
       document.getElementById('lockBannerSub').textContent =
-        `Day ${day}'s payout has already been recorded and can no longer be edited.`;
+        `This day hasn't happened yet \u2014 you can't record payments in advance.`;
+    } else if (isPast){
+      document.getElementById('lockBannerSub').textContent = closed
+        ? `Day ${day}'s payout has been recorded and locked. You can still mark late payments as Paid, but Paid entries can't be reverted.`
+        : `Day ${day} has passed. You can still mark late payments as Paid, but Paid entries can't be reverted.`;
     }
-    document.querySelectorAll('#actionRow .act-btn.paid, #actionRow .act-btn.unpaid').forEach(b => {
-      b.disabled = locked;
-      b.style.opacity = locked ? 0.45 : '';
-      b.style.pointerEvents = locked ? 'none' : '';
-    });
+    document.querySelector('#actionRow .act-btn.paid').disabled = !bulkPaidAllowed;
+    document.querySelector('#actionRow .act-btn.paid').style.opacity = bulkPaidAllowed ? '' : 0.45;
+    document.querySelector('#actionRow .act-btn.paid').style.pointerEvents = bulkPaidAllowed ? '' : 'none';
+    document.querySelector('#actionRow .act-btn.unpaid').disabled = !bulkUnpaidAllowed;
+    document.querySelector('#actionRow .act-btn.unpaid').style.opacity = bulkUnpaidAllowed ? '' : 0.45;
+    document.querySelector('#actionRow .act-btn.unpaid').style.pointerEvents = bulkUnpaidAllowed ? '' : 'none';
 
     body.innerHTML = '';
     if (members.length === 0) {
@@ -761,6 +774,9 @@
       if(q && !(m.name.toLowerCase().includes(q) || m.phone.includes(q))) return;
 
       const isPaid = m.status === 'Paid';
+      // A row is locked when: the whole day is future, or it's a past day
+      // and this member is already Paid (can't revert).
+      const rowLocked = isFuture || (isPast && isPaid);
       const row = document.createElement('div');
       row.className = 'm-row';
       row.innerHTML = `
@@ -772,7 +788,7 @@
         </div>
         <div class="m-amount">${PER_MEMBER}</div>
         <div class="m-status ${isPaid?'paid':'pending'}">${isPaid?checkSvg:alertSvg}${isPaid?'Paid':'Pending'}</div>
-        ${locked
+        ${rowLocked
           ? `<div class="m-toggle" style="opacity:.45; pointer-events:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</div>`
           : `<div class="m-toggle ${isPaid?'to-unpaid':'to-paid'}" onclick="toggleStatus('${m.docId}')">
           ${isPaid ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Unpaid` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20h-4a2 2 0 0 1-2-2v-4h4a2 2 0 0 1 2 2z"></path><path d="M20 4h-4a2 2 0 0 0-2 2v4h4a2 2 0 0 0 2-2z"></path><path d="M4 20h4a2 2 0 0 0 2-2v-4H6a2 2 0 0 0-2 2z"></path><path d="M4 4h4a2 2 0 0 1 2 2v4H6a2 2 0 0 1-2-2z"></path></svg> Mark Paid`}
@@ -784,19 +800,31 @@
   }
 
   async function toggleStatus(docId){
-    const { locked, day, cycle } = await getSelectedDayLock();
-    if (locked || !cycle || !cycle.number || !day) { showToast('This day is locked \u2014 payout already recorded.'); return; }
+    const { status, day, cycle } = await getSelectedDayLock();
+    if (!cycle || !cycle.number || !day) { showToast('Select a valid day first.'); return; }
+    if (status === 'future') { showToast("This day hasn't happened yet \u2014 you can't record payments in advance."); return; }
     const m = members.find(x => x.docId === docId);
     if (!m) return;
+    if (status === 'past' && m.status === 'Paid') { showToast("Paid entries on past days can't be reverted."); return; }
     const newStatus = m.status === 'Paid' ? 'Pending' : 'Paid';
     await BogonkoState.setContribution(cycle.number, day, docId, newStatus);
     renderList();
   }
 
   async function markAll(status){
-    const { locked, day, cycle } = await getSelectedDayLock();
-    if (locked || !cycle || !cycle.number || !day) { showToast('This day is locked \u2014 payout already recorded.'); return; }
-    await Promise.all(members.map(m => BogonkoState.setContribution(cycle.number, day, m.docId, status)));
+    const { status: dayState, day, cycle } = await getSelectedDayLock();
+    if (!cycle || !cycle.number || !day) { showToast('Select a valid day first.'); return; }
+    if (dayState === 'future') { showToast("This day hasn't happened yet \u2014 you can't record payments in advance."); return; }
+    if (status === 'Pending' && dayState !== 'today') { showToast("Paid entries on past days can't be reverted."); return; }
+    if (status === 'Paid'){
+      // On a past day, only advance still-pending members — never touch
+      // ones already marked Paid (nothing to do for them, and reverting
+      // isn't allowed anyway).
+      const targets = dayState === 'past' ? members.filter(m => m.status !== 'Paid') : members;
+      await Promise.all(targets.map(m => BogonkoState.setContribution(cycle.number, day, m.docId, 'Paid')));
+    } else {
+      await Promise.all(members.map(m => BogonkoState.setContribution(cycle.number, day, m.docId, status)));
+    }
     renderList();
     showToast(status === 'Paid' ? 'All members marked as Paid' : 'All members marked as Unpaid');
   }
@@ -862,24 +890,30 @@
     document.getElementById('dateLabel').textContent = formatted;
     document.getElementById('receiptDate').textContent = formatted;
     await renderList();
-    const { locked } = await getSelectedDayLock();
-    showToast(locked ? 'This day is locked \u2014 payout already recorded.' : 'Showing contributions for ' + formatted);
+    const { status } = await getSelectedDayLock();
+    const msg = status === 'future'
+      ? "This day hasn't happened yet."
+      : status === 'past'
+        ? 'Showing ' + formatted + ' \u2014 late payments only, Paid entries are locked.'
+        : 'Showing contributions for ' + formatted;
+    showToast(msg);
   });
 
   (async function(){
-    const cycle = await BogonkoState.getCycle();
+    const cycle = await BogonkoState.autoCloseElapsedDays();
     PER_MEMBER = cycle.dailyContribution || 0;
     // Always default to the real calendar date, not the cycle's currentDay
     // counter — currentDay only advances when a payout is recorded, so it
     // can lag behind the actual date and get "stuck" on the start date.
     const iso = BogonkoState.todayISO();
     dateInput.value = iso;
+    dateInput.max = iso; // can't pick a future day and record payments in advance
+    if (cycle.startISO) dateInput.min = cycle.startISO;
     const [y,m,dd] = iso.split('-').map(Number);
     const formatted = new Date(y, m-1, dd).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     document.getElementById('dateLabel').textContent = formatted;
+    await renderList();
   })();
-
-  renderList();
 </script>
 
 

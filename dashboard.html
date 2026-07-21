@@ -389,6 +389,68 @@
     cursor:pointer;
   }
 
+  /* ---------- PENDING MEMBERS MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,26,60,0.6);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:250;
+    padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .pending-box{
+    background:#fff;
+    border-radius:16px;
+    width:100%;
+    max-width:400px;
+    padding:22px;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .pending-box h3{
+    font-size:16px; font-weight:800; color:var(--navy-deep);
+  }
+  .pending-box .psub{
+    font-size:11.5px; color:var(--muted); margin-top:2px; margin-bottom:16px;
+  }
+  .pending-list{
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .pending-row{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px;
+    background:#f7f8fb;
+    border-radius:12px;
+  }
+  .pending-row .p-avatar{
+    width:34px; height:34px; border-radius:50%;
+    background:var(--red-light, #fdeaea); color:var(--red);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; flex-shrink:0;
+  }
+  .pending-row .p-info{ flex:1; min-width:0; }
+  .pending-row .p-name{
+    font-size:13px; font-weight:700; color:var(--navy-deep);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .pending-row .p-phone{ font-size:11px; color:var(--muted); margin-top:1px; }
+  .pending-row .p-call{
+    width:36px; height:36px; border-radius:50%;
+    background:var(--green); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; text-decoration:none;
+  }
+  .pending-row .p-call svg{ width:17px; height:17px; }
+  .pending-empty{
+    text-align:center; color:var(--muted); font-size:12.5px; padding:20px 0;
+  }
+  .pending-close{
+    width:100%; margin-top:18px;
+    background:var(--navy-deep); color:#fff; border:none;
+    padding:12px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer;
+  }
+
   .days-left-card{
     margin-top:14px;
     background:var(--navy-deep);
@@ -596,6 +658,15 @@
 <div class="app">
 
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+  <div class="modal-overlay" id="pendingOverlay" onclick="if(event.target===this) closePendingModal()">
+    <div class="pending-box">
+      <h3>Members Pending</h3>
+      <div class="psub" id="pendingModalSub">0 members yet to pay today</div>
+      <div class="pending-list" id="pendingModalList"></div>
+      <button class="pending-close" onclick="closePendingModal()">CLOSE</button>
+    </div>
+  </div>
   <nav class="side-drawer" id="sideDrawer" aria-label="Main menu">
     <div class="drawer-head">
       <button class="drawer-close" aria-label="Close menu" onclick="closeDrawer()">&times;</button>
@@ -759,7 +830,7 @@
         <div class="avatar-row" id="pendingAvatarRow">
           <span class="mini-avatar more" style="width:auto; border-radius:8px; padding:0 8px; font-size:11px; color:var(--muted);">No members yet</span>
         </div>
-        <button class="view-details-btn" onclick="window.location.href='contributions.html'">VIEW DETAILS</button>
+        <button class="view-details-btn" onclick="openPendingModal()">VIEW DETAILS</button>
       </div>
     </div>
 
@@ -824,6 +895,8 @@
 <script>
   function fmtKsh(n){ return "KSh " + n.toLocaleString(); }
 
+  let currentPendingMembers = [];
+
   function initials(name){
     return (name || '?').trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
   }
@@ -839,8 +912,43 @@
       + (extra > 0 ? `<span class="mini-avatar more">+${extra}</span>` : '');
   }
 
+  function escapeHtml(s){
+    return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function openPendingModal(){
+    const list = document.getElementById('pendingModalList');
+    document.getElementById('pendingModalSub').textContent =
+      currentPendingMembers.length + ' member' + (currentPendingMembers.length === 1 ? '' : 's') + ' yet to pay today';
+
+    if (!currentPendingMembers.length){
+      list.innerHTML = '<div class="pending-empty">Everyone has paid today \u2014 nothing pending.</div>';
+    } else {
+      list.innerHTML = currentPendingMembers.map(m => `
+        <div class="pending-row">
+          <div class="p-avatar">${initials(m.name)}</div>
+          <div class="p-info">
+            <div class="p-name">${escapeHtml(m.name)}</div>
+            <div class="p-phone">${escapeHtml(m.phone || 'No number on file')}</div>
+          </div>
+          ${m.phone ? `<a class="p-call" href="tel:${escapeHtml(m.phone)}" aria-label="Call ${escapeHtml(m.name)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          </a>` : ''}
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('pendingOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePendingModal(){
+    document.getElementById('pendingOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   (async function(){
-    const cycle = await BogonkoState.getCycle();
+    const cycle = await BogonkoState.autoCloseElapsedDays();
     const noCycle = cycle.number === 0 || !cycle.startISO;
 
     // Live data — members and today's contributions — rather than the
@@ -855,7 +963,8 @@
       statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
     }
     const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
-    const pendingMembers = members.filter(m => statusMap[m.docId] !== 'Paid');
+    const pendingMembers = noCycle || cycle.completed ? [] : members.filter(m => statusMap[m.docId] !== 'Paid');
+    currentPendingMembers = pendingMembers;
     const collectedToday = paidMembers.length * dailyContribution;
     const outstanding = expectedToday - collectedToday;
     const pct = expectedToday ? Math.round((collectedToday / expectedToday) * 100) : 0;

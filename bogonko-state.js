@@ -150,6 +150,73 @@ const BogonkoState = (function () {
     return cycle;
   }
 
+  // ---------- Day classification ----------
+  // 'future' — that calendar date hasn't happened yet, nothing can be
+  //            recorded for it in advance.
+  // 'today'  — the live day. Fully editable both ways; this is also the
+  //            only day that can never be auto-closed (a day can't
+  //            complete before it ends).
+  // 'past'   — already elapsed. Late payments can still be marked Paid,
+  //            but a Paid entry can never be reverted to Pending.
+  function dayStatus(cycle, day) {
+    if (!cycle.startISO) return 'today';
+    const dateISO = dayToDateISO(cycle, day);
+    const today = todayISO();
+    if (dateISO > today) return 'future';
+    if (dateISO < today) return 'past';
+    return 'today';
+  }
+
+  // ---------- Automatic day closure ----------
+  // If real time has moved past the cycle's current day and the admin
+  // never recorded that day's payout, close it automatically: whatever
+  // was actually marked "Paid" up to now becomes the final payout, and
+  // the cycle advances to the next day/recipient. Handles multiple
+  // missed days in one pass (e.g. the app wasn't opened for a week).
+  //
+  // Safe to call from any page, any time — it's a no-op unless a day has
+  // genuinely elapsed unclosed. Firestore rules only allow the admin UID
+  // to write, so if this runs during a member's session the write simply
+  // fails and is silently skipped; it'll be picked up next time the admin
+  // has the app open.
+  async function autoCloseElapsedDays() {
+    let cycle = await getCycle();
+    if (!cycle.startISO || cycle.currentDay < 1 || cycle.completed) return cycle;
+
+    const today = todayISO();
+    let guard = 0; // hard cap so a very stale/misconfigured cycle can't loop forever
+    while (!cycle.completed && dayToDateISO(cycle, cycle.currentDay) < today && guard < 400) {
+      guard++;
+      if (await isDayClosed(cycle.number, cycle.currentDay)) {
+        cycle = await getCycle();
+        continue;
+      }
+
+      let membersPaid = 0, collectedAmount = 0;
+      try {
+        const members = await getMembers();
+        const statusMap = await getContributionsForDay(cycle.number, cycle.currentDay);
+        membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
+        collectedAmount = membersPaid * (cycle.dailyContribution || 0);
+      } catch (e) { /* fall back to 0/0 below */ }
+
+      try {
+        cycle = await recordPayoutAndAdvance({
+          recipientLabel: `Position #${cycle.currentDay}`,
+          amount: collectedAmount,
+          collectedAmount,
+          membersPaid,
+          autoClosed: true
+        });
+      } catch (e) {
+        // Not an admin session (or offline) — can't write. Stop; this will
+        // retry next time an admin loads the app.
+        break;
+      }
+    }
+    return cycle;
+  }
+
   // ---------- Members ----------
 
   async function getMembers() {
@@ -221,6 +288,8 @@ const BogonkoState = (function () {
     getPayoutRecord,
     recordPayoutAndAdvance,
     startCycle,
+    dayStatus,
+    autoCloseElapsedDays,
     getMembers,
     watchMembers,
     addMember,
