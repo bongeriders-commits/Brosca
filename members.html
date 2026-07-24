@@ -725,7 +725,7 @@
 
       <div class="info-strip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        Payout order determines the sequence of receiving the daily collection.
+        Payout order determines the sequence of receiving the daily collection. A member can hold more than one number (e.g. #1 and #20) — they'll contribute a share for each number and collect a payout on each of those days.
       </div>
     </div>
   </main>
@@ -782,8 +782,8 @@
           <input type="text" id="newId" placeholder="e.g. 12345678" required>
         </div>
         <div class="form-group">
-          <label>Payout Order</label>
-          <input type="number" id="newOrder" placeholder="Auto-assigned if left blank" min="1">
+          <label>Payout Number(s)</label>
+          <input type="text" id="newOrder" placeholder="e.g. 1 or 1, 20 — auto-assigned if left blank">
         </div>
         <div class="form-group">
           <label>Status</label>
@@ -840,7 +840,7 @@
           </div>
         </td>
         <td>${m.phone}</td>
-        <td>${m.order}</td>
+        <td>${BogonkoState.memberSlots(m).map(n => `#${n}`).join(', ') || '—'}</td>
         <td><span class="status-pill ${m.status==='Inactive'?'inactive':''}">${m.status}</span></td>
         <td>
           <div class="actions-cell">
@@ -914,13 +914,27 @@
     const name = document.getElementById('newName').value.trim();
     const phone = document.getElementById('newPhone').value.trim();
     const id = document.getElementById('newId').value.trim();
-    const orderVal = document.getElementById('newOrder').value;
+    const orderVal = document.getElementById('newOrder').value.trim();
     const status = document.getElementById('newStatus').value;
-    const order = orderVal ? parseInt(orderVal) : members.length + 1;
+
+    let orders;
+    if (orderVal) {
+      orders = orderVal.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      if (orders.length === 0) { alert('Enter a valid number, e.g. 1 or 1, 20'); return false; }
+    } else {
+      orders = [members.length + 1];
+    }
+
+    // A payout number can only belong to one member — otherwise two
+    // people would both be "today's recipient" on the same day.
+    const taken = new Set();
+    members.forEach(m => BogonkoState.memberSlots(m).forEach(n => taken.add(n)));
+    const clash = orders.find(n => taken.has(n));
+    if (clash) { alert(`Number #${clash} is already assigned to another member.`); return false; }
 
     try {
       await createMemberAccount(phone);
-      await BogonkoState.addMember({name, id, phone, order, status});
+      await BogonkoState.addMember({name, id, phone, orders, order: orders[0], status});
       closeModal();
       showToast(`${name} added \u2014 they can log in with their phone number`);
     } catch (err) {

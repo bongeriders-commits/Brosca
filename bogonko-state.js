@@ -224,23 +224,29 @@ const BogonkoState = (function () {
         continue;
       }
 
-      let membersPaid = 0, collectedAmount = 0, totalMembers = 0;
+      let membersPaid = 0, collectedAmount = 0, totalShares = 0, recipientNames = [];
       try {
         const members = await getMembers();
-        totalMembers = members.length;
+        totalShares = members.reduce((sum, m) => sum + memberSlotCount(m), 0);
         const statusMap = await getContributionsForDay(cycle.number, cycle.currentDay);
-        membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
-        collectedAmount = membersPaid * (cycle.dailyContribution || 0);
+        const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
+        membersPaid = paidMembers.length;
+        collectedAmount = paidMembers.reduce((sum, m) => sum + memberSlotCount(m) * (cycle.dailyContribution || 0), 0);
+        recipientNames = findMembersForDay(members, cycle.currentDay).map(m => m.name);
       } catch (e) { /* fall back to 0/0 below */ }
 
       try {
         cycle = await recordPayoutAndAdvance({
-          recipientLabel: `Position #${cycle.currentDay}`,
+          recipientLabel: recipientNames.length
+            ? recipientNames.join(' & ')
+            : `Position #${cycle.currentDay}`,
           // "amount" is the position's target payout (what the recipient
           // is entitled to per the schedule), same definition used by the
           // manual close in payout.html — kept consistent so Reports can
-          // sum it without caring which path closed the day.
-          amount: totalMembers * (cycle.dailyContribution || 0),
+          // sum it without caring which path closed the day. Uses total
+          // shares (not member count) so cycles with double-slot members
+          // still add up correctly.
+          amount: totalShares * (cycle.dailyContribution || 0),
           collectedAmount,
           membersPaid,
           autoClosed: true
@@ -255,6 +261,36 @@ const BogonkoState = (function () {
   }
 
   // ---------- Members ----------
+  // A member normally holds one payout slot (one number in the rotation),
+  // but a member can buy a second (or more) slot in the same cycle — e.g.
+  // holding both #1 and #20 — which means they contribute for every slot
+  // they hold and collect a payout on each of those days. `orders` is the
+  // full list of slot numbers a member holds; `order` is kept in sync as
+  // the lowest of those numbers purely so Firestore's orderBy('order') and
+  // any older code that reads a single m.order still work.
+
+  // Returns the full list of slot/position numbers a member holds, oldest
+  // data (single `order`, no `orders` array yet) included.
+  function memberSlots(member) {
+    if (Array.isArray(member.orders) && member.orders.length) {
+      return member.orders.slice().sort((a, b) => a - b);
+    }
+    return (member.order || member.order === 0) ? [member.order] : [];
+  }
+
+  // How many shares a member is funding this cycle — one per slot they
+  // hold. Defaults to 1 so a member with no slot assigned yet isn't
+  // treated as owing nothing.
+  function memberSlotCount(member) {
+    const slots = memberSlots(member);
+    return slots.length || 1;
+  }
+
+  // Every member whose rotation includes this day (normally exactly one,
+  // but a double-slot member will match on two different days).
+  function findMembersForDay(members, day) {
+    return members.filter(m => memberSlots(m).includes(day));
+  }
 
   async function getMembers() {
     const snap = await db().collection('members').orderBy('order').get();
@@ -268,7 +304,14 @@ const BogonkoState = (function () {
   }
 
   async function addMember(member) {
-    const withNormalized = Object.assign({}, member, { phoneNormalized: normalizePhone(member.phone) });
+    const orders = Array.isArray(member.orders) && member.orders.length
+      ? member.orders.slice().sort((a, b) => a - b)
+      : (member.order || member.order === 0) ? [member.order] : [];
+    const withNormalized = Object.assign({}, member, {
+      phoneNormalized: normalizePhone(member.phone),
+      orders,
+      order: orders.length ? orders[0] : member.order
+    });
     const ref = await db().collection('members').add(withNormalized);
     return ref.id;
   }
@@ -428,6 +471,9 @@ const BogonkoState = (function () {
     finishBackfill,
     dayStatus,
     autoCloseElapsedDays,
+    memberSlots,
+    memberSlotCount,
+    findMembersForDay,
     getMembers,
     watchMembers,
     addMember,

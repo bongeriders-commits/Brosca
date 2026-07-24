@@ -797,6 +797,7 @@
       <div class="form-group">
         <label class="form-label">Cycle duration (days)</label>
         <input type="number" id="inpDuration" class="form-input" min="1" value="30">
+        <p class="form-hint">Set this to the total number of payout numbers in play — if any member holds two numbers (e.g. #1 and #20), count both.</p>
       </div>
 
       <div class="form-group">
@@ -893,8 +894,9 @@
         collectedSoFar = todaysRecord.collectedAmount || 0;
       } else {
         const statusMap = await BogonkoState.getContributionsForDay(cycle.number, todayDay);
-        membersPaid = members.filter(m => statusMap[m.docId] === 'Paid').length;
-        collectedSoFar = membersPaid * (cycle.dailyContribution || 0);
+        const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
+        membersPaid = paidMembers.length;
+        collectedSoFar = paidMembers.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m) * (cycle.dailyContribution || 0), 0);
       }
     }
 
@@ -911,7 +913,8 @@
 
     document.getElementById('infoTotalMembers').textContent = totalMembers;
     document.getElementById('infoDailyContrib').textContent = fmtKsh(cycle.dailyContribution || 0);
-    document.getElementById('infoExpectedDaily').textContent = fmtKsh(totalMembers * (cycle.dailyContribution || 0));
+    const totalShares = members.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m), 0);
+    document.getElementById('infoExpectedDaily').textContent = fmtKsh(totalShares * (cycle.dailyContribution || 0));
     document.getElementById('infoCycleDuration').textContent = (cycle.duration || 0) + ' Days';
     document.getElementById('infoPayoutOrder').textContent = cycle.number ? `Position #${cycle.currentDay} of ${cycle.duration}` : '\u2014';
 
@@ -997,7 +1000,11 @@
     // number — so it can never drift out of sync with who's actually there.
     const members = await BogonkoState.getMembers();
     const totalMembers = members.length;
+    const totalShares = members.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m), 0);
     if (totalMembers < 1){ showToast('Add at least one member before starting a cycle.'); return; }
+    if (totalShares !== duration){
+      showToast(`Heads up: duration is ${duration} but members hold ${totalShares} payout numbers in total \u2014 double-check before continuing.`);
+    }
 
     const mode = document.getElementById('startModalOverlay').dataset.mode || 'today';
     const today = BogonkoState.todayISO();
@@ -1013,7 +1020,7 @@
     if (!confirm(`Start ${label} — ${duration} days, ${totalMembers} members, KSh ${dailyContribution}/day, starting ${startLabel}. This cannot be edited once started. Continue?`)) return;
 
     const newCycle = await BogonkoState.startCycle({
-      duration, totalMembers, dailyContribution,
+      duration, totalMembers: totalShares, dailyContribution,
       startISO: mode === 'past' ? startISO : undefined
     });
     closeStartModal();

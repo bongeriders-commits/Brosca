@@ -449,9 +449,10 @@
     return contributionsForSelectedDay[memberDocId] === 'Paid';
   }
 
-  function recipientForDay(day){
-    const pos = ((day - 1) % TOTAL_MEMBERS) + 1;
-    return MEMBERS.find(m => m.order === pos);
+  // A day can have more than one recipient if a member holds more than
+  // one payout number (e.g. someone holding both #1 and #20).
+  function recipientsForDay(day){
+    return BogonkoState.findMembersForDay(MEMBERS, day);
   }
 
   function renderLockBanner(){
@@ -470,29 +471,45 @@
       return;
     }
 
-    const myDay = currentMember.order;
-    const myDate = dayNumberToDate(myDay);
+    // A member can hold more than one payout day (e.g. #1 and #20) — walk
+    // all of them and lead with whichever is most relevant right now:
+    // today's day if one matches, otherwise the next upcoming one, and
+    // only fall back to an already-received day if every slot is past.
+    const myDays = BogonkoState.memberSlots(currentMember);
     const payoutAmt = fmtKsh(DAILY_CONTRIBUTION * TOTAL_MEMBERS);
+    const todayDay = myDays.find(d => d === MOCK_TODAY_DAY);
+    const upcomingDay = myDays.filter(d => d > MOCK_TODAY_DAY).sort((a,b) => a-b)[0];
+    const pastDays = myDays.filter(d => d < MOCK_TODAY_DAY).sort((a,b) => a-b);
+    const extraNote = myDays.length > 1
+      ? ' You hold ' + myDays.length + ' numbers this cycle (#' + myDays.join(', #') + ').'
+      : '';
 
-    if (myDay < MOCK_TODAY_DAY){
-      el.className = 'lock-banner received';
-      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
-      eyebrow.textContent = 'LOCKED IN';
-      main.textContent = 'You already received your payout of ' + payoutAmt + '.';
-      sub.textContent = 'Paid out on ' + fmtDate(myDate) + ' · Day ' + myDay + ' of ' + CYCLE_DURATION;
-    } else if (myDay === MOCK_TODAY_DAY){
+    if (todayDay){
       el.className = 'lock-banner today';
       icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path><circle cx="12" cy="12" r="4"></circle></svg>';
       eyebrow.textContent = "IT'S YOUR DAY";
-      main.textContent = "You're receiving " + payoutAmt + ' today!';
-      sub.textContent = fmtDate(myDate) + ' · Day ' + myDay + ' of ' + CYCLE_DURATION;
-    } else {
+      main.textContent = "You're receiving " + payoutAmt + ' today!' + extraNote;
+      sub.textContent = fmtDate(dayNumberToDate(todayDay)) + ' · Day ' + todayDay + ' of ' + CYCLE_DURATION;
+    } else if (upcomingDay){
       el.className = 'lock-banner upcoming';
       icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>';
       eyebrow.textContent = 'UPCOMING PAYOUT';
-      const daysToGo = myDay - MOCK_TODAY_DAY;
-      main.textContent = "You'll receive " + payoutAmt + ' on ' + fmtDate(myDate) + '.';
-      sub.textContent = 'Day ' + myDay + ' of ' + CYCLE_DURATION + ' · ' + daysToGo + ' day' + (daysToGo===1?'':'s') + ' to go';
+      const daysToGo = upcomingDay - MOCK_TODAY_DAY;
+      main.textContent = "You'll receive " + payoutAmt + ' on ' + fmtDate(dayNumberToDate(upcomingDay)) + '.' + extraNote;
+      sub.textContent = 'Day ' + upcomingDay + ' of ' + CYCLE_DURATION + ' · ' + daysToGo + ' day' + (daysToGo===1?'':'s') + ' to go';
+    } else if (pastDays.length){
+      const lastDay = pastDays[pastDays.length - 1];
+      el.className = 'lock-banner received';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+      eyebrow.textContent = 'LOCKED IN';
+      main.textContent = 'You already received your payout' + (pastDays.length>1?'s':'') + ' of ' + payoutAmt + (pastDays.length>1?' each.':'.') + extraNote;
+      sub.textContent = 'Paid out on ' + fmtDate(dayNumberToDate(lastDay)) + ' · Day ' + lastDay + ' of ' + CYCLE_DURATION;
+    } else {
+      el.className = 'lock-banner upcoming';
+      icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>';
+      eyebrow.textContent = 'NO NUMBER ASSIGNED';
+      main.textContent = 'You have not been assigned a payout number yet.';
+      sub.textContent = 'Ask the secretary to assign you one.';
     }
   }
 
@@ -563,7 +580,9 @@
     const date = dayNumberToDate(selectedDay);
     dateLabelEl.textContent = fmtDate(date) + (selectedDay===MOCK_TODAY_DAY ? ' (Today)' : '');
 
-    const recipient = recipientForDay(selectedDay);
+    const recipients = recipientsForDay(selectedDay);
+    const recipientNames = recipients.length ? recipients.map(m => m.name).join(' & ') : '\u2014';
+    const iAmRecipient = recipients.some(m => m.docId === currentMember.docId);
     const isFuture = selectedDay > MOCK_TODAY_DAY;
 
     await loadContributionsForSelectedDay(selectedDay);
@@ -591,10 +610,10 @@
         </div>
         <div class="recipient-info">
           <div class="eyebrow">${isFuture ? 'SCHEDULED RECIPIENT' : 'RECIPIENT'} · DAY ${selectedDay}</div>
-          <div class="name">${recipient.name}</div>
+          <div class="name">${recipientNames}</div>
           <div class="amt">${fmtKsh(expected)} payout</div>
         </div>
-        ${recipient.order === currentMember.order ? '<span class="you-pill">THIS IS YOU</span>' : ''}
+        ${iAmRecipient ? '<span class="you-pill">THIS IS YOU</span>' : ''}
       </div>
     `;
 
@@ -661,7 +680,7 @@
               : pendingMembers.map(m => `
                   <div class="pending-item">
                     <span class="pending-dot"></span>
-                    <span class="pending-name">${m.name}${m.order===currentMember.order ? ' (You)' : ''}</span>
+                    <span class="pending-name">${m.name}${m.docId===currentMember.docId ? ' (You)' : ''}</span>
                   </div>
                 `).join('')}
           </div>
@@ -683,7 +702,10 @@
     const initials = currentMember.name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
     document.getElementById('greetAvatar').textContent = initials;
     document.getElementById('greetName').textContent = currentMember.name;
-    document.getElementById('greetSub').textContent = 'Position #' + currentMember.order;
+    const mySlots = BogonkoState.memberSlots(currentMember);
+    document.getElementById('greetSub').textContent = mySlots.length > 1
+      ? 'Positions #' + mySlots.join(', #')
+      : 'Position #' + (mySlots[0] ?? '\u2014');
     document.getElementById('daysRemainingVal').textContent = Math.max(0, CYCLE_DURATION - MOCK_TODAY_DAY) + ' Days Left';
   }
 

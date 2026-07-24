@@ -756,13 +756,16 @@
     // than assuming every member paid.
     const members = noCycle ? [] : await BogonkoState.getMembers();
     const totalMembers = members.length;
-    const expected = totalMembers * (cycle.dailyContribution || 0);
+    const totalShares = members.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m), 0);
+    const expected = totalShares * (cycle.dailyContribution || 0);
+    const recipients = noCycle ? [] : BogonkoState.findMembersForDay(members, cycle.currentDay);
 
     let paidCount = 0, collected = 0;
     if (canPay){
       const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
-      paidCount = members.filter(m => statusMap[m.docId] === 'Paid').length;
-      collected = paidCount * (cycle.dailyContribution || 0);
+      const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
+      paidCount = paidMembers.length;
+      collected = paidMembers.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m) * (cycle.dailyContribution || 0), 0);
     } else if (dayClosed || cycleComplete){
       const record = await BogonkoState.getPayoutRecord(cycle.number, cycle.currentDay);
       if (record){
@@ -773,11 +776,12 @@
     const outstanding = Math.max(0, expected - collected);
     const pendingCount = Math.max(0, totalMembers - paidCount);
 
-    document.getElementById('recipientName').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
-    document.getElementById('recipientPhone').textContent = '\u2014';
+    const recipientLabel = recipients.length ? recipients.map(m => m.name).join(' & ') : `Position #${cycle.currentDay}`;
+    document.getElementById('recipientName').textContent = noCycle ? '\u2014' : recipientLabel;
+    document.getElementById('recipientPhone').textContent = recipients.length ? recipients.map(m => m.phone).join(' & ') : '\u2014';
     document.getElementById('positionPill').textContent = noCycle ? '\u2014' : `POSITION #${cycle.currentDay}`;
     document.getElementById('payoutAmt').textContent = fmtKsh(expected);
-    document.getElementById('payoutAmtSub').textContent = `(${totalMembers} \u00d7 ${fmtKsh(cycle.dailyContribution || 0)})`;
+    document.getElementById('payoutAmtSub').textContent = `(${totalShares} share${totalShares===1?'':'s'} \u00d7 ${fmtKsh(cycle.dailyContribution || 0)})`;
     document.getElementById('collectedAmt').textContent = fmtKsh(collected);
     document.getElementById('paidRatio').textContent = `${paidCount} / ${totalMembers} Paid`;
     document.getElementById('outstandingAmt').textContent = fmtKsh(outstanding);
@@ -825,7 +829,7 @@
 
     setChecklistItem('checkContrib', 'checkContribVal', canPay && paidCount === totalMembers && totalMembers > 0, `${paidCount} / ${totalMembers} Paid`);
     setChecklistItem('checkAmount', 'checkAmountVal', canPay, fmtKsh(canPay ? expected : 0));
-    setChecklistItem('checkRecipient', 'checkRecipientVal', !noCycle, noCycle ? '\u2014' : `Position #${cycle.currentDay}`);
+    setChecklistItem('checkRecipient', 'checkRecipientVal', !noCycle, noCycle ? '\u2014' : recipientLabel);
 
     const finalCirc = document.getElementById('finalCheckCirc');
     const finalVal = document.getElementById('finalCheckValue');
@@ -840,8 +844,8 @@
     document.getElementById('rStatus').textContent = dayClosed ? 'Completed' : 'Pending';
 
     document.getElementById('receiptDate').textContent = noCycle ? '\u2014' : `${fmtDateLabel(dateISO)} \u00b7 Cycle ${cycle.number}, Day ${cycle.currentDay}`;
-    document.getElementById('rRecipient').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
-    document.getElementById('rPhone').textContent = '\u2014';
+    document.getElementById('rRecipient').textContent = noCycle ? '\u2014' : recipientLabel;
+    document.getElementById('rPhone').textContent = recipients.length ? recipients.map(m => m.phone).join(' & ') : '\u2014';
     document.getElementById('rPosition').textContent = noCycle ? '\u2014' : `#${cycle.currentDay}`;
     document.getElementById('rAmount').textContent = fmtKsh(expected);
     document.getElementById('rCollectedToday').textContent = fmtKsh(collected);
@@ -871,12 +875,15 @@
 
     const members = await BogonkoState.getMembers();
     const statusMap = await BogonkoState.getContributionsForDay(cycle.number, cycle.currentDay);
-    const paidCount = members.filter(m => statusMap[m.docId] === 'Paid').length;
-    const expected = members.length * (cycle.dailyContribution || 0);
-    const collected = paidCount * (cycle.dailyContribution || 0);
+    const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
+    const paidCount = paidMembers.length;
+    const totalShares = members.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m), 0);
+    const expected = totalShares * (cycle.dailyContribution || 0);
+    const collected = paidMembers.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m) * (cycle.dailyContribution || 0), 0);
+    const recipients = BogonkoState.findMembersForDay(members, cycle.currentDay);
 
     const updated = await BogonkoState.recordPayoutAndAdvance({
-      recipientLabel: `Position #${cycle.currentDay}`,
+      recipientLabel: recipients.length ? recipients.map(m => m.name).join(' & ') : `Position #${cycle.currentDay}`,
       amount: expected,
       collectedAmount: collected,
       membersPaid: paidCount

@@ -956,7 +956,9 @@
     const members = await BogonkoState.getMembers();
     const totalMembers = members.length;
     const dailyContribution = cycle.dailyContribution || 0;
-    const expectedToday = totalMembers * dailyContribution;
+    const totalShares = members.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m), 0);
+    const expectedToday = totalShares * dailyContribution;
+    const recipients = noCycle ? [] : BogonkoState.findMembersForDay(members, cycle.currentDay);
 
     let statusMap = {};
     // cycle.currentDay tracks payout *position* (only advances when a
@@ -973,14 +975,15 @@
     const paidMembers = members.filter(m => statusMap[m.docId] === 'Paid');
     const pendingMembers = noCycle || cycle.completed ? [] : members.filter(m => statusMap[m.docId] !== 'Paid');
     currentPendingMembers = pendingMembers;
-    const collectedToday = paidMembers.length * dailyContribution;
+    const collectedToday = paidMembers.reduce((sum, m) => sum + BogonkoState.memberSlotCount(m) * dailyContribution, 0);
     const outstanding = expectedToday - collectedToday;
     const pct = expectedToday ? Math.round((collectedToday / expectedToday) * 100) : 0;
+    const recipientLabel = recipients.length ? recipients.map(m => m.name).join(' & ') : `Position #${cycle.currentDay}`;
 
     document.getElementById('cycleBadge').textContent = noCycle ? 'NO CYCLE' : (cycle.completed ? 'COMPLETE' : `CYCLE ${cycle.number}`);
     document.getElementById('dayNum').textContent = cycle.currentDay || 0;
     document.getElementById('dayOf').textContent = 'OF ' + (cycle.duration || 0);
-    document.getElementById('recipientName').textContent = noCycle ? '\u2014' : `Position #${cycle.currentDay}`;
+    document.getElementById('recipientName').textContent = noCycle ? '\u2014' : recipientLabel;
     document.getElementById('payoutAmount').textContent = fmtKsh(noCycle ? 0 : expectedToday);
     document.getElementById('totalMembersVal').textContent = totalMembers;
     document.getElementById('dailyContribVal').textContent = fmtKsh(dailyContribution);
